@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>nirscope — catena di segnale</title>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #0C1211;
+    --panel: #141C1A;
+    --raised: #1B2523;
+    --line: #24322D;
+    --text: #D9E3DE;
+    --muted: #7A8A83;
+    --l1: #E0364C;
+    --l2: #35B8C6;
+    --warn: #E0A03C;
+    --ok: #56C08A;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #EDF1EF; --panel: #FFFFFF; --raised: #F5F8F6; --line: #D2DCD7;
+      --text: #0E1614; --muted: #5C6B65;
+      --l1: #C31E36; --l2: #16818E; --warn: #9A6608; --ok: #1F7A50;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #EDF1EF; --panel: #FFFFFF; --raised: #F5F8F6; --line: #D2DCD7;
+    --text: #0E1614; --muted: #5C6B65;
+    --l1: #C31E36; --l2: #16818E; --warn: #9A6608; --ok: #1F7A50;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0C1211; --panel: #141C1A; --raised: #1B2523; --line: #24322D;
+    --text: #D9E3DE; --muted: #7A8A83;
+    --l1: #E0364C; --l2: #35B8C6; --warn: #E0A03C; --ok: #56C08A;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--serif);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: clamp(26px, 4.4vw, 40px);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 10px 0 0;
+  }
+  h2 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+  .lede { max-width: 66ch; color: var(--muted); margin: 14px 0 0; font-size: 17px; }
+
+  header { padding: 56px 0 36px; border-bottom: 1px solid var(--line); }
+
+  /* ── Hero: la tesi della pagina ────────────────────────────────── */
+  .thesis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 36px 0 0;
+  }
+  @media (max-width: 720px) { .thesis { grid-template-columns: 1fr; } }
+  .frame {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .frame canvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    image-rendering: pixelated;
+    background: #000;
+    border-radius: 2px;
+  }
+  .frame .cap {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .frame .note { font-size: 14px; color: var(--muted); margin: 0; }
+
+  /* ── Pannello di controllo ─────────────────────────────────────── */
+  .console {
+    margin: 44px 0 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+  }
+  .console-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
+    gap: 20px 26px;
+    padding: 20px 18px;
+  }
+  .ctl { display: flex; flex-direction: column; gap: 6px; }
+  .ctl-top {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+  }
+  .ctl-top b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ctl input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 3px; background: var(--line);
+    border-radius: 2px; outline: none; margin: 6px 0;
+  }
+  .ctl input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--l2); cursor: pointer; border: 0;
+  }
+  .ctl input[type="range"]::-moz-range-thumb {
+    width: 15px; height: 15px; border-radius: 50%;
+    background: var(--l2); cursor: pointer; border: 0;
+  }
+  .ctl input[type="range"]:focus-visible { outline: 2px solid var(--l2); outline-offset: 4px; }
+  .ctl small { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 18px 20px; }
+  .presets button {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--raised);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 7px 12px;
+    cursor: pointer;
+  }
+  .presets button:hover { border-color: var(--l2); color: var(--l2); }
+  .presets button:focus-visible { outline: 2px solid var(--l2); outline-offset: 2px; }
+
+  /* ── Letture ───────────────────────────────────────────────────── */
+  .readouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border-top: 1px solid var(--line);
+  }
+  .ro { background: var(--panel); padding: 14px 18px; }
+  .ro .k {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .ro .v {
+    font-family: var(--mono); font-size: 21px; font-weight: 600;
+    font-variant-numeric: tabular-nums; margin-top: 3px;
+  }
+  .ro .v.bad { color: var(--warn); }
+  .ro .v.good { color: var(--ok); }
+
+  .verdict {
+    padding: 14px 18px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .verdict strong { color: var(--text); font-weight: 600; }
+
+  /* ── Catena di segnale ─────────────────────────────────────────── */
+  .chain { margin: 56px 0 0; display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; }
+  .stage {
+    background: var(--panel);
+    display: grid;
+    grid-template-columns: 46px 1fr 300px;
+    gap: 22px;
+    padding: 22px 20px;
+    align-items: start;
+  }
+  @media (max-width: 780px) { .stage { grid-template-columns: 34px 1fr; } .stage .viz { grid-column: 1 / -1; } }
+  .stage .idx {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    color: var(--l2); letter-spacing: 0.06em; padding-top: 2px;
+  }
+  .stage .body p { margin: 8px 0 0; font-size: 15px; color: var(--muted); max-width: 58ch; }
+  .stage .viz canvas {
+    width: 100%; height: auto; display: block;
+    image-rendering: pixelated; background: #000; border-radius: 2px;
+  }
+  /* I diagrammi disegnano con i token del tema, quindi il fondo deve seguire
+     il tema anche lui — su nero fisso la traccia sparisce in tema chiaro. */
+  .stage .viz canvas.diagram {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    image-rendering: auto;
+  }
+  .stage .viz .cap {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted); margin-top: 7px;
+  }
+  .swatch { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: baseline; }
+
+  footer {
+    margin: 60px 0 0; padding-top: 26px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 14.5px;
+  }
+  footer p { max-width: 68ch; }
+  code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--raised); padding: 1px 5px; border-radius: 2px;
+  }
+  .busy { opacity: 0.55; transition: opacity 120ms; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Simulatore della catena di segnale · nirscope</p>
+    <h1>Come si recupera un'immagine da un segnale che il sensore quasi non vede</h1>
+    <p class="lede">
+      Il filtro IR-cut della fotocamera blocca il 95&nbsp;% della luce a 850&nbsp;nm, e quel poco
+      che passa finisce sepolto sotto la luce ambiente. Questa pagina simula l'intera catena —
+      illuminatore, sensore, demodulazione lock-in — e la lascia rompere: alza la luce ambiente,
+      abbassa la corrente dei LED, muovi la mano, e guarda dove cede.
+    </p>
+  </header>
+
+  <div class="thesis">
+    <div class="frame">
+      <canvas id="cv-raw" width="160" height="120"></canvas>
+      <div class="cap"><span>Un singolo frame grezzo</span><span id="raw-stat">—</span></div>
+      <p class="note">Quello che il sensore consegna davvero. A occhio non c'è niente.</p>
+    </div>
+    <div class="frame">
+      <canvas id="cv-out" width="160" height="120"></canvas>
+      <div class="cap"><span>Dopo la demodulazione</span><span id="out-stat">—</span></div>
+      <p class="note">Gli stessi dati, con i vasi estratti dalle centinaia di frame accumulati.</p>
+    </div>
+  </div>
+
+  <section class="console" id="console">
+    <div class="console-head">
+      <h2>Condizioni di acquisizione</h2>
+      <p class="eyebrow" id="cfg-line">27 frame/ciclo · 60 fps</p>
+    </div>
+
+    <div class="controls" id="controls"></div>
+
+    <div class="presets">
+      <button type="button" data-preset="ideal">Condizioni ideali</button>
+      <button type="button" data-preset="realistic">Stanza buia, mano appoggiata</button>
+      <button type="button" data-preset="lights">Luci accese</button>
+      <button type="button" data-preset="shaky">Mano a mano libera</button>
+      <button type="button" data-preset="badcam">Filtro IR-cut severo</button>
+    </div>
+
+    <div class="readouts">
+      <div class="ro"><div class="k">Periodo stimato</div><div class="v" id="ro-period">—</div></div>
+      <div class="ro"><div class="k">Fase</div><div class="v" id="ro-phase">—</div></div>
+      <div class="ro"><div class="k">Cicli usati</div><div class="v" id="ro-cycles">—</div></div>
+      <div class="ro"><div class="k">SNR 660 nm</div><div class="v" id="ro-snr1">—</div></div>
+      <div class="ro"><div class="k">SNR 850 nm</div><div class="v" id="ro-snr2">—</div></div>
+    </div>
+    <div class="verdict" id="verdict">—</div>
+  </section>
+
+  <div class="chain">
+    <div class="stage">
+      <div class="idx">01</div>
+      <div class="body">
+        <h2>L'illuminatore gira libero</h2>
+        <p>
+          Niente sincronizzazione col telefono: il BLE ha jitter di millisecondi e l'otturatore
+          lavora su finestre da 16,7&nbsp;ms. Il ciclo è
+          <span class="swatch" style="background:var(--l1)"></span>&nbsp;660&nbsp;nm ×8 →
+          buio ×4 → <span class="swatch" style="background:var(--l2)"></span>&nbsp;850&nbsp;nm ×8 →
+          buio ×4, preceduto da un marker con entrambi i LED accesi.
+        </p>
+      </div>
+      <div class="viz">
+        <canvas id="cv-pattern" class="diagram" width="320" height="70"></canvas>
+        <div class="cap">Pattern emesso — 27 frame, 450 ms</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="idx">02</div>
+      <div class="body">
+        <h2>Periodo e fase si recuperano dai dati</h2>
+        <p>
+          Si guarda solo la luminosità media di ogni frame. Il marker è più luminoso di ciascun
+          LED da solo, quindi lascia una firma riconoscibile. Una ricerca cerca la coppia
+          periodo/fase che massimizza il contrasto acceso-spento — così la deriva del clock e gli
+          fps non esatti non contano.
+        </p>
+      </div>
+      <div class="viz">
+        <canvas id="cv-series" class="diagram" width="320" height="120"></canvas>
+        <div class="cap">Serie temporale · barre = finestre riconosciute</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="idx">03</div>
+      <div class="body">
+        <h2>L'ambiente si sottrae, il rumore si media</h2>
+        <p>
+          Ogni finestra illuminata meno le finestre di buio adiacenti: resta solo la luce
+          dell'illuminatore. Poi i cicli si sommano — con <em>N</em> cicli il rumore casuale cala
+          di √<em>N</em>, mentre il segnale resta. È qui che nasce quasi tutto il guadagno.
+        </p>
+      </div>
+      <div class="viz">
+        <canvas id="cv-chan" width="320" height="80"></canvas>
+        <div class="cap">660 nm · 850 nm · buio (dopo accumulo)</div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="idx">04</div>
+      <div class="body">
+        <h2>Attenuazione e struttura</h2>
+        <p>
+          Il logaritmo del rapporto col fondo locale dà l'attenuazione; il filtro di Frangi cerca
+          negli autovalori dell'Hessiano le strutture tubulari — è quel rapporto a distinguere un
+          vaso da una macchia o da un gradiente di illuminazione.
+        </p>
+      </div>
+      <div class="viz">
+        <canvas id="cv-att" width="160" height="120"></canvas>
+        <div class="cap">Attenuazione a 660 nm → vasi</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>
+      <strong>Cos'è questa pagina.</strong> Una simulazione didattica: la demodulazione e il
+      recupero cieco della fase sono gli stessi del core Rust che gira sul telefono, il filtro di
+      Frangi qui è semplificato a due scale. La scena è sintetica — nessun tessuto reale è stato
+      misurato.
+    </p>
+    <p>
+      Non è una radiografia e non può diventarlo. Nel tessuto molle la luce perde ogni
+      direzionalità dopo circa un millimetro, e da lì in poi la risoluzione degrada a circa un
+      terzo della profondità. Un dito si transillumina bene; un addome è fisicamente
+      irraggiungibile.
+    </p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const W = 160, H = 120, N_PX = W * H;
+  const PAT = { sync: 3, lit1: 8, dark1: 4, lit2: 8, dark2: 4 };
+  const PERIOD = PAT.sync + PAT.lit1 + PAT.dark1 + PAT.lit2 + PAT.dark2;
+
+  // ── Scena sintetica ────────────────────────────────────────────────
+  // Trasmissione del tessuto alle due lunghezze d'onda. I vasi assorbono
+  // molto di piu' a 660 nm che a 850: e' proprio quella differenza che il
+  // sistema a due lunghezze d'onda sfrutta.
+  const t660 = new Float32Array(N_PX);
+  const t850 = new Float32Array(N_PX);
+  (function buildScene() {
+    const vessels = [
+      { x0: 0.22, y0: -0.1, x1: 0.38, y1: 1.1, bow: 0.13, r: 3.4, a: 0.52 },
+      { x0: 0.55, y0: -0.1, x1: 0.44, y1: 1.1, bow: -0.10, r: 2.6, a: 0.44 },
+      { x0: 0.70, y0: 0.15, x1: 0.86, y1: 1.1, bow: 0.07, r: 2.0, a: 0.34 },
+      { x0: 0.30, y0: 0.42, x1: 0.78, y1: 0.30, bow: 0.09, r: 1.5, a: 0.26 },
+    ];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const u = x / W, v = y / H;
+        // Vignettatura: il tessuto e' piu' spesso al centro dell'apertura.
+        let base = 1 - 0.16 * Math.hypot(u - 0.5, v - 0.5);
+        let absorb = 0;
+        for (const s of vessels) {
+          const t = Math.min(1, Math.max(0, (v - s.y0) / (s.y1 - s.y0 || 1)));
+          const cx = s.x0 + (s.x1 - s.x0) * t + s.bow * Math.sin(Math.PI * t);
+          const cy = s.y0 + (s.y1 - s.y0) * t;
+          const d = Math.hypot((u - cx) * W, (v - cy) * H * 1.6);
+          absorb = Math.max(absorb, s.a * Math.exp(-(d * d) / (2 * s.r * s.r)));
+        }
+        const i = y * W + x;
+        t660[i] = base * (1 - absorb);
+        t850[i] = base * (1 - absorb * 0.58);
+      }
+    }
+  })();
+
+  // ── Parametri ──────────────────────────────────────────────────────
+  const PARAMS = [
+    { id: "ambient", label: "Luce ambiente", min: 0, max: 150, step: 1, val: 30, unit: " LSB",
+      help: "Si sottrae, ma il rumore fotonico che si porta dietro no: è quello a degradare l'SNR." },
+    { id: "ircut", label: "Trasmissione IR-cut", min: 1, max: 30, step: 1, val: 5, unit: " %",
+      help: "Quanto degli 850 nm supera il filtro. Le frontali sono di norma più permissive." },
+    { id: "current", label: "Corrente LED", min: 15, max: 120, step: 1, val: 80, unit: "",
+      help: "Intensità dell'illuminatore. Limitata via firmware per sicurezza oculare." },
+    { id: "motion", label: "Movimento", min: 0, max: 7, step: 0.5, val: 1.5, unit: " px/ciclo",
+      help: "Deriva del soggetto durante i 5 secondi di acquisizione." },
+    { id: "noise", label: "Rumore di lettura", min: 0, max: 8, step: 0.25, val: 2, unit: " LSB",
+      help: "Rumore del sensore per frame, prima di qualunque accumulo." },
+    { id: "seconds", label: "Durata", min: 1, max: 8, step: 0.5, val: 5, unit: " s",
+      help: "Più cicli significa più accumulo: il rumore cala come la radice del numero di cicli." },
+    { id: "align", label: "Registrazione", min: 0, max: 1, step: 1, val: 1, unit: "",
+      help: "Allinea i cicli prima di sommarli. Spegnila e guarda i vasi sfocarsi." },
+  ];
+  const P = {};
+  PARAMS.forEach(p => P[p.id] = p.val);
+
+  const PRESETS = {
+    ideal:     { ambient: 0,   ircut: 25, current: 110, motion: 0,   noise: 0.5, seconds: 6, align: 1 },
+    realistic: { ambient: 25,  ircut: 5,  current: 80,  motion: 1.5, noise: 2,   seconds: 5, align: 1 },
+    lights:    { ambient: 150, ircut: 5,  current: 80,  motion: 1.5, noise: 2.5, seconds: 5, align: 1 },
+    shaky:     { ambient: 30,  ircut: 5,  current: 80,  motion: 6,   noise: 2,   seconds: 5, align: 1 },
+    badcam:    { ambient: 30,  ircut: 1,  current: 80,  motion: 1.5, noise: 2,   seconds: 5, align: 1 },
+  };
+
+  // ── Simulazione del sensore ────────────────────────────────────────
+  let seed = 12345;
+  function rand() { // LCG: deterministico, cosi' muovere uno slider non fa
+    seed = (seed * 1664525 + 1013904223) >>> 0; // ballare l'immagine per caso
+    return seed / 4294967296;
+  }
+  function gauss() { return (rand() + rand() + rand() + rand() - 2) * 1.4; }
+
+  function simulate() {
+    seed = 12345;
+    const n = Math.round(60 * P.seconds);
+    const frames = new Uint8Array(n * N_PX);
+    const g1 = P.current;
+    const g2 = P.current * (P.ircut / 100);
+    const phase0 = 5;
+
+    for (let f = 0; f < n; f++) {
+      const slot = f < phase0 ? -1 : (f - phase0) % PERIOD;
+      let on1 = false, on2 = false;
+      if (slot >= 0) {
+        if (slot < PAT.sync) { on1 = on2 = true; }
+        else if (slot < PAT.sync + PAT.lit1) { on1 = true; }
+        else if (slot < PAT.sync + PAT.lit1 + PAT.dark1) { /* buio */ }
+        else if (slot < PAT.sync + PAT.lit1 + PAT.dark1 + PAT.lit2) { on2 = true; }
+      }
+      // Deriva lenta: la mano scivola durante l'acquisizione.
+      const cyc = f / PERIOD;
+      const dx = P.motion * Math.sin(cyc * 0.55);
+      const dy = P.motion * Math.cos(cyc * 0.41) * 0.6;
+      const base = f * N_PX;
+
+      for (let y = 0; y < H; y++) {
+        const sy = Math.min(H - 1, Math.max(0, Math.round(y + dy)));
+        for (let x = 0; x < W; x++) {
+          const sx = Math.min(W - 1, Math.max(0, Math.round(x + dx)));
+          const si = sy * W + sx;
+          let v = P.ambient;
+          if (on1) v += g1 * t660[si];
+          if (on2) v += g2 * t850[si];
+          // Rumore fotonico: cresce come la radice del numero di fotoni, quindi
+          // la luce ambiente non si limita a sommarsi. La sottrazione toglie la
+          // sua componente continua, ma il rumore che si porta dietro resta —
+          // ed e' questo il vero motivo per cui conviene spegnere le luci.
+          const sigma = Math.sqrt(P.noise * P.noise + Math.max(0, v) / 12);
+          v += gauss() * sigma;
+          frames[base + y * W + x] = v < 0 ? 0 : v > 255 ? 255 : v | 0;
+        }
+      }
+    }
+    return { frames, n };
+  }
+
+  // ── Demodulazione lock-in con recupero cieco della fase ────────────
+  function meanSeries(frames, n) {
+    const raw = new Float32Array(n);
+    for (let f = 0; f < n; f++) {
+      let s = 0;
+      const b = f * N_PX;
+      for (let i = 0; i < N_PX; i += 7) s += frames[b + i]; // sottocampionato: basta
+      raw[f] = s / Math.ceil(N_PX / 7);
+    }
+    // High-pass: toglie la deriva lenta senza toccare la modulazione.
+    const win = Math.max(5, Math.min(121, (n >> 2) | 1));
+    const half = win >> 1;
+    const out = new Float32Array(n);
+    for (let i = 0; i < n; i++) {
+      const lo = Math.max(0, i - half), hi = Math.min(n, i + half + 1);
+      let s = 0;
+      for (let j = lo; j < hi; j++) s += raw[j];
+      out[i] = raw[i] - s / (hi - lo);
+    }
+    return { raw, hp: out };
+  }
+
+  function windowIdx(period, phase, cycle, start, len, guard, n) {
+    const base = phase + period * cycle;
+    const g = len > 2 * guard ? guard : (len - 1) >> 1;
+    const out = [];
+    for (let k = g; k < len - g; k++) {
+      const idx = Math.round(base + start + k);
+      if (idx >= 0 && idx < n) out.push(idx);
+    }
+    return out;
+  }
+
+  const OFF = {
+    sync: 0,
+    l1: PAT.sync,
+    d1: PAT.sync + PAT.lit1,
+    l2: PAT.sync + PAT.lit1 + PAT.dark1,
+    d2: PAT.sync + PAT.lit1 + PAT.dark1 + PAT.lit2,
+  };
+
+  function findSync(hp, n) {
+    const scoreAt = (period, phase) => {
+      const cycles = Math.floor((n - phase) / period);
+      if (cycles < 1) return -Infinity;
+      let acc = 0, cnt = 0;
+      for (let c = 0; c < cycles; c++) {
+        const mean = (start, len) => {
+          const idx = windowIdx(period, phase, c, start, len, 1, n);
+          if (!idx.length) return null;
+          let s = 0;
+          for (const i of idx) s += hp[i];
+          return s / idx.length;
+        };
+        const sy = mean(OFF.sync, PAT.sync), l1 = mean(OFF.l1, PAT.lit1);
+        const d1 = mean(OFF.d1, PAT.dark1), l2 = mean(OFF.l2, PAT.lit2);
+        const d2 = mean(OFF.d2, PAT.dark2);
+        if (sy === null || l1 === null || l2 === null) continue;
+        const dk = d1 !== null && d2 !== null ? (d1 + d2) / 2 : (d1 ?? d2);
+        if (dk === null) continue;
+        acc += 2 * (sy - dk) + (l1 - dk) + (l2 - dk); // il marker pesa doppio
+        cnt++;
+      }
+      return cnt ? acc / cnt : -Infinity;
+    };
+
+    let best = { period: PERIOD, phase: 0, score: -Infinity };
+    for (let p = PERIOD * 0.9; p <= PERIOD * 1.1; p += 0.25) {
+      for (let ph = 0; ph < p; ph += 1) {
+        const sc = scoreAt(p, ph);
+        if (sc > best.score) best = { period: p, phase: ph, score: sc };
+      }
+    }
+    const { period: cp, phase: cph } = best;
+    for (let p = cp - 0.3; p <= cp + 0.3; p += 0.05) {
+      for (let ph = Math.max(0, cph - 1); ph <= cph + 1; ph += 0.1) {
+        const sc = scoreAt(p, ph);
+        if (sc > best.score) best = { period: p, phase: ph, score: sc };
+      }
+    }
+    return best;
+  }
+
+  function avgFrames(frames, idx) {
+    const out = new Float32Array(N_PX);
+    if (!idx.length) return out;
+    for (const f of idx) {
+      const b = f * N_PX;
+      for (let i = 0; i < N_PX; i++) out[i] += frames[b + i];
+    }
+    const k = 1 / idx.length;
+    for (let i = 0; i < N_PX; i++) out[i] *= k;
+    return out;
+  }
+
+  /** Ricerca dello shift intero che minimizza la differenza quadratica su un
+   *  ritaglio centrale. Sul telefono si usa phase correlation sub-pixel; qui
+   *  l'intero basta a mostrare cosa succede accendendo e spegnendo l'allineamento. */
+  function estimateShift(ref, mov) {
+    const R = 8, x0 = 40, x1 = W - 40, y0 = 30, y1 = H - 30;
+    let best = { dx: 0, dy: 0, err: Infinity };
+    for (let dy = -R; dy <= R; dy++) {
+      for (let dx = -R; dx <= R; dx++) {
+        let e = 0;
+        for (let y = y0; y < y1; y += 2) {
+          const sy = y + dy;
+          if (sy < 0 || sy >= H) { e = Infinity; break; }
+          for (let x = x0; x < x1; x += 2) {
+            const sx = x + dx;
+            if (sx < 0 || sx >= W) { e = Infinity; break; }
+            const d = ref[y * W + x] - mov[sy * W + sx];
+            e += d * d;
+          }
+          if (e === Infinity) break;
+        }
+        if (e < best.err) best = { dx, dy, err: e };
+      }
+    }
+    return best;
+  }
+
+  function shiftPlane(src, dx, dy) {
+    const out = new Float32Array(N_PX);
+    for (let y = 0; y < H; y++) {
+      const sy = Math.min(H - 1, Math.max(0, y + dy));
+      for (let x = 0; x < W; x++) {
+        const sx = Math.min(W - 1, Math.max(0, x + dx));
+        out[y * W + x] = src[sy * W + sx];
+      }
+    }
+    return out;
+  }
+
+  function boxBlur(src, r) {
+    const tmp = new Float32Array(N_PX), out = new Float32Array(N_PX);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let s = 0, c = 0;
+        for (let i = -r; i <= r; i++) {
+          const sx = x + i;
+          if (sx < 0 || sx >= W) continue;
+          s += src[y * W + sx]; c++;
+        }
+        tmp[y * W + x] = s / c;
+      }
+    }
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        let s = 0, c = 0;
+        for (let i = -r; i <= r; i++) {
+          const sy = y + i;
+          if (sy < 0 || sy >= H) continue;
+          s += tmp[sy * W + x]; c++;
+        }
+        out[y * W + x] = s / c;
+      }
+    }
+    return out;
+  }
+
+  /** Vesselness su due scale: gli autovalori dell'Hessiano distinguono una
+   *  cresta tubulare da una macchia o da un gradiente di illuminazione. */
+  function vesselness(att) {
+    const out = new Float32Array(N_PX);
+    for (const sigma of [1.4, 2.8]) {
+      const L = boxBlur(att, Math.max(1, Math.round(sigma)));
+      const s2 = sigma * sigma;
+      let smax = 0;
+      const lam = new Float32Array(N_PX * 2);
+      for (let y = 1; y < H - 1; y++) {
+        for (let x = 1; x < W - 1; x++) {
+          const i = y * W + x;
+          const c = L[i];
+          const xx = (L[i + 1] - 2 * c + L[i - 1]) * s2;
+          const yy = (L[i + W] - 2 * c + L[i - W]) * s2;
+          const xy = 0.25 * (L[i + W + 1] - L[i - W + 1] - L[i + W - 1] + L[i - W - 1]) * s2;
+          const tmp = Math.sqrt(Math.max(0, (xx - yy) * (xx - yy) + 4 * xy * xy));
+          let e1 = 0.5 * (xx + yy + tmp), e2 = 0.5 * (xx + yy - tmp);
+          if (Math.abs(e1) > Math.abs(e2)) { const t = e1; e1 = e2; e2 = t; }
+          lam[i * 2] = e1; lam[i * 2 + 1] = e2;
+          const s = Math.hypot(e1, e2);
+          if (s > smax) smax = s;
+        }
+      }
+      const cc = Math.max(1e-6, 0.5 * smax), tb = 2 * 0.25, tc = 2 * cc * cc;
+      for (let i = 0; i < N_PX; i++) {
+        const e1 = lam[i * 2], e2 = lam[i * 2 + 1];
+        if (e2 >= 0) continue; // creste chiare: l'autovalore dominante e' negativo
+        const rb = Math.abs(e2) < 1e-12 ? 0 : e1 / e2;
+        const s = Math.hypot(e1, e2);
+        const v = Math.exp(-rb * rb / tb) * (1 - Math.exp(-s * s / tc));
+        if (v > out[i]) out[i] = v;
+      }
+    }
+    return out;
+  }
+
+  // ── Pipeline completa ──────────────────────────────────────────────
+  function run() {
+    const { frames, n } = simulate();
+    const { raw, hp } = meanSeries(frames, n);
+    const sync = findSync(hp, n);
+    const nCycles = Math.max(0, Math.floor((n - sync.phase) / sync.period));
+
+    const lit1 = [], lit2 = [], dark = [];
+    for (let c = 0; c < nCycles; c++) {
+      const i1 = windowIdx(sync.period, sync.phase, c, OFF.l1, PAT.lit1, 1, n);
+      const i2 = windowIdx(sync.period, sync.phase, c, OFF.l2, PAT.lit2, 1, n);
+      const id = windowIdx(sync.period, sync.phase, c, OFF.d1, PAT.dark1, 1, n)
+        .concat(windowIdx(sync.period, sync.phase, c, OFF.d2, PAT.dark2, 1, n));
+      if (!i1.length || !i2.length || !id.length) continue;
+      lit1.push(avgFrames(frames, i1));
+      lit2.push(avgFrames(frames, i2));
+      dark.push(avgFrames(frames, id));
+    }
+    if (!lit1.length) return null;
+
+    // Lo shift si stima su 660 nm — il canale con più segnale — e si applica
+    // identico a tutti e tre i piani, così i canali restano coerenti fra loro.
+    const acc = [new Float32Array(N_PX), new Float32Array(N_PX), new Float32Array(N_PX)];
+    let used = 0;
+    for (let c = 0; c < lit1.length; c++) {
+      let dx = 0, dy = 0;
+      if (P.align && c > 0) { const s = estimateShift(lit1[0], lit1[c]); dx = s.dx; dy = s.dy; }
+      const planes = [lit1[c], lit2[c], dark[c]];
+      for (let k = 0; k < 3; k++) {
+        const pl = (dx || dy) ? shiftPlane(planes[k], dx, dy) : planes[k];
+        for (let i = 0; i < N_PX; i++) acc[k][i] += pl[i];
+      }
+      used++;
+    }
+    for (const a of acc) for (let i = 0; i < N_PX; i++) a[i] /= used;
+    const [m1, m2, md] = acc;
+
+    const snr = (lit) => {
+      let sig = 0, dm = 0;
+      for (let i = 0; i < N_PX; i++) { sig += lit[i] - md[i]; dm += md[i]; }
+      sig /= N_PX; dm /= N_PX;
+      let v = 0;
+      for (let i = 0; i < N_PX; i++) { const d = md[i] - dm; v += d * d; }
+      return sig / Math.max(1e-6, Math.sqrt(v / N_PX));
+    };
+
+    const sig1 = new Float32Array(N_PX);
+    for (let i = 0; i < N_PX; i++) sig1[i] = Math.max(1e-3, m1[i] - md[i]);
+    const bg = boxBlur(sig1, 14);
+    const att = new Float32Array(N_PX);
+    for (let i = 0; i < N_PX; i++) att[i] = Math.log10(Math.max(1e-3, bg[i]) / sig1[i]);
+    const vess = vesselness(att);
+
+    // Frame grezzo mostrato: uno dentro una finestra a 850 nm, il caso peggiore.
+    const rawFrameIdx = Math.min(n - 1, Math.round(sync.phase + OFF.l2 + 3));
+
+    return { frames, n, raw, hp, sync, nCycles: used, m1, m2, md, att, vess,
+             snr1: snr(m1), snr2: snr(m2), rawFrameIdx };
+  }
+
+  // ── Rendering ──────────────────────────────────────────────────────
+  function stretch(src, loP = 1, hiP = 99) {
+    const s = Float32Array.from(src.filter(v => Number.isFinite(v))).sort();
+    if (!s.length) return { lo: 0, hi: 1 };
+    const lo = s[Math.floor(s.length * loP / 100)];
+    const hi = s[Math.min(s.length - 1, Math.floor(s.length * hiP / 100))];
+    return { lo, hi: hi - lo < 1e-9 ? lo + 1e-9 : hi };
+  }
+
+  function drawGray(cv, src, loP, hiP) {
+    const ctx = cv.getContext("2d");
+    const img = ctx.createImageData(W, H);
+    const { lo, hi } = stretch(src, loP, hiP);
+    for (let i = 0; i < N_PX; i++) {
+      const g = Math.max(0, Math.min(255, ((src[i] - lo) / (hi - lo)) * 255)) | 0;
+      img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = g;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  function drawVessels(cv, att, vess) {
+    const ctx = cv.getContext("2d");
+    const img = ctx.createImageData(W, H);
+    const a = stretch(att, 1, 99), v = stretch(vess, 0, 100);
+    for (let i = 0; i < N_PX; i++) {
+      const base = Math.max(0, Math.min(255, ((att[i] - a.lo) / (a.hi - a.lo)) * 210)) | 0;
+      const hi = Math.max(0, Math.min(1, (vess[i] - v.lo) / (v.hi - v.lo)));
+      img.data[i * 4] = base;
+      img.data[i * 4 + 1] = Math.min(255, base + 190 * hi) | 0;
+      img.data[i * 4 + 2] = Math.min(255, base + 60 * hi) | 0;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  function drawRawFrame(cv, frames, idx) {
+    const ctx = cv.getContext("2d");
+    const img = ctx.createImageData(W, H);
+    const b = idx * N_PX;
+    for (let i = 0; i < N_PX; i++) {
+      const g = frames[b + i];
+      img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = g;
+      img.data[i * 4 + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  function drawPattern(cv) {
+    const ctx = cv.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = 320 * dpr; cv.height = 70 * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, 320, 70);
+    const unit = 320 / PERIOD;
+    const bands = [
+      { len: PAT.sync, both: true },
+      { len: PAT.lit1, c: css("--l1"), row: 6 },
+      { len: PAT.dark1 },
+      { len: PAT.lit2, c: css("--l2"), row: 34 },
+      { len: PAT.dark2 },
+    ];
+    let x = 0;
+    for (const b of bands) {
+      const w = b.len * unit;
+      if (b.both) {
+        ctx.fillStyle = css("--l1"); ctx.fillRect(x, 6, w, 26);
+        ctx.fillStyle = css("--l2"); ctx.fillRect(x, 34, w, 26);
+      } else if (b.c) {
+        ctx.fillStyle = b.c; ctx.fillRect(x, b.row, w, 26);
+      } else {
+        ctx.fillStyle = css("--muted"); ctx.globalAlpha = 0.35;
+        ctx.fillRect(x, 30, w, 6); ctx.globalAlpha = 1;
+      }
+      x += w;
+    }
+    ctx.fillStyle = css("--muted");
+    ctx.font = "9px " + css("--mono");
+    ctx.fillText("SYNC", 1, 68);
+    ctx.fillText("660", PAT.sync * unit + 2, 68);
+    ctx.fillText("850", OFF.l2 * unit + 2, 68);
+  }
+
+  function drawSeries(cv, raw, sync, n) {
+    const ctx = cv.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = 320 * dpr; cv.height = 120 * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, 320, 120);
+
+    const show = Math.min(n, Math.round(sync.period * 3.2));
+    const start = Math.floor(sync.phase);
+    let lo = Infinity, hi = -Infinity;
+    for (let i = start; i < start + show && i < n; i++) { lo = Math.min(lo, raw[i]); hi = Math.max(hi, raw[i]); }
+    if (hi - lo < 1e-6) hi = lo + 1;
+    const px = (i) => ((i - start) / show) * 320;
+    const py = (v) => 106 - ((v - lo) / (hi - lo)) * 92;
+
+    // Bande delle finestre riconosciute: e' il risultato del recupero di fase.
+    for (let c = 0; c < 4; c++) {
+      const win = [
+        { off: OFF.sync, len: PAT.sync, col: css("--muted"), a: 0.30 },
+        { off: OFF.l1, len: PAT.lit1, col: css("--l1"), a: 0.20 },
+        { off: OFF.l2, len: PAT.lit2, col: css("--l2"), a: 0.20 },
+      ];
+      for (const w of win) {
+        const a = px(sync.phase + c * sync.period + w.off);
+        const b = px(sync.phase + c * sync.period + w.off + w.len);
+        if (b < 0 || a > 320) continue;
+        ctx.globalAlpha = w.a; ctx.fillStyle = w.col;
+        ctx.fillRect(a, 8, b - a, 98);
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    ctx.strokeStyle = css("--text");
+    ctx.lineWidth = 1.2;
+    for (let i = start; i < start + show && i < n; i++) {
+      const x = px(i), y = py(raw[i]);
+      i === start ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawChannels(cv, m1, m2, md) {
+    const ctx = cv.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = 320 * dpr; cv.height = 80 * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, 320, 80);
+    const tile = document.createElement("canvas");
+    tile.width = W; tile.height = H;
+    const labels = ["660 nm", "850 nm", "buio"];
+    [m1, m2, md].forEach((plane, k) => {
+      drawGray(tile, plane, 1, 99);
+      ctx.drawImage(tile, k * 108, 0, 100, 62);
+      ctx.fillStyle = "#9AA8A2";
+      ctx.font = "9px " + css("--mono");
+      ctx.fillText(labels[k], k * 108 + 1, 76);
+    });
+  }
+
+  // ── Interfaccia ────────────────────────────────────────────────────
+  const controls = document.getElementById("controls");
+  PARAMS.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "ctl";
+    el.innerHTML =
+      `<div class="ctl-top"><span>${p.label}</span><b id="v-${p.id}"></b></div>` +
+      `<input type="range" id="i-${p.id}" min="${p.min}" max="${p.max}" step="${p.step}" ` +
+      `value="${p.val}" aria-label="${p.label}">` +
+      `<small>${p.help}</small>`;
+    controls.appendChild(el);
+  });
+
+  function fmt(p) {
+    if (p.id === "align") return P.align ? "attiva" : "spenta";
+    return P[p.id] + p.unit;
+  }
+  function syncLabels() {
+    PARAMS.forEach(p => {
+      document.getElementById("v-" + p.id).textContent = fmt(p);
+      document.getElementById("i-" + p.id).value = P[p.id];
+    });
+  }
+
+  let pending = false;
+  function schedule() {
+    if (pending) return;
+    pending = true;
+    document.getElementById("console").classList.add("busy");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        render();
+        pending = false;
+        document.getElementById("console").classList.remove("busy");
+      });
+    });
+  }
+
+  PARAMS.forEach(p => {
+    document.getElementById("i-" + p.id).addEventListener("input", (e) => {
+      P[p.id] = parseFloat(e.target.value);
+      document.getElementById("v-" + p.id).textContent = fmt(p);
+      schedule();
+    });
+  });
+
+  document.querySelectorAll("[data-preset]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      Object.assign(P, PRESETS[btn.dataset.preset]);
+      syncLabels();
+      schedule();
+    });
+  });
+
+  function render() {
+    const r = run();
+    const set = (id, txt, cls) => {
+      const el = document.getElementById(id);
+      el.textContent = txt;
+      el.className = "v" + (cls ? " " + cls : "");
+    };
+
+    if (!r) {
+      set("ro-period", "—"); set("ro-phase", "—"); set("ro-cycles", "0", "bad");
+      set("ro-snr1", "—"); set("ro-snr2", "—");
+      document.getElementById("verdict").innerHTML =
+        "<strong>Nessun ciclo riconosciuto.</strong> L'acquisizione è troppo breve perché " +
+        "il pattern si ripeta abbastanza volte da essere identificato.";
+      return;
+    }
+
+    drawRawFrame(document.getElementById("cv-raw"), r.frames, r.rawFrameIdx);
+    drawVessels(document.getElementById("cv-out"), r.att, r.vess);
+    drawPattern(document.getElementById("cv-pattern"));
+    drawSeries(document.getElementById("cv-series"), r.raw, r.sync, r.n);
+    drawChannels(document.getElementById("cv-chan"), r.m1, r.m2, r.md);
+    drawVessels(document.getElementById("cv-att"), r.att, r.vess);
+
+    let mn = 255, mx = 0;
+    const b = r.rawFrameIdx * N_PX;
+    for (let i = 0; i < N_PX; i++) { const v = r.frames[b + i]; if (v < mn) mn = v; if (v > mx) mx = v; }
+    document.getElementById("raw-stat").textContent = `escursione ${mx - mn} LSB`;
+    document.getElementById("out-stat").textContent = `${r.nCycles} cicli accumulati`;
+
+    set("ro-period", r.sync.period.toFixed(2));
+    set("ro-phase", r.sync.phase.toFixed(1));
+    set("ro-cycles", String(r.nCycles), r.nCycles < 4 ? "bad" : "good");
+    set("ro-snr1", r.snr1.toFixed(1), r.snr1 < 3 ? "bad" : "good");
+    set("ro-snr2", r.snr2.toFixed(1), r.snr2 < 3 ? "bad" : "good");
+    document.getElementById("cfg-line").textContent =
+      `${PERIOD} frame/ciclo · 60 fps · ${r.n} frame acquisiti`;
+
+    // Diagnosi: la stessa logica che l'app mostra all'utente dopo l'acquisizione.
+    const v = document.getElementById("verdict");
+    if (r.snr2 < 3) {
+      v.innerHTML = "<strong>Segnale a 850 nm sotto la soglia di leggibilità.</strong> " +
+        "Le mappe non vanno interpretate: quello che si vede è rumore. Prova ad alzare la " +
+        "trasmissione IR-cut (cioè a usare la fotocamera frontale), ad abbassare la luce " +
+        "ambiente o ad aumentare la corrente dei LED.";
+    } else if (r.nCycles < 4) {
+      v.innerHTML = "<strong>Troppo pochi cicli.</strong> L'accumulo non basta a far emergere " +
+        "il segnale: allunga la durata dell'acquisizione.";
+    } else if (r.snr2 < 8) {
+      v.innerHTML = "<strong>Segnale debole ma leggibile.</strong> Le strutture principali " +
+        "emergono, le più sottili no. Il margine più facile da recuperare è la luce ambiente: " +
+        "non è la componente continua a dare fastidio — quella si sottrae — ma il rumore " +
+        "fotonico che porta con sé.";
+    } else if (P.motion > 3 && !P.align) {
+      v.innerHTML = "<strong>Il soggetto si muove e la registrazione è spenta.</strong> " +
+        "I cicli si sommano disallineati, e l'accumulo sfoca proprio le strutture sottili " +
+        "che dovrebbe far emergere.";
+    } else if (P.motion > 4.5) {
+      v.innerHTML = "<strong>Movimento al limite.</strong> La registrazione recupera la deriva, " +
+        "ma oltre questo punto ogni ciclo inquadra una scena diversa e viene scartato.";
+    } else {
+      v.innerHTML = `<strong>Acquisizione valida.</strong> ${r.nCycles} cicli accumulati, ` +
+        `rumore ridotto di circa ${Math.sqrt(r.nCycles * PAT.lit1).toFixed(1)}× rispetto al ` +
+        `singolo frame.`;
+    }
+  }
+
+  syncLabels();
+  render();
+  // Il pattern e la serie usano i colori dei token: vanno ridisegnati al
+  // cambio di tema, altrimenti restano quelli del tema precedente.
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", schedule);
+  new MutationObserver(schedule).observe(document.documentElement, {
+    attributes: true, attributeFilter: ["data-theme"],
+  });
+})();
+</script>
+</body>
+</html>

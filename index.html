@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>nirscope live — schermo come illuminatore</title>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #0C1211; --panel: #141C1A; --raised: #1B2523; --line: #24322D;
+    --text: #D9E3DE; --muted: #7A8A83;
+    --l1: #E0364C;          /* rosso — 660 nm nell'hardware, primario rosso del display qui */
+    --l2: #35B8C6;          /* accento */
+    --ch-red: #E0364C;      /* canale rosso  (palette validata per CVD) */
+    --ch-blue: #5B8DEF;     /* canale blu */
+    --warn: #E0A03C; --ok: #56C08A;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #EDF1EF; --panel: #FFFFFF; --raised: #F5F8F6; --line: #D2DCD7;
+      --text: #0E1614; --muted: #5C6B65;
+      --l1: #C31E36; --l2: #16818E;
+      --ch-red: #C31E36; --ch-blue: #2C5FD0;
+      --warn: #9A6608; --ok: #1F7A50;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #EDF1EF; --panel: #FFFFFF; --raised: #F5F8F6; --line: #D2DCD7;
+    --text: #0E1614; --muted: #5C6B65;
+    --ch-red: #C31E36; --ch-blue: #2C5FD0; --l1: #C31E36; --l2: #16818E;
+    --warn: #9A6608; --ok: #1F7A50;
+  }
+  :root[data-theme="dark"] {
+    --bg: #0C1211; --panel: #141C1A; --raised: #1B2523; --line: #24322D;
+    --text: #D9E3DE; --muted: #7A8A83;
+    --ch-red: #E0364C; --ch-blue: #5B8DEF; --l1: #E0364C; --l2: #35B8C6;
+    --warn: #E0A03C; --ok: #56C08A;
+  }
+
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--serif);
+    line-height: 1.6; margin: 0; padding: 0 16px 70px;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); margin: 0;
+  }
+  h1 {
+    font-family: var(--mono); font-weight: 600;
+    font-size: clamp(23px, 5.6vw, 32px); letter-spacing: -0.02em;
+    text-wrap: balance; margin: 10px 0 0;
+  }
+  h2 { font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: 0.05em; margin: 0; }
+  header { padding: 34px 0 22px; }
+  .lede { color: var(--muted); margin: 12px 0 0; font-size: 16px; max-width: 60ch; }
+
+  /* ── Illuminatore: deve restare visibile e vicino alla fotocamera ── */
+  :root { --lamp-h: max(150px, 30vh); }
+  body.measuring { padding-top: calc(var(--lamp-h) + 14px); }
+  #lamp {
+    position: relative;
+    /* box-sizing predefinito e' content-box: senza questo i 12px di padding si
+       sommano all'altezza e la lampada sfora di 24px sotto il punto previsto. */
+    box-sizing: border-box;
+    position: static; height: 74px; z-index: 50;
+    background: #000; border-radius: 0 0 4px 4px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 12px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.28);
+  }
+  body.measuring #lamp {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--lamp-h);
+  }
+  #lamp .chip {
+    position: absolute; left: 50%; bottom: 9px; transform: translateX(-50%);
+    background: rgba(0,0,0,0.74); color: #fff;
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    letter-spacing: 0.07em; font-variant-numeric: tabular-nums;
+    padding: 7px 14px; border-radius: 3px; white-space: nowrap;
+    display: none;
+  }
+  body.measuring #lamp .chip { display: block; }
+  #lamp .hint {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #7d8b85; max-width: 34ch; line-height: 1.7;
+  }
+  #lamp.on .hint { display: none; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 3px; margin-top: 18px;
+    /* scrollIntoView allinea a filo viewport, ma la lampada fissa copre la
+       fascia alta: senza questo margine la testata della scheda finisce sotto. */
+    scroll-margin-top: calc(var(--lamp-h) + 18px);
+  }
+  .card-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  }
+  .card-body { padding: 16px; }
+  .card-body p { margin: 0 0 12px; font-size: 15px; color: var(--muted); }
+  .card-body p:last-child { margin-bottom: 0; }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.07em;
+    text-transform: uppercase; background: var(--raised); color: var(--text);
+    border: 1px solid var(--line); border-radius: 2px;
+    padding: 10px 14px; cursor: pointer; flex: 1 1 auto; min-width: 120px;
+  }
+  button:hover:not(:disabled) { border-color: var(--l2); color: var(--l2); }
+  button:focus-visible { outline: 2px solid var(--l2); outline-offset: 2px; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.primary { background: var(--l2); border-color: var(--l2); color: var(--bg); font-weight: 600; }
+  button.primary:hover:not(:disabled) { color: var(--bg); filter: brightness(1.1); }
+  button[aria-pressed="true"] { border-color: var(--l2); color: var(--l2); }
+
+  /* ── Numero eroe: il battito è il risultato, non un dato fra tanti ── */
+  .hero {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    padding: 16px; border-bottom: 1px solid var(--line);
+  }
+  .hero .n {
+    font-family: var(--mono); font-size: 54px; font-weight: 600;
+    font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.03em;
+  }
+  .hero .u { font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .hero .q { margin-left: auto; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .q.ok { color: var(--ok); } .q.bad { color: var(--warn); }
+
+  canvas.trace { display: block; width: 100%; height: auto; }
+
+  .meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 1px; background: var(--line); }
+  .m { background: var(--panel); padding: 12px 16px; }
+  .m .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+  .m .v { font-family: var(--mono); font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+
+  /* ── Confronto a due canali: barre etichettate, niente legenda ── */
+  .bars { display: flex; flex-direction: column; gap: 14px; }
+  .bar-row .lab {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px;
+  }
+  .bar-row .lab b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .track { height: 13px; background: var(--raised); border-radius: 2px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 0 4px 4px 0; transition: width 260ms; }
+
+  .status {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em;
+    padding: 12px 16px; border-top: 1px solid var(--line); color: var(--muted);
+  }
+  .status.err { color: var(--warn); }
+  .diag {
+    font-family: var(--mono); font-size: 12px; line-height: 1.85;
+    padding: 14px 16px; border-top: 1px solid var(--line);
+    background: var(--raised); overflow-x: auto;
+  }
+  .diag .k { color: var(--muted); }
+  .diag .no { color: var(--warn); font-weight: 600; }
+  .diag .yes { color: var(--ok); }
+  .diag .fix { font-family: var(--serif); font-size: 14.5px; color: var(--text); margin-top: 12px; line-height: 1.6; }
+  .diag a { color: var(--l2); }
+  video { display: none; }
+  footer { margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  footer p { max-width: 62ch; }
+  code { font-family: var(--mono); font-size: 0.87em; background: var(--raised); padding: 1px 5px; border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="lamp">
+  <div class="hint">L'illuminatore comparirà qui.<br>Porta la luminosità dello schermo al massimo.</div>
+  <div class="chip" id="lamp-chip">—</div>
+</div>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">nirscope live · schermo come illuminatore</p>
+    <h1>La stessa catena, sul tuo dito</h1>
+    <p class="lede">
+      Niente da installare e niente hardware: la fotocamera fa da sensore, lo schermo da
+      illuminatore strobato. Non è il sistema NIR — un display non emette 850&nbsp;nm — ma
+      demodulazione, recupero cieco della fase e sottrazione dell'ambiente sono gli stessi.
+    </p>
+  </header>
+
+  <section class="card">
+    <div class="card-head"><h2>Fotocamera</h2><span class="eyebrow" id="cam-info">non avviata</span></div>
+    <div class="card-body">
+      <p id="setup-copy">
+        Serve il permesso di accesso alla fotocamera. Le immagini restano sul dispositivo:
+        non c'è nessuna rete in questa pagina.
+      </p>
+      <div class="row">
+        <button type="button" id="btn-start" class="primary">Attiva fotocamera</button>
+        <button type="button" id="btn-flip" disabled>Cambia lato</button>
+        <button type="button" id="btn-torch" disabled aria-pressed="false">Flash</button>
+        <button type="button" id="btn-diag">Diagnostica</button>
+      </div>
+    </div>
+    <div class="status" id="cam-status">In attesa.</div>
+    <div class="diag" id="diag" hidden></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Battito · fotopletismografia</h2>
+      <span class="eyebrow">Dito sull'obiettivo</span>
+    </div>
+    <div class="card-body">
+      <p>
+        Appoggia il polpastrello sull'obiettivo, senza premere. Lo schermo resta rosso fisso:
+        il rosso attraversa il tessuto, e a ogni battito il volume di sangue cambia e con esso
+        la luce che passa. È lo stesso principio del saturimetro da dito.
+      </p>
+      <div class="row">
+        <button type="button" id="btn-ppg" disabled>Avvia misura</button>
+        <button type="button" id="btn-ppg-stop" disabled>Ferma</button>
+      </div>
+    </div>
+    <div class="hero">
+      <span class="n" id="bpm">—</span>
+      <span class="u">battiti / min</span>
+      <span class="q" id="bpm-q"></span>
+    </div>
+    <canvas class="trace" id="cv-ppg" width="680" height="150"></canvas>
+    <div class="meters">
+      <div class="m"><div class="k">fps rilevati</div><div class="v" id="m-fps">—</div></div>
+      <div class="m"><div class="k">Ampiezza AC</div><div class="v" id="m-ac">—</div></div>
+      <div class="m"><div class="k">Livello DC</div><div class="v" id="m-dc">—</div></div>
+      <div class="m"><div class="k">Campioni</div><div class="v" id="m-n">—</div></div>
+    </div>
+    <div class="status" id="ppg-status">Attiva prima la fotocamera.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <h2>Lock-in · rosso contro blu</h2>
+      <span class="eyebrow">9 secondi</span>
+    </div>
+    <div class="card-body">
+      <p>
+        Qui lo schermo strobizza il pattern e il software ritrova periodo e fase dai soli dati,
+        senza sapere quando è stato acceso cosa. Poi confronta quanta luce rossa e quanta blu
+        hanno attraversato il dito — la differenza è il motivo per cui la finestra ottica del
+        tessuto sta nel rosso e nel vicino infrarosso, non nel blu.
+      </p>
+      <div class="row"><button type="button" id="btn-lock" disabled>Avvia acquisizione</button></div>
+    </div>
+    <div class="card-body" style="border-top:1px solid var(--line)">
+      <div class="bars">
+        <div class="bar-row">
+          <div class="lab"><span style="color:var(--ch-red)">Rosso trasmesso</span><b id="lab-red">—</b></div>
+          <div class="track"><div class="fill" id="bar-red" style="width:0;background:var(--ch-red)"></div></div>
+        </div>
+        <div class="bar-row">
+          <div class="lab"><span style="color:var(--ch-blue)">Blu trasmesso</span><b id="lab-blue">—</b></div>
+          <div class="track"><div class="fill" id="bar-blue" style="width:0;background:var(--ch-blue)"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="meters">
+      <div class="m"><div class="k">Fase agganciata</div><div class="v" id="m-phase">—</div></div>
+      <div class="m"><div class="k">Cicli</div><div class="v" id="m-cycles">—</div></div>
+      <div class="m"><div class="k">Rapporto R/B</div><div class="v" id="m-ratio">—</div></div>
+      <div class="m"><div class="k">Ambiente respinto</div><div class="v" id="m-rej">—</div></div>
+    </div>
+    <div class="status" id="lock-status">Attiva prima la fotocamera.</div>
+  </section>
+
+  <footer>
+    <p>
+      <strong>Cosa è e cosa non è.</strong> Il battito misurato è un fotopletismogramma vero, e
+      puoi verificarlo contando il polso al collo. Non è un dispositivo medico e non stima la
+      saturazione: per farlo servirebbe una calibrazione contro un co-ossimetro su molte persone,
+      ed è esattamente quel passaggio a rendere un saturimetro un apparecchio certificato.
+    </p>
+    <p>
+      Lo schermo emette solo luce visibile, quindi qui non c'è vicino infrarosso e non c'è mappa
+      StO₂: quelle richiedono i LED a 660 e 850 nm dell'illuminatore. Quello che questa pagina
+      dimostra è la catena di recupero del segnale, su tessuto reale.
+    </p>
+  </footer>
+</div>
+
+<video id="vid" playsinline muted></video>
+
+<script>
+(() => {
+  "use strict";
+
+  const CW = 64, CH = 48, NPX = CW * CH;
+  const $ = (id) => document.getElementById(id);
+  const lamp = $("lamp"), vid = $("vid");
+
+  const grab = document.createElement("canvas");
+  grab.width = CW; grab.height = CH;
+  const gctx = grab.getContext("2d", { willReadFrequently: true });
+
+  let track = null, stream = null, facing = "user", torchOn = false;
+  let mode = "idle";            // idle | ppg | lock
+  let frameTimes = [];          // per la stima degli fps reali
+  let wakeLock = null;
+
+  // ── Illuminatore ───────────────────────────────────────────────────
+  // Pattern in millisecondi, non in frame: il browser consegna i frame a
+  // cadenza irregolare, e ragionare in tempo assoluto rende la demodulazione
+  // indifferente al frame rate effettivo.
+  const PAT = [
+    { ms: 100, css: "#FFFFFF", tag: "sync" },
+    { ms: 150, css: "#FF0000", tag: "red"  },
+    { ms: 100, css: "#000000", tag: "dark" },
+    { ms: 150, css: "#0030FF", tag: "blue" },
+    { ms: 100, css: "#000000", tag: "dark" },
+  ];
+  const PERIOD = PAT.reduce((a, p) => a + p.ms, 0);   // 600 ms
+
+  function phaseTag(tMs) {
+    let t = ((tMs % PERIOD) + PERIOD) % PERIOD;
+    for (const p of PAT) { if (t < p.ms) return p; t -= p.ms; }
+    return PAT[PAT.length - 1];
+  }
+  /** Distanza dal bordo di finestra più vicino: i frame a cavallo di una
+   *  transizione integrano due colori e vanno scartati. */
+  function edgeDistance(tMs) {
+    let t = ((tMs % PERIOD) + PERIOD) % PERIOD, best = Infinity, acc = 0;
+    for (const p of PAT) {
+      best = Math.min(best, Math.abs(t - acc), Math.abs(t - (acc + p.ms)));
+      acc += p.ms;
+    }
+    return Math.min(best, Math.abs(t - PERIOD));
+  }
+
+  let lampT0 = 0;
+  function paintLamp(now) {
+    const live = mode !== "idle";
+    document.body.classList.toggle("measuring", live);
+    lamp.classList.toggle("on", live);
+    lamp.style.background =
+      mode === "ppg" ? "#FF0000" :
+      mode === "lock" ? phaseTag(now - lampT0).css : "#000";
+  }
+
+  // ── Acquisizione ───────────────────────────────────────────────────
+  const ppg = [];               // {t, r, g, b}
+  const lockFrames = [];        // {t, r, g, b}
+  let lockStart = 0;
+
+  function sampleFrame(now) {
+    if (!track || vid.readyState < 2) return;
+    gctx.drawImage(vid, 0, 0, CW, CH);
+    let d;
+    try { d = gctx.getImageData(0, 0, CW, CH).data; } catch { return; }
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < NPX; i++) { r += d[i*4]; g += d[i*4+1]; b += d[i*4+2]; }
+    r /= NPX; g /= NPX; b /= NPX;
+
+    frameTimes.push(now);
+    if (frameTimes.length > 90) frameTimes.shift();
+
+    if (mode === "ppg") {
+      ppg.push({ t: now, r, g, b });
+      // 18 s di storia: bastano per l'autocorrelazione e tengono la RAM bassa.
+      while (ppg.length && now - ppg[0].t > 18000) ppg.shift();
+    } else if (mode === "lock") {
+      lockFrames.push({ t: now, r, g, b });
+    }
+  }
+
+  function measuredFps() {
+    if (frameTimes.length < 12) return 0;
+    const d = [];
+    for (let i = 1; i < frameTimes.length; i++) d.push(frameTimes[i] - frameTimes[i-1]);
+    d.sort((a, b) => a - b);
+    const med = d[d.length >> 1];
+    return med > 0 ? 1000 / med : 0;
+  }
+
+  // ── Elaborazione PPG ───────────────────────────────────────────────
+  /** Ricampiona su griglia uniforme: i timestamp del browser sono irregolari e
+   *  l'autocorrelazione presuppone un passo costante. */
+  function resample(samples, hz, seconds) {
+    if (samples.length < 4) return null;
+    const tEnd = samples[samples.length - 1].t;
+    const tStart = Math.max(samples[0].t, tEnd - seconds * 1000);
+    const n = Math.floor((tEnd - tStart) / 1000 * hz);
+    if (n < hz * 3) return null;
+    const out = new Float32Array(n);
+    let j = 0;
+    for (let i = 0; i < n; i++) {
+      const t = tStart + (i / hz) * 1000;
+      while (j < samples.length - 2 && samples[j + 1].t < t) j++;
+      const a = samples[j], b = samples[j + 1] || a;
+      const f = b.t > a.t ? (t - a.t) / (b.t - a.t) : 0;
+      out[i] = a.r + (b.r - a.r) * f;
+    }
+    return out;
+  }
+
+  function detrend(x, hz) {
+    const win = Math.max(3, Math.round(hz * 1.2)) | 1, half = win >> 1;
+    const out = new Float32Array(x.length);
+    for (let i = 0; i < x.length; i++) {
+      const lo = Math.max(0, i - half), hi = Math.min(x.length, i + half + 1);
+      let s = 0;
+      for (let j = lo; j < hi; j++) s += x[j];
+      out[i] = x[i] - s / (hi - lo);
+    }
+    return out;
+  }
+
+  /** Battito per autocorrelazione: più robusto del conteggio dei picchi, che su
+   *  un segnale rumoroso conta anche l'onda dicrota e raddoppia la frequenza. */
+  function estimateBpm(x, hz) {
+    const n = x.length;
+    let mean = 0;
+    for (const v of x) mean += v;
+    mean /= n;
+    let e0 = 0;
+    for (const v of x) e0 += (v - mean) * (v - mean);
+    if (e0 < 1e-9) return null;
+
+    const lagMin = Math.floor(hz * 60 / 200);   // 200 bpm
+    const lagMax = Math.ceil(hz * 60 / 40);     // 40 bpm
+    let best = { lag: 0, r: -1 };
+    for (let lag = lagMin; lag <= Math.min(lagMax, n - 1); lag++) {
+      let s = 0;
+      for (let i = 0; i + lag < n; i++) s += (x[i] - mean) * (x[i + lag] - mean);
+      const r = s / e0;
+      if (r > best.r) best = { lag, r };
+    }
+    if (best.lag === 0) return null;
+    // Raffinamento sub-campione: senza, la risoluzione a 100 bpm è di ~7 bpm.
+    const y = (l) => {
+      let s = 0;
+      for (let i = 0; i + l < n; i++) s += (x[i] - mean) * (x[i + l] - mean);
+      return s / e0;
+    };
+    const a = y(best.lag - 1), b = best.r, c = y(best.lag + 1);
+    const den = a - 2 * b + c;
+    const shift = Math.abs(den) < 1e-9 ? 0 : 0.5 * (a - c) / den;
+    return { bpm: 60 * hz / (best.lag + shift), conf: best.r };
+  }
+
+  function drawTrace(x) {
+    const cv = $("cv-ppg"), ctx = cv.getContext("2d");
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = cv.clientWidth || 680, h = 150;
+    cv.width = w * dpr; cv.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+    // Linea di base recessiva: riferimento, non decorazione.
+    ctx.strokeStyle = css("--line"); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
+
+    if (!x || x.length < 4) {
+      ctx.fillStyle = css("--muted");
+      ctx.font = "12px " + css("--mono");
+      ctx.fillText("in attesa di segnale…", 12, h / 2 - 10);
+      return;
+    }
+    let lo = Infinity, hi = -Infinity;
+    for (const v of x) { if (v < lo) lo = v; if (v > hi) hi = v; }
+    const span = hi - lo < 1e-6 ? 1 : hi - lo;
+
+    ctx.strokeStyle = css("--ch-red"); ctx.lineWidth = 2;
+    ctx.lineJoin = "round"; ctx.beginPath();
+    for (let i = 0; i < x.length; i++) {
+      const px = (i / (x.length - 1)) * w;
+      const py = h - 14 - ((x[i] - lo) / span) * (h - 28);
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.stroke();
+
+    // Estremo enfatizzato: dice a colpo d'occhio dov'è "adesso".
+    const lastY = h - 14 - ((x[x.length - 1] - lo) / span) * (h - 28);
+    ctx.fillStyle = css("--ch-red");
+    ctx.beginPath(); ctx.arc(w - 3, lastY, 3.5, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function updatePpg() {
+    const hz = 25;
+    const raw = resample(ppg, hz, 12);
+    if (!raw) { drawTrace(null); return; }
+    const x = detrend(raw, hz);
+    drawTrace(x.subarray(Math.max(0, x.length - hz * 8)));
+
+    let dc = 0;
+    for (const s of ppg) dc += s.r;
+    dc /= ppg.length;
+    let ac = 0;
+    for (const v of x) ac = Math.max(ac, Math.abs(v));
+
+    $("m-fps").textContent = measuredFps().toFixed(0);
+    $("m-ac").textContent = ac.toFixed(2);
+    $("m-dc").textContent = dc.toFixed(0);
+    $("m-n").textContent = String(ppg.length);
+
+    const est = estimateBpm(x, hz);
+    const q = $("bpm-q");
+    if (est && est.conf > 0.35 && ac > 0.15) {
+      $("bpm").textContent = est.bpm.toFixed(0);
+      $("lamp-chip").textContent = est.bpm.toFixed(0) + " bpm · " + (est.conf * 100).toFixed(0) + "%";
+      q.textContent = "aggancio " + (est.conf * 100).toFixed(0) + "%";
+      q.className = "q ok";
+      $("ppg-status").textContent = "Segnale agganciato. Conta il polso al collo per verificare.";
+      $("ppg-status").className = "status";
+    } else {
+      $("bpm").textContent = "—";
+      $("lamp-chip").textContent = ppg.length > 60 ? "segnale debole" : "raccolta…";
+      q.textContent = ppg.length > 60 ? "segnale debole" : "raccolta…";
+      q.className = "q bad";
+      if (ppg.length > 120) {
+        $("ppg-status").textContent = dc < 12
+          ? "Troppo buio: il dito copre anche la luce. Spostalo per far entrare lo schermo, o accendi il flash."
+          : dc > 240
+          ? "Sensore saturo: allontana un poco il dito o abbassa la luminosità."
+          : "Segnale debole. Tieni il dito fermo e appoggiato senza premere: premendo si occlude il circolo.";
+        $("ppg-status").className = "status err";
+      }
+    }
+  }
+
+  // ── Elaborazione lock-in ───────────────────────────────────────────
+  /** Periodo noto (è il nostro timer), fase incognita: fra la pittura sullo
+   *  schermo e l'esposizione del sensore passano decine di millisecondi di
+   *  latenza, diverse su ogni dispositivo. Si cerca solo lo sfasamento. */
+  function demodulate(frames) {
+    if (frames.length < 40) return null;
+    const t0 = frames[0].t;
+    const GUARD = 34;   // ms: un frame a 30 fps
+
+    // Accumula per finestra E per canale. Sottrarre il buio mediato sui tre
+    // canali sarebbe sbagliato: si legge il canale rosso nella finestra rossa e
+    // il blu nella blu, quindi il buio va sottratto **nello stesso canale**,
+    // altrimenti resta dentro la componente continua del colore della scena e
+    // il confronto misura in parte quello, non la trasmissione.
+    const collect = (phi) => {
+      const acc = {};
+      for (const tag of ["sync", "red", "blue", "dark"]) acc[tag] = { r: 0, g: 0, b: 0, n: 0 };
+      for (const f of frames) {
+        const tt = f.t - t0 - phi;
+        if (edgeDistance(tt) < GUARD) continue;
+        const a = acc[phaseTag(tt).tag];
+        a.r += f.r; a.g += f.g; a.b += f.b; a.n++;
+      }
+      for (const tag in acc) {
+        const a = acc[tag];
+        if (a.n) { a.r /= a.n; a.g /= a.n; a.b /= a.n; }
+      }
+      return acc;
+    };
+
+    const score = (phi) => {
+      const a = collect(phi);
+      if (!a.sync.n || !a.red.n || !a.blue.n || !a.dark.n) return -Infinity;
+      // Modulazione effettiva, canale per canale.
+      return 2 * ((a.sync.r - a.dark.r) + (a.sync.b - a.dark.b))
+           + (a.red.r - a.dark.r) + (a.blue.b - a.dark.b);
+    };
+
+    let best = { phi: 0, s: -Infinity };
+    for (let phi = 0; phi < PERIOD; phi += 5) {
+      const v = score(phi);
+      if (v > best.s) best = { phi, s: v };
+    }
+    for (let d = -6; d <= 6; d++) {
+      const phi = ((best.phi + d) % PERIOD + PERIOD) % PERIOD;
+      const v = score(phi);
+      if (v > best.s) best = { phi, s: v };
+    }
+
+    const a = collect(best.phi);
+    // Rumore residuo nelle finestre di buio: quello che la sottrazione non toglie.
+    const darkR = [];
+    for (const f of frames) {
+      const tt = f.t - t0 - best.phi;
+      if (edgeDistance(tt) < GUARD) continue;
+      if (phaseTag(tt).tag === "dark") darkR.push(f.r);
+    }
+    const m = darkR.reduce((x, y) => x + y, 0) / Math.max(1, darkR.length);
+    const residual = darkR.length > 1
+      ? Math.sqrt(darkR.reduce((s2, v) => s2 + (v - m) * (v - m), 0) / darkR.length) : 0;
+
+    return {
+      phi: best.phi,
+      cycles: Math.floor((frames[frames.length - 1].t - t0) / PERIOD),
+      red: a.red.r - a.dark.r,
+      blue: a.blue.b - a.dark.b,
+      ambient: a.dark.r,
+      residual,
+      frames: frames.length,
+    };
+  }
+
+  function showLock(r) {
+    if (!r) {
+      $("lock-status").textContent = "Frame insufficienti: riprova tenendo la pagina in primo piano.";
+      $("lock-status").className = "status err";
+      return;
+    }
+    const red = Math.max(0, r.red), blue = Math.max(0, r.blue);
+    const max = Math.max(red, blue, 1);
+    $("bar-red").style.width = (red / max * 100) + "%";
+    $("bar-blue").style.width = (blue / max * 100) + "%";
+    $("lab-red").textContent = red.toFixed(1);
+    $("lab-blue").textContent = blue.toFixed(1);
+    $("m-phase").textContent = r.phi.toFixed(0) + " ms";
+    $("m-cycles").textContent = String(r.cycles);
+    const modulated = red > 1.5 || blue > 1.5;
+    const ratio = blue > 0.4 ? (red / blue) : null;
+    $("m-ratio").textContent = !modulated ? "—" : ratio ? ratio.toFixed(1) + "×" : "> 20×";
+    // Quanto della luce ambiente la sottrazione ha tolto: livello DC del buio
+    // diviso il rumore che resta dopo averlo sottratto.
+    $("m-rej").textContent =
+      modulated && r.residual > 0.01 ? (r.ambient / r.residual).toFixed(0) + "×" : "—";
+
+    const s = $("lock-status");
+    if (!modulated) {
+      s.textContent = "Nessuna modulazione rilevata. Lo schermo deve illuminare il dito: " +
+        "prova a spostarlo verso il bordo dell'obiettivo, e porta la luminosità al massimo.";
+      s.className = "status err";
+    } else if (ratio && ratio > 2) {
+      s.textContent = `Il rosso passa ${ratio.toFixed(1)} volte più del blu attraverso lo stesso tessuto. ` +
+        `Fase agganciata a ${r.phi.toFixed(0)} ms di latenza schermo-sensore.`;
+      s.className = "status";
+    } else {
+      s.textContent = "Modulazione rilevata ma il contrasto fra i canali è basso: probabilmente " +
+        "il sensore vede lo schermo direttamente invece che attraverso il dito.";
+      s.className = "status err";
+    }
+  }
+
+  // ── Ciclo principale ───────────────────────────────────────────────
+  let lastUi = 0;
+  function loop(now, token) {
+    if (token !== loopToken) return;
+    paintLamp(now);
+    sampleFrame(now);
+
+    if (mode === "ppg" && now - lastUi > 350) { lastUi = now; updatePpg(); }
+    if (mode === "lock") {
+      const el = now - lockStart;
+      if (el >= 9000) {
+        mode = "idle";
+        $("btn-lock").disabled = false;
+        $("btn-lock").textContent = "Ripeti acquisizione";
+        showLock(demodulate(lockFrames));
+        releaseWake();
+      } else {
+        const left = (9 - el / 1000).toFixed(1);
+        $("lamp-chip").textContent = `acquisizione ${left} s`;
+        $("lock-status").textContent =
+          `Acquisizione… ${left} s · ${lockFrames.length} frame`;
+        $("lock-status").className = "status";
+      }
+    }
+    schedule(token);
+  }
+
+  // requestVideoFrameCallback consegna un callback per frame *reale* del video;
+  // rAF ne consegnerebbe a 60 Hz anche quando la camera ne produce 30, e la
+  // stima degli fps risulterebbe falsa.
+  // Un solo ciclo alla volta: senza il token, la catena rAF iniziale e quella
+  // rVFC avviata dalla fotocamera girano in parallelo, ogni frame viene
+  // campionato due volte e gli fps misurati risultano il doppio del vero.
+  let loopToken = 0;
+  function schedule(token) {
+    if (token !== loopToken) return;
+    if (vid.requestVideoFrameCallback && track) vid.requestVideoFrameCallback((n) => loop(n, token));
+    else requestAnimationFrame((n) => loop(n, token));
+  }
+
+  async function requestWake() {
+    try { wakeLock = await navigator.wakeLock?.request("screen"); } catch {}
+  }
+  function releaseWake() { try { wakeLock?.release(); wakeLock = null; } catch {} }
+
+  // ── Fotocamera ─────────────────────────────────────────────────────
+  async function startCamera() {
+    const st = $("cam-status");
+    if (!navigator.mediaDevices?.getUserMedia) {
+      st.textContent = "Questo browser non espone la fotocamera alle pagine web.";
+      st.className = "status err"; return;
+    }
+    try {
+      stream?.getTracks().forEach(t => t.stop());
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: facing }, width: { ideal: 640 }, height: { ideal: 480 },
+                 frameRate: { ideal: 60 } },
+        audio: false,
+      });
+      vid.srcObject = stream;
+      await vid.play();
+      track = stream.getVideoTracks()[0];
+
+      // L'esposizione automatica insegue la modulazione e la annulla: è
+      // esattamente il segnale che vogliamo estrarre. Dove il browser lo
+      // consente, si blocca.
+      try {
+        await track.applyConstraints({ advanced: [{ exposureMode: "manual" }, { whiteBalanceMode: "manual" }] });
+      } catch {}
+
+      const caps = track.getCapabilities?.() || {};
+      $("btn-torch").disabled = !caps.torch;
+      $("btn-flip").disabled = false;
+      ["btn-ppg", "btn-lock"].forEach(id => $(id).disabled = false);
+
+      const s = track.getSettings?.() || {};
+      $("cam-info").textContent = `${s.width || "?"}×${s.height || "?"} · ${facing === "user" ? "frontale" : "posteriore"}`;
+      st.textContent = caps.torch
+        ? "Pronta. Il flash è disponibile: con la fotocamera posteriore dà molto più segnale."
+        : "Pronta. Porta la luminosità dello schermo al massimo.";
+      st.className = "status";
+      $("btn-start").textContent = "Riavvia fotocamera";
+      frameTimes = [];
+      schedule(++loopToken);
+    } catch (e) {
+      st.className = "status err";
+      st.textContent = e.name === "NotAllowedError"
+        ? "Permesso negato. Se la pagina è dentro un riquadro, aprila in una scheda del browser e riprova."
+        : e.name === "NotFoundError"
+        ? "Nessuna fotocamera trovata su questo dispositivo."
+        : "Avvio fallito: " + e.message;
+      diagnose();
+    }
+  }
+
+  /** Perche' la fotocamera non parte. La causa piu' frequente non e' un
+   *  permesso negato: e' che la pagina gira dentro un riquadro la cui
+   *  permissions policy non elenca "camera". In quel caso getUserMedia viene
+   *  respinto prima ancora che il browser chieda qualcosa, e non c'e' niente
+   *  da cliccare. */
+  async function diagnose() {
+    const framed = window.self !== window.top;
+    let policy = null;
+    try { policy = document.featurePolicy?.allowsFeature?.("camera") ?? null; } catch {}
+    let perm = "non interrogabile";
+    try { perm = (await navigator.permissions.query({ name: "camera" })).state; } catch {}
+    let cams = -1;
+    try { cams = (await navigator.mediaDevices.enumerateDevices())
+      .filter(d => d.kind === "videoinput").length; } catch {}
+
+    const yn = (ok, txt) => `<span class="${ok ? "yes" : "no"}">${txt}</span>`;
+    const rows = [
+      ["Contesto",            yn(window.isSecureContext, window.isSecureContext ? "sicuro" : "NON sicuro — serve https o localhost")],
+      ["Riquadro",            framed ? yn(false, "sì, la pagina è incorniciata") : yn(true, "no, livello principale")],
+      ["Policy camera",       policy === null ? "<span class='k'>non rilevabile</span>" : yn(policy, policy ? "consentita" : "BLOCCATA dal contenitore")],
+      ["API getUserMedia",    yn(!!navigator.mediaDevices?.getUserMedia, navigator.mediaDevices?.getUserMedia ? "presente" : "assente")],
+      ["Permesso",            perm === "denied" ? yn(false, perm) : `<span class="k">${perm}</span>`],
+      ["Fotocamere viste",    cams < 0 ? "<span class='k'>non elencabili</span>" : (cams > 0 ? yn(true, cams) : yn(false, "0"))],
+    ];
+
+    let fix;
+    if (policy === false || (framed && cams === 0)) {
+      fix = "Il contenitore in cui gira questa pagina non concede l'accesso alla " +
+            "fotocamera, quindi il browser non arriva nemmeno a chiedertelo. " +
+            "Scarica il file della pagina e servilo da <code>localhost</code>, che il " +
+            "browser considera un contesto sicuro:<br><br>" +
+            "<code>python3 -m http.server 8000</code><br>" +
+            "poi apri <code>http://localhost:8000/nirscope-live.html</code>";
+    } else if (perm === "denied") {
+      fix = "Il permesso è stato negato per questo sito. Riattivalo dall'icona della " +
+            "fotocamera nella barra degli indirizzi, poi ricarica la pagina.";
+    } else if (!window.isSecureContext) {
+      fix = "Le pagine servite su http semplice non possono usare la fotocamera. " +
+            "Serve https, oppure <code>localhost</code>.";
+    } else if (cams === 0) {
+      fix = "Nessuna fotocamera rilevata dal browser. Se ne hai una, potrebbe essere " +
+            "occupata da un'altra applicazione.";
+    } else {
+      fix = "Non risulta nulla di bloccato: prova a premere «Attiva fotocamera».";
+    }
+
+    const el = $("diag");
+    el.hidden = false;
+    el.innerHTML = rows.map(([k, v]) =>
+      `<div><span class="k">${k.padEnd(18, " ").replace(/ /g, "&nbsp;")}</span>${v}</div>`).join("")
+      + `<div class="fix">${fix}</div>`;
+  }
+
+  $("btn-diag").addEventListener("click", diagnose);
+  $("btn-start").addEventListener("click", startCamera);
+  $("btn-flip").addEventListener("click", () => {
+    facing = facing === "user" ? "environment" : "user";
+    torchOn = false; $("btn-torch").setAttribute("aria-pressed", "false");
+    startCamera();
+  });
+  $("btn-torch").addEventListener("click", async () => {
+    if (!track) return;
+    torchOn = !torchOn;
+    try {
+      await track.applyConstraints({ advanced: [{ torch: torchOn }] });
+      $("btn-torch").setAttribute("aria-pressed", String(torchOn));
+    } catch {
+      $("cam-status").textContent = "Questo dispositivo non lascia controllare il flash da web.";
+      $("cam-status").className = "status err";
+    }
+  });
+
+  $("btn-ppg").addEventListener("click", () => {
+    ppg.length = 0; mode = "ppg"; frameTimes = [];
+    $("btn-ppg").disabled = true; $("btn-ppg-stop").disabled = false;
+    $("ppg-status").textContent = "Appoggia il dito e resta fermo per una decina di secondi.";
+    $("ppg-status").className = "status";
+    requestWake();
+    setTimeout(() => $("bpm").closest(".card").scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+  });
+  $("btn-ppg-stop").addEventListener("click", () => {
+    mode = "idle";
+    $("btn-ppg").disabled = false; $("btn-ppg-stop").disabled = true;
+    releaseWake();
+  });
+  $("btn-lock").addEventListener("click", () => {
+    lockFrames.length = 0; lockStart = performance.now(); lampT0 = lockStart;
+    mode = "lock"; frameTimes = [];
+    $("btn-lock").disabled = true;
+    $("btn-ppg").disabled = true; $("btn-ppg-stop").disabled = true;
+    requestWake();
+    setTimeout(() => $("btn-lock").closest(".card").scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+    setTimeout(() => { $("btn-ppg").disabled = !track; }, 9200);
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    // In background il browser congela i timer: i frame arriverebbero con
+    // timestamp incoerenti e la fase perderebbe l'aggancio senza dirlo.
+    if (document.hidden && mode !== "idle") {
+      mode = "idle"; releaseWake();
+      $("btn-ppg").disabled = !track; $("btn-ppg-stop").disabled = true;
+      $("btn-lock").disabled = !track;
+      $("cam-status").textContent = "Misura interrotta: la pagina è passata in secondo piano.";
+      $("cam-status").className = "status err";
+    }
+  });
+  window.addEventListener("resize", () => { if (mode === "ppg") updatePpg(); });
+
+  drawTrace(null);
+  schedule(loopToken);
+})();
+</script>
+</body>
+</html>
