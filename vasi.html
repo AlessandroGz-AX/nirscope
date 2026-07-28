@@ -102,6 +102,14 @@
     width: 16px; height: 16px; border-radius: 50%; background: var(--l2); border: 0;
   }
 
+  .meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
+            gap: 1px; background: var(--line); border-top: 1px solid var(--line); }
+  .m { background: var(--panel); padding: 11px 16px; }
+  .m .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.13em;
+          text-transform: uppercase; color: var(--muted); }
+  .m .v { font-family: var(--mono); font-size: 17px; font-weight: 600;
+          font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .m .v.bad { color: var(--warn); } .m .v.good { color: var(--ok); }
   .status { font-family: var(--mono); font-size: 12px; padding: 11px 16px;
             border-top: 1px solid var(--line); color: var(--muted); }
   .status.err { color: var(--warn); }
@@ -187,6 +195,12 @@
                aria-label="Contrasto">
       </div>
     </div>
+    <div class="meters">
+      <div class="m"><div class="k">Tessuto in campo</div><div class="v" id="q-area">—</div></div>
+      <div class="m"><div class="k">Livello medio</div><div class="v" id="q-mean">—</div></div>
+      <div class="m"><div class="k">Saturato</div><div class="v" id="q-sat">—</div></div>
+      <div class="m"><div class="k">Struttura / rumore</div><div class="v" id="q-contrast">—</div></div>
+    </div>
     <div class="status" id="status">Attiva la fotocamera per cominciare.</div>
   </section>
 
@@ -229,6 +243,10 @@
   let mode = "att", running = false, loopToken = 0;
 
   const P = { bg: 22, scale: 2.5, gain: 1.0 };
+  // Soglie misurate sul banco sintetico, non indovinate:
+  //   struttura/rumore   tessuto piatto 2,0x   |   con vasi 8,5x   -> 4,0
+  //   saturazione        acquisizione buona 0% |   bruciata  20%   -> 8%
+  let SOGLIA_STRUTTURA = 4.0, SOGLIA_SATURO = 8;
 
   // Buffer riusati: allocarli per frame farebbe partire il garbage collector
   // in mezzo all'elaborazione e la resa scenderebbe a scatti.
@@ -236,7 +254,9 @@
   const tmp = new Float32Array(N), att = new Float32Array(N);
   const blur1 = new Float32Array(N), vess = new Float32Array(N);
   const acc = new Float32Array(N);
-  let accCount = 0, stacking = 0, frozen = null;
+  const mask = new Uint8Array(N);
+  const roiBuf = new Float32Array(N);
+  let accCount = 0, stacking = 0, frozen = null, quality = null;
 
   /** Box blur a somma scorrevole: costo indipendente dal raggio. Un blur
    *  gaussiano vero costerebbe O(r) per pixel e a raggio 45 non terrebbe il
@@ -313,13 +333,45 @@
   /** Stretch su percentili invece che su min/max: un solo pixel bruciato — un
    *  riflesso speculare, un pixel difettoso — schiaccerebbe tutto il resto. */
   const sortBuf = new Float32Array(N);
+
+  /** Percentili calcolati **solo dentro la maschera**. Includere lo sfondo nero
+   *  attorno al dito era il difetto peggiore: il salto fra tessuto illuminato e
+   *  buio e' enorme, si prendeva tutto il contrasto, e l'interno del tessuto —
+   *  dove stanno i vasi — restava schiacciato in una fascia piatta. */
   function percentiles(a, lo, hi) {
-    sortBuf.set(a);
-    const s = sortBuf.sort();
-    return [s[(N * lo) | 0], s[Math.min(N - 1, (N * hi) | 0)]];
+    let n = 0;
+    for (let i = 0; i < N; i++) if (mask[i]) roiBuf[n++] = a[i];
+    if (n < 200) return [0, 1];
+    const s = roiBuf.subarray(0, n).slice().sort();
+    return [s[(n * lo) | 0], s[Math.min(n - 1, (n * hi) | 0)]];
+  }
+
+  /** Il tessuto transilluminato e' la parte luminosa dell'inquadratura; tutto il
+   *  resto e' aria o superficie non attraversata, e va escluso. Soglia relativa
+   *  al livello alto della scena, non assoluta: cambia con torcia e distanza. */
+  function buildMask(gray) {
+    sortBuf.set(gray);
+    const s = sortBuf.slice().sort();
+    const hi = s[(N * 0.98) | 0];
+    const thr = Math.max(14, hi * 0.30);
+    let count = 0, sat = 0, dark = 0, sum = 0;
+    for (let i = 0; i < N; i++) {
+      const v = gray[i];
+      const inside = v >= thr;
+      mask[i] = inside ? 1 : 0;
+      if (inside) { count++; sum += v; if (v >= 250) sat++; }
+      if (v <= 8) dark++;
+    }
+    quality = {
+      area: count / N,
+      mean: count ? sum / count : 0,
+      satPct: count ? (100 * sat) / count : 0,
+      darkPct: (100 * dark) / N,
+    };
   }
 
   function process(gray) {
+    buildMask(gray);
     const r = Math.round(P.bg);
     boxBlur(gray, bgBuf, r);
     // Attenuazione rispetto al fondo locale: in transilluminazione non esiste
@@ -332,6 +384,64 @@
     vesselness(att, vess, P.scale);
   }
 
+  /** Sigma del rumore stimata dalle differenze fra pixel adiacenti: robusta
+   *  perche' una struttura vera varia poco su un pixel, il rumore no. */
+  function noiseSigma(a) {
+    const d = [];
+    for (let y = 1; y < H - 1; y += 2) {
+      for (let x = 1; x < W - 2; x += 2) {
+        const i = y * W + x;
+        if (mask[i] && mask[i + 1]) d.push(Math.abs(a[i] - a[i + 1]));
+      }
+    }
+    if (d.length < 100) return 1;
+    d.sort((p, q) => p - q);
+    return d[d.length >> 1] / (0.6745 * Math.SQRT2);
+  }
+
+  function reportQuality() {
+    if (!quality) return;
+    const set = (id, txt, cls) => {
+      const el = $(id); el.textContent = txt; el.className = "v" + (cls ? " " + cls : "");
+    };
+    // Escursione dell'attenuazione **alla scala dei vasi**, divisa per il rumore
+    // fra pixel adiacenti. Il solo dislivello non basta: su tessuto piatto e'
+    // quasi tutto rumore, e una soglia su quello direbbe "ok" davanti al nulla.
+    boxBlur(att, blur1, Math.max(1, Math.round(P.scale)));
+    const [lo, hi] = percentiles(blur1, 0.02, 0.98);
+    const contrast = (hi - lo) / Math.max(1e-9, noiseSigma(att));
+
+    set("q-area", (quality.area * 100).toFixed(0) + "%", quality.area < 0.12 ? "bad" : "good");
+    set("q-mean", quality.mean.toFixed(0), quality.mean < 25 || quality.mean > 245 ? "bad" : "good");
+    set("q-sat", quality.satPct.toFixed(0) + "%", quality.satPct > SOGLIA_SATURO ? "bad" : "good");
+    set("q-contrast", contrast.toFixed(1) + "×", contrast < SOGLIA_STRUTTURA ? "bad" : "good");
+
+    const st = $("status");
+    if (quality.area < 0.12) {
+      st.textContent = "Quasi nulla di illuminato in campo. La torcia deve essere PREMUTA "
+        + "contro la pelle dal lato opposto alla fotocamera, non puntata da lontano.";
+      st.className = "status err";
+    } else if (quality.mean > 250 || quality.satPct > SOGLIA_SATURO) {
+      st.textContent = "Immagine saturata: i pixel sono a fondoscala e l'informazione non "
+        + "esiste piu'. Allontana la torcia di qualche millimetro, o metti un foglio di "
+        + "carta fra torcia e pelle.";
+      st.className = "status err";
+    } else if (quality.mean < 25) {
+      st.textContent = "Troppo scuro: non passa abbastanza luce. Serve una torcia piu' "
+        + "forte, oppure un tessuto piu' sottile — la plica fra pollice e indice invece "
+        + "del polpastrello.";
+      st.className = "status err";
+    } else if (contrast < SOGLIA_STRUTTURA) {
+      st.textContent = "Livelli buoni ma il tessuto e' otticamente piatto: non c'e' "
+        + "struttura registrata da tirare fuori. Prova un punto piu' vascolarizzato "
+        + "(plica fra le dita, lobo dell'orecchio) e spegni ogni altra luce.";
+      st.className = "status err";
+    } else if (!frozen) {
+      st.textContent = "Livelli buoni. Stai fermo e premi Accumula.";
+      st.className = "status good";
+    }
+  }
+
   function render(gray) {
     const img = vctx.createImageData(W, H);
     const d = img.data;
@@ -340,14 +450,14 @@
       const [lo, hi] = percentiles(gray, 0.01, 0.99);
       const sp = Math.max(1e-6, hi - lo);
       for (let i = 0; i < N; i++) {
-        const g = Math.max(0, Math.min(255, ((gray[i] - lo) / sp) * 255 * P.gain));
+        const g = mask[i] ? Math.max(0, Math.min(255, ((gray[i] - lo) / sp) * 255 * P.gain)) : 0;
         d[i*4] = d[i*4+1] = d[i*4+2] = g; d[i*4+3] = 255;
       }
     } else if (mode === "att") {
       const [lo, hi] = percentiles(att, 0.02, 0.98);
       const sp = Math.max(1e-6, hi - lo);
       for (let i = 0; i < N; i++) {
-        const g = Math.max(0, Math.min(255, ((att[i] - lo) / sp) * 255 * P.gain));
+        const g = mask[i] ? Math.max(0, Math.min(255, ((att[i] - lo) / sp) * 255 * P.gain)) : 0;
         d[i*4] = d[i*4+1] = d[i*4+2] = g; d[i*4+3] = 255;
       }
     } else {
@@ -356,9 +466,10 @@
       const [alo, ahi] = percentiles(att, 0.02, 0.98);
       const asp = Math.max(1e-6, ahi - alo);
       let vmax = 0;
-      for (let i = 0; i < N; i++) if (vess[i] > vmax) vmax = vess[i];
+      for (let i = 0; i < N; i++) if (mask[i] && vess[i] > vmax) vmax = vess[i];
       vmax = Math.max(1e-6, vmax);
       for (let i = 0; i < N; i++) {
+        if (!mask[i]) { d[i*4] = d[i*4+1] = d[i*4+2] = 0; d[i*4+3] = 255; continue; }
         const base = Math.max(0, Math.min(215, ((att[i] - alo) / asp) * 215 * P.gain));
         const v = Math.min(1, (vess[i] / vmax) * P.gain);
         d[i*4]   = base;
@@ -392,7 +503,7 @@
         if (stacking === 0) {
           frozen = new Float32Array(N);
           for (let i = 0; i < N; i++) frozen[i] = acc[i] / accCount;
-          process(frozen); render(frozen);
+          process(frozen); render(frozen); reportQuality();
           $("badge").textContent = `accumulato ×${accCount}`;
           $("status").textContent =
             `Fatto: ${accCount} fotogrammi mediati, rumore ridotto di circa ` +
@@ -403,7 +514,7 @@
           process(src); render(src);
         }
       } else if (!frozen) {
-        process(src); render(src);
+        process(src); render(src); reportQuality();
       }
     }
     requestAnimationFrame(() => tick(token));
@@ -411,7 +522,7 @@
 
   function redrawFrozen() {
     if (!frozen) return;
-    process(frozen); render(frozen);
+    process(frozen); render(frozen); reportQuality();
   }
 
   // ── Comandi ────────────────────────────────────────────────────────
