@@ -3,6 +3,11 @@
 Due pagine sull'imaging in transilluminazione con la fotocamera di un telefono.
 Nessuna dipendenza, nessuna rete: sono due file HTML autonomi.
 
+- **[vasi.html](https://alessandrogz-ax.github.io/nirscope/vasi.html)** — visore di vasi.
+  Transilluminazione: torcia da una parte del tessuto, fotocamera dall'altra. Calcola
+  l'attenuazione rispetto al fondo locale e applica il filtro di Frangi, tirando fuori i
+  vasi che stanno pochi millimetri sotto la pelle. E' questa la pagina che risponde a
+  "vedere attraverso la pelle".
 - **[index.html](https://alessandrogz-ax.github.io/nirscope/)** — strumento live.
   La fotocamera fa da sensore e lo schermo da illuminatore strobato. Misura il
   battito attraverso il polpastrello (fotopletismografia) e confronta quanta
