@@ -83,3 +83,33 @@ usando rotazioni rigide (le pose scritte a mano allungavano le ossa, e il test
 finiva per misurare quella deformazione invece del movimento articolare):
 
     node test-muscoli.mjs
+
+
+## Mesh anatomiche
+
+`anatomia.html` disegna i muscoli come percorsi fra punti di attacco: la
+cinematica e' corretta, la forma e' schematica. Per la geometria vera servono
+mesh anatomiche, e `tools/prepara-mesh.py` le prepara da **BodyParts3D**
+(Database Center for Life Science, CC-BY-SA 2.1 JP).
+
+Da eseguire una volta su un computer, non serve altro che numpy:
+
+    python3 tools/prepara-mesh.py ~/Downloads/BodyParts3D_obj.zip
+
+Dell'archivio completo — quasi un giga, circa tremila strutture — lo script
+seleziona la sessantina che serve, la riduce a un budget di triangoli e scrive
+`mesh/` con un manifesto.
+
+**Perche' un budget e non una griglia fissa.** Le mesh di BodyParts3D hanno
+densita' molto diverse fra loro: la stessa griglia toglie il 20% a una e l'80%
+a un'altra, e il peso finale sarebbe imprevedibile. Puntando al numero di
+triangoli si sa in partenza quanto pesa il risultato.
+
+La riduzione e' per raggruppamento su griglia. Non conserva gli spigoli come
+farebbe una decimazione a quadriche, ma non ha dipendenze e non fallisce sulle
+mesh con buchi e facce degeneri di cui BodyParts3D e' pieno. Misurata su una
+sfera chiusa da 120k triangoli: a 8000 triangoli lo scostamento medio della
+superficie e' l'1,1% del diametro, l'errore di volume sotto lo 0,1%.
+
+**Attribuzione.** BodyParts3D e' CC-BY-SA: l'attribuzione va mantenuta e le
+opere derivate restano share-alike.
