@@ -88,6 +88,12 @@
   .legenda { font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--muted);
              display:flex; gap:16px; flex-wrap:wrap; padding:0 16px 14px; }
   .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
+  label.carica { flex:1 1 auto; min-width:110px; text-align:center; cursor:pointer;
+                 font-family:var(--mono); font-size:12px; letter-spacing:.07em;
+                 text-transform:uppercase; color:var(--muted); padding:11px 14px;
+                 border:1px dashed var(--line); border-radius:2px; }
+  label.carica:hover { border-color:var(--l2); color:var(--l2); }
+  input[type=file] { position:absolute; width:1px; height:1px; opacity:0; }
   video#src { display:none; }
   footer { margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
            color:var(--muted); font-size:14px; }
@@ -124,6 +130,11 @@
         <button type="button" data-v="muscoli">Solo muscoli</button>
         <button type="button" data-v="ossa">Solo ossa</button>
       </div>
+      <div class="row" style="margin-top:10px">
+        <label class="carica" for="nira" id="et-nira">Carica le mesh anatomiche (.nira)</label>
+        <input type="file" id="nira" accept=".nira,application/octet-stream">
+        <button type="button" id="btn-scorda" hidden>Torna allo schema</button>
+      </div>
     </div>
     <div class="legenda">
       <span><i class="dot" style="background:var(--contrae)"></i>si accorcia — contrazione</span>
@@ -144,9 +155,19 @@
       non quanta forza stai producendo.
     </p>
     <p>
-      I muscoli sono modellati come percorsi fra punti di attacco, non come volumi: la forma e'
-      schematica. Fasce e legamenti non ci sono — non sono modellati praticamente in nessun
-      software, nemmeno clinico. Per la catena completa fino alle forze muscolari esiste
+      <strong>Con o senza le mesh.</strong> Senza, ossa e muscoli sono cilindri fra punti di
+      attacco: la misura e' la stessa, ma la forma e' uno schema. Caricando il file preparato da
+      <a href="prepara.html">prepara.html</a> prendono il posto dei cilindri le mesh vere di
+      BodyParts3D, ognuna agganciata come corpo rigido al suo segmento osseo. Orientamento, unita'
+      di misura e posizione delle articolazioni non sono scritti da nessuna parte: si ricavano
+      dalle mesh stesse, dal fatto che il cranio sta sopra il bacino e lo sterno davanti alla
+      colonna. Il file resta nella memoria del browser, cosi' non va ricaricato ogni volta.
+    </p>
+    <p>
+      Anche con le mesh, un muscolo che scavalca un'articolazione resta agganciato a un solo osso:
+      il ventre si sposta e si ingrossa, ma non si avvolge attorno al giunto. Fasce e legamenti non
+      ci sono — non sono modellati praticamente in nessun software, nemmeno clinico. Per la catena
+      completa fino alle forze muscolari esiste
       <strong>OpenCap</strong> di Stanford: due video da smartphone, modello OpenSim, gratuito e
       open source, ma non in tempo reale.
     </p>
@@ -160,6 +181,7 @@
 import * as THREE from "./vendor/three.module.js";
 import { PoseLandmarker, FilesetResolver } from "./vendor/vision_bundle.mjs";
 import { MUSCOLI, OSSA, REGIONI, frameCorpo, tracciaMuscolo, deformazione } from "./muscoli.js";
+import { leggiNira, derivaScheletro, preparaLegami, matricePosa, SEGMENTI } from "./anatomia-mesh.js";
 
 const $ = (id) => document.getElementById(id);
 const cv = $("scena"), video = $("src");
@@ -216,6 +238,87 @@ const tmpCol = new THREE.Color();
 
 let vistaMuscoli = true, vistaOssa = true;
 
+// ── Mesh anatomiche ────────────────────────────────────────────────
+// Quando ci sono, prendono il posto dei cilindri. Ogni struttura e' un corpo
+// rigido agganciato a un segmento fra due landmark: la matrice si ricalcola a
+// ogni fotogramma e la geometria non si tocca mai.
+const gruppoMesh = new THREE.Group(); gruppoMesh.visible = false; scene.add(gruppoMesh);
+let legami = null;                       // strutture pronte, con ancore e terne
+const perStruttura = new Map();          // nome → { mesh, mat, muscolo }
+
+// A quale muscolo del modello cinematico corrisponde ogni mesh, per il colore.
+// Alcuni ventri non hanno un corrispondente e restano neutri: il dentato non e'
+// modellato, e vasti e soleo condividono la misura del loro sinergico
+// biarticolare perche' da soli non li distinguiamo.
+const COLORE_DA = {
+  bicipite: ["Bicipite brachiale"], tricipite: ["Tricipite brachiale"],
+  deltoide: ["Deltoide"], brachioradiale: ["Flessori avambraccio"],
+  pettorale: ["Gran pettorale"], trapezio: ["Trapezio"], obliquo: ["Obliquo"],
+  gluteo: ["Grande gluteo"], adduttore: ["Adduttori"],
+  retto_femorale: ["Retto femorale"], vasto: ["Retto femorale"],
+  bicipite_fem: ["Ischiocrurali"], semitendinoso: ["Ischiocrurali"],
+  gastrocnemio: ["Gastrocnemio"], soleo: ["Gastrocnemio"],
+  tibiale_ant: ["Tibiale anteriore"],
+};
+function indiceMuscolo(nome) {
+  const lato = nome.endsWith("_dx") ? "Dx" : nome.endsWith("_sx") ? "Sx" : null;
+  const base = lato ? nome.slice(0, -3) : nome;
+  const cerca = COLORE_DA[base];
+  if (!cerca || !lato) return -1;
+  return MUSCOLI.findIndex(m => m.nome === cerca[0] && m.lato === lato);
+}
+
+const matOssoMesh = new THREE.MeshStandardMaterial({
+  color: 0xEDE3CB, roughness: .62, metalness: .04 });
+
+function montaMesh(strutture, sk) {
+  for (const [, v] of perStruttura) { v.mesh.geometry.dispose(); gruppoMesh.remove(v.mesh); }
+  perStruttura.clear();
+  const { pronte, fuori } = preparaLegami(strutture, sk);
+  legami = pronte;
+  for (const l of pronte) {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(l.pos.slice(), 3));
+    g.setIndex(new THREE.BufferAttribute(l.idx.slice(), 1));
+    g.computeVertexNormals();
+    const mat = l.osso ? matOssoMesh
+      : new THREE.MeshStandardMaterial({ color: COL_NEUTRO.clone(), roughness: .5, metalness: .02 });
+    const mesh = new THREE.Mesh(g, mat);
+    mesh.matrixAutoUpdate = false;      // la matrice la scriviamo noi
+    mesh.visible = false;
+    gruppoMesh.add(mesh);
+    perStruttura.set(l.nome, { mesh, mat, l, muscolo: l.osso ? -1 : indiceMuscolo(l.nome) });
+  }
+  return { pronte: pronte.length, fuori };
+}
+
+const M4 = new THREE.Matrix4();
+/** Posa tutte le mesh sulla posa corrente. `ancore` sono i punti vivi, `sk` lo
+ *  scheletro a riposo, `strain` la deformazione per muscolo. */
+function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
+  for (const [, v] of perStruttura) {
+    const seg = SEGMENTI[v.l.segmento];
+    const a1 = ancore[seg.lm[0]], b1 = ancore[seg.lm[1]];
+    const mostra = v.l.osso ? vistaOssa : vistaMuscoli;
+    if (!mostra || !a1 || !b1) { v.mesh.visible = false; continue; }
+
+    let ingrosso = 1;
+    if (v.muscolo >= 0) {
+      const e = strain[v.muscolo];
+      const k = Math.min(1, Math.abs(e) / 0.18);
+      tmpCol.copy(COL_NEUTRO).lerp(e < 0 ? COL_CONTRAE : COL_ALLUNGA, k);
+      v.mat.color.copy(tmpCol);
+      // Il ventre conserva il volume: accorciandosi si ingrossa.
+      ingrosso = e < 0 ? 1 + k * 0.28 : 1 - k * 0.12;
+    }
+    const M = matricePosa(v.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso);
+    if (!M) { v.mesh.visible = false; continue; }
+    v.mesh.visible = true;
+    v.mesh.matrix.copy(M4.fromArray(M));
+    v.mesh.matrixWorldNeedsUpdate = true;
+  }
+}
+
 // ── Orbita ─────────────────────────────────────────────────────────
 let theta = 0, phi = 0.05, trascina = false, lastX = 0, lastY = 0;
 cv.addEventListener("pointerdown", (e) => { trascina = true; lastX = e.clientX; lastY = e.clientY; cv.setPointerCapture(e.pointerId); });
@@ -229,7 +332,95 @@ cv.addEventListener("pointermove", (e) => {
 
 // ── Stato ──────────────────────────────────────────────────────────
 let landmarker = null, running = false, riposo = null, ultimiPts = null;
+let scheletro = null;
 const strainLisciato = new Float32Array(MUSCOLI.length);
+
+// ── Caricamento delle mesh ─────────────────────────────────────────
+// Il file sta sui sei mega: ripescarlo dall'app File a ogni visita sarebbe una
+// seccatura, quindi si tiene da parte. Se il deposito non e' disponibile —
+// navigazione privata, spazio esaurito — si va avanti lo stesso: e' una
+// comodita', non un requisito.
+const DEPOSITO = "nirscope-mesh", CHIAVE = "anatomia.nira";
+function apriDeposito() {
+  return new Promise((ris, no) => {
+    const r = indexedDB.open(DEPOSITO, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("file");
+    r.onsuccess = () => ris(r.result);
+    r.onerror = () => no(r.error);
+  });
+}
+async function conservato(buf) {
+  try {
+    const db = await apriDeposito();
+    await new Promise((ris, no) => {
+      const t = db.transaction("file", "readwrite");
+      t.objectStore("file").put(buf, CHIAVE);
+      t.oncomplete = ris; t.onerror = () => no(t.error);
+    });
+  } catch { /* senza deposito si ricarica a mano, nulla di grave */ }
+}
+async function ripesca() {
+  try {
+    const db = await apriDeposito();
+    return await new Promise((ris, no) => {
+      const r = db.transaction("file", "readonly").objectStore("file").get(CHIAVE);
+      r.onsuccess = () => ris(r.result || null);
+      r.onerror = () => no(r.error);
+    });
+  } catch { return null; }
+}
+async function scorda() {
+  try {
+    const db = await apriDeposito();
+    db.transaction("file", "readwrite").objectStore("file").delete(CHIAVE);
+  } catch { /* niente da fare */ }
+}
+
+function usaMesh(buf, daDeposito) {
+  const st = $("status");
+  try {
+    const strutture = leggiNira(buf);
+    scheletro = derivaScheletro(new Map(strutture.map(s => [s.nome, s])));
+    const { pronte, fuori } = montaMesh(strutture, scheletro);
+    gruppoMesh.visible = true;
+    $("btn-scorda").hidden = false;
+    $("et-nira").textContent = "Sostituisci le mesh";
+    const note = [];
+    if (fuori.length) note.push(`${fuori.length} senza aggancio`);
+    for (const a of scheletro.avvisi) note.push(a);
+    st.className = note.length ? "status" : "status good";
+    st.textContent = `Mesh caricate: ${pronte} strutture`
+      + (daDeposito ? " (dalla memoria del browser)" : "")
+      + (note.length ? ". " + note.join("; ") : ".");
+    renderer.render(scene, camera);
+    return true;
+  } catch (e) {
+    scheletro = null; legami = null; gruppoMesh.visible = false;
+    st.className = "status err";
+    st.textContent = "Le mesh non si caricano: " + e.message;
+    return false;
+  }
+}
+
+$("nira").addEventListener("change", async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  $("status").className = "status";
+  $("status").textContent = "Leggo le mesh…";
+  const buf = await f.arrayBuffer();
+  if (usaMesh(buf, false)) conservato(buf);
+});
+$("btn-scorda").addEventListener("click", () => {
+  legami = null; scheletro = null; gruppoMesh.visible = false;
+  for (const [, v] of perStruttura) v.mesh.visible = false;
+  $("btn-scorda").hidden = true;
+  $("et-nira").textContent = "Carica le mesh anatomiche (.nira)";
+  $("status").className = "status";
+  $("status").textContent = "Tornato al modello schematico.";
+  scorda();
+  renderer.render(scene, camera);
+});
+ripesca().then(buf => { if (buf && !legami) usaMesh(buf, true); });
 
 function toVec(p) {
   // MediaPipe: metri, origine fra le anche, y verso il basso, z profondita'.
@@ -237,29 +428,50 @@ function toVec(p) {
   return new THREE.Vector3(p[0], -p[1], -p[2]);
 }
 
+/** I punti vivi di cui hanno bisogno le mesh, nello spazio della scena.
+ *  frameCorpo lavora nel sistema di MediaPipe: la conversione (x, -y, -z) e'
+ *  una diagonale con determinante positivo, quindi vale identica per i punti e
+ *  per le direzioni e non specchia nulla. */
+function ancoreVive(pts, F) {
+  const d = (v) => [v[0], -v[1], -v[2]];
+  const A = {};
+  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 0]) {
+    if (pts[i]) A[i] = d(pts[i]);
+  }
+  A.midAnche = d(F.midAnche); A.midSpalle = d(F.midSpalle);
+  A.naso = A[0];
+  return { A, su1: d(F.su), avanti1: d(F.avanti) };
+}
+
 function aggiornaScena(pts) {
   const F = frameCorpo(pts);
   if (!F) return null;
 
-  if (vistaOssa) {
+  if (vistaOssa && !legami) {
     OSSA.forEach(([a, b], i) => {
       if (!pts[a] || !pts[b]) { meshOssa[i].visible = false; return; }
       poni(meshOssa[i], toVec(pts[a]), toVec(pts[b]), 0.016);
     });
   }
-  meshOssa.forEach(m => { if (!vistaOssa) m.visible = false; });
+  meshOssa.forEach(m => { if (!vistaOssa || legami) m.visible = false; });
 
   const risultati = [];
   MUSCOLI.forEach((m, idx) => {
     const t = tracciaMuscolo(m, pts, F);
     const G = meshMuscoli[idx];
-    if (!t || !vistaMuscoli) { G.tratti.forEach(x => x.visible = false); return; }
+    // La lunghezza muscolo-tendinea si misura sempre dal modello cinematico,
+    // anche quando a schermo ci sono le mesh vere: e' quella la grandezza, le
+    // mesh sono come la si mostra.
+    if (!t) { G.tratti.forEach(x => x.visible = false); return; }
 
     const eps = riposo ? deformazione(t.len, riposo[idx]) : 0;
     // Lisciatura temporale: i landmark tremolano di qualche millimetro e senza
     // questo i colori sfarfallano a ogni fotogramma.
     strainLisciato[idx] = strainLisciato[idx] * 0.7 + eps * 0.3;
     const e = strainLisciato[idx];
+    risultati.push({ m, e, len: t.len, idx });
+
+    if (!vistaMuscoli || legami) { G.tratti.forEach(x => x.visible = false); return; }
 
     const k = Math.min(1, Math.abs(e) / 0.18);
     tmpCol.copy(COL_NEUTRO).lerp(e < 0 ? COL_CONTRAE : COL_ALLUNGA, k);
@@ -271,8 +483,18 @@ function aggiornaScena(pts) {
     for (let i = 1; i < t.punti.length; i++) {
       poni(G.tratti[i - 1], toVec(t.punti[i - 1]), toVec(t.punti[i]), raggio);
     }
-    risultati.push({ m, e, len: t.len, idx });
   });
+
+  if (legami) {
+    const { A, su1, avanti1 } = ancoreVive(pts, F);
+    const tronco = Math.hypot(A.midSpalle[0] - A.midAnche[0],
+                              A.midSpalle[1] - A.midAnche[1],
+                              A.midSpalle[2] - A.midAnche[2]);
+    // La scala esce dal rapporto fra il tronco vivo e quello del modello: cosi'
+    // il modello si adatta alla corporatura senza che si sappia in che unita'
+    // di misura fosse l'archivio.
+    posaMesh(A, su1, avanti1, tronco / scheletro.altezzaTronco, strainLisciato);
+  }
   return risultati;
 }
 
@@ -308,6 +530,35 @@ function aggiornaClassifica(ris) {
       <div class="vv" style="color:${col}">${pc > 0 ? "+" : ""}${pc}%</div>
       <div class="bar"><i style="${stile};background:${col}"></i></div></div>`;
   }).join("");
+}
+
+// ── Inquadratura ───────────────────────────────────────────────────
+// La figura si adatta al riquadro invece di stare a una distanza fissa: cambia
+// con la statura, e cambia parecchio fra una posa in piedi e una accovacciata.
+// I valori si muovono per gradi, altrimenti la telecamera sobbalza a ogni
+// tremolio dei landmark.
+let inqR = 2.75, inqY = -0.12;
+function inquadra(pts) {
+  let yMin = Infinity, yMax = -Infinity, xMax = 0;
+  for (const p of pts) {
+    if (!p) continue;
+    const y = -p[1];
+    if (y < yMin) yMin = y;
+    if (y > yMax) yMax = y;
+    if (Math.abs(p[0]) > xMax) xMax = Math.abs(p[0]);
+  }
+  if (!(yMax > yMin)) return;
+  // I landmark stanno dentro il corpo: il cranio sporge sopra il naso e i
+  // piedi sotto le caviglie, quindi ci vuole un margine oltre l'ingombro.
+  const margine = 1.30;
+  const alt = (yMax - yMin) * margine, larg = xMax * 2 * margine;
+  const mezzoV = Math.tan(camera.fov * Math.PI / 360);
+  const mezzoO = Math.atan(mezzoV * camera.aspect);
+  const rV = (alt / 2) / mezzoV, rO = (larg / 2) / Math.tan(mezzoO);
+  const r = Math.max(1.2, Math.min(6, Math.max(rV, rO)));
+  const y = (yMin + yMax) / 2;
+  inqR += (r - inqR) * 0.08;
+  inqY += (y - inqY) * 0.08;
 }
 
 // ── Ciclo ──────────────────────────────────────────────────────────
@@ -346,10 +597,10 @@ function loop() {
     $("badge").textContent = "nessuna persona rilevata";
   }
 
-  const r = 2.75, cy = -0.12;   // centro verticale della figura, non l'origine
-  camera.position.set(Math.sin(theta) * Math.cos(phi) * r,
-                      Math.sin(phi) * r + cy, Math.cos(theta) * Math.cos(phi) * r);
-  camera.lookAt(0, cy, 0);
+  if (pts) inquadra(pts);
+  camera.position.set(Math.sin(theta) * Math.cos(phi) * inqR,
+                      Math.sin(phi) * inqR + inqY, Math.cos(theta) * Math.cos(phi) * inqR);
+  camera.lookAt(0, inqY, 0);
   renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
@@ -417,6 +668,29 @@ window.__anatomia = {
   nomi: () => MUSCOLI.map(m => m.nome + " " + m.lato),
   conteggi: () => ({ muscoli: MUSCOLI.length, ossa: OSSA.length,
                      meshVisibili: gruppo.children.filter(c => c.visible).length }),
+  caricaMesh: (buf) => usaMesh(buf, false),
+  orbita: (t, f) => { theta = t; phi = f; },
+  statoMesh: () => legami ? {
+    strutture: legami.length,
+    visibili: [...perStruttura.values()].filter(v => v.mesh.visible).length,
+    avvisi: scheletro.avvisi,
+    // Ingombro di quel che si vede davvero, per accorgersi se qualcosa e'
+    // finito fuori scala o dall'altra parte della scena.
+    ingombro: (() => {
+      const b = new THREE.Box3();
+      for (const [, v] of perStruttura) {
+        if (!v.mesh.visible) continue;
+        v.mesh.updateMatrixWorld(true);
+        b.expandByObject(v.mesh);
+      }
+      return b.isEmpty() ? null : { min: b.min.toArray(), max: b.max.toArray() };
+    })(),
+    posizioni: Object.fromEntries([...perStruttura].map(([n, v]) => {
+      if (!v.mesh.visible) return [n, null];
+      const b = new THREE.Box3().setFromObject(v.mesh);
+      return [n, b.getCenter(new THREE.Vector3()).toArray()];
+    })),
+  } : null,
 };
 ridimensiona();
 renderer.render(scene, camera);

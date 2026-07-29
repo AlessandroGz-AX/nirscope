@@ -1,12 +1,17 @@
 # nirscope
 
-Due pagine sull'imaging in transilluminazione con la fotocamera di un telefono.
-Nessuna dipendenza, nessuna rete: sono due file HTML autonomi.
+Pagine sull'imaging in transilluminazione e sull'anatomia in movimento, con la
+sola fotocamera di un telefono. Nessuna dipendenza esterna, nessuna richiesta di
+rete: tutto sul dispositivo.
 
 - **[anatomia.html](https://alessandrogz-ax.github.io/nirscope/anatomia.html)** — anatomia in
   movimento. Riconosce le parti del corpo dalla fotocamera, ne ricostruisce 33 punti in tre
   dimensioni e ne ricava scheletro e lunghezza di 31 muscoli, colorati secondo accorciamento
-  o allungamento. Tutto sul dispositivo, nessuna dipendenza esterna.
+  o allungamento. Caricandoci le mesh di BodyParts3D, al posto dei cilindri compare
+  l'anatomia vera.
+- **[prepara.html](https://alessandrogz-ax.github.io/nirscope/prepara.html)** — prepara quelle
+  mesh partendo dall'archivio BodyParts3D, dentro il browser. Anche da un iPad: dell'archivio
+  da quasi un giga ne legge una sessantina di mega e restituisce un file da sei.
 - **[vasi.html](https://alessandrogz-ax.github.io/nirscope/vasi.html)** — visore di vasi.
   Transilluminazione: torcia da una parte del tessuto, fotocamera dall'altra. Calcola
   l'attenuazione rispetto al fondo locale e applica il filtro di Frangi, tirando fuori i
@@ -87,29 +92,60 @@ finiva per misurare quella deformazione invece del movimento articolare):
 
 ## Mesh anatomiche
 
-`anatomia.html` disegna i muscoli come percorsi fra punti di attacco: la
-cinematica e' corretta, la forma e' schematica. Per la geometria vera servono
-mesh anatomiche, e `tools/prepara-mesh.py` le prepara da **BodyParts3D**
-(Database Center for Life Science, CC-BY-SA 2.1 JP).
+Senza mesh, `anatomia.html` disegna ossa e muscoli come cilindri fra punti di
+attacco: la cinematica e' corretta, la forma e' uno schema. Le mesh vere
+arrivano da **BodyParts3D** (Database Center for Life Science, CC-BY-SA 2.1 JP)
+e si preparano **[in una pagina](https://alessandrogz-ax.github.io/nirscope/prepara.html)**,
+anche da un iPad: si sceglie l'archivio scaricato, si aspetta un minuto, si
+salva il file che ne esce e lo si carica in `anatomia.html`.
 
-Da eseguire una volta su un computer, non serve altro che numpy:
+Non serve un computer e non serve estrarre lo zip. Un file scelto dall'app File
+si legge a fette, quindi si scorre la coda dell'archivio per l'indice e poi solo
+i 126 blocchi che interessano. Su un archivio di prova da 543 MB con 3026 file:
+**63 MB letti** su 543, 64 MB di memoria al massimo, 13 secondi. Dettagli e
+formato in [`tools/LEGGIMI-mesh.md`](tools/LEGGIMI-mesh.md).
 
-    python3 tools/prepara-mesh.py ~/Downloads/BodyParts3D_obj.zip
+**Perche' un budget di triangoli e non una griglia fissa.** Le mesh di
+BodyParts3D hanno densita' molto diverse fra loro: la stessa griglia toglie il
+20% a una e l'80% a un'altra, e il peso finale sarebbe imprevedibile. Puntando
+al numero di triangoli si sa in partenza quanto pesa il risultato. La riduzione
+e' per raggruppamento su griglia: non conserva gli spigoli come una decimazione
+a quadriche, ma non ha dipendenze e non fallisce sulle mesh con buchi e facce
+degeneri di cui BodyParts3D e' pieno. Su ellissoidi chiusi l'errore di volume
+dopo la riduzione resta sotto l'1%.
 
-Dell'archivio completo — quasi un giga, circa tremila strutture — lo script
-seleziona la sessantina che serve, la riduce a un budget di triangoli e scrive
-`mesh/` con un manifesto.
+### Come le mesh seguono il movimento
 
-**Perche' un budget e non una griglia fissa.** Le mesh di BodyParts3D hanno
-densita' molto diverse fra loro: la stessa griglia toglie il 20% a una e l'80%
-a un'altra, e il peso finale sarebbe imprevedibile. Puntando al numero di
-triangoli si sa in partenza quanto pesa il risultato.
+L'archivio non dice in che unita' di misura siano le coordinate, ne' quale asse
+sia il verticale, ne' se il sistema sia destrorso. Niente di tutto questo viene
+dato per scontato: si deduce dalle mesh stesse, a partire da due fatti anatomici
+che sopravvivono a qualunque convenzione di esportazione — il cranio sta sopra
+il bacino, e lo sterno sta davanti alla colonna. Le articolazioni sono le
+estremita' delle ossa lunghe, prese come baricentro del 3% di vertici piu'
+avanzati invece che come singolo vertice, che potrebbe essere un artefatto.
 
-La riduzione e' per raggruppamento su griglia. Non conserva gli spigoli come
-farebbe una decimazione a quadriche, ma non ha dipendenze e non fallisce sulle
-mesh con buchi e facce degeneri di cui BodyParts3D e' pieno. Misurata su una
-sfera chiusa da 120k triangoli: a 8000 triangoli lo scostamento medio della
-superficie e' l'1,1% del diametro, l'errore di volume sotto lo 0,1%.
+I femori servono da controprova. Se dicono il contrario di quel che dice
+l'anatomia, non e' la geometria a essere strana: sono le etichette
+destra/sinistra a essere scambiate, e le strutture vengono agganciate al lato
+opposto. E' un errore che altrimenti passerebbe inosservato per sempre, perche'
+uno scheletro specchiato sembra normale.
+
+Ogni struttura e' poi un corpo rigido legato a un segmento fra due landmark. A
+ogni fotogramma si calcola la trasformazione che porta il segmento a riposo su
+quello vivo: lungo l'asse la scala e' quella che fa combaciare le estremita' —
+limitata, perche' un arto puntato verso l'obiettivo viene stimato corto e senza
+freno l'osso si stirerebbe a fisarmonica — mentre di traverso resta la scala
+generale del corpo. I ventri muscolari si ingrossano quando si accorciano, che
+e' la conservazione del volume.
+
+Un muscolo biarticolare resta agganciato a un solo osso: si sposta e si
+ingrossa, ma non si avvolge attorno al giunto. La lunghezza muscolo-tendinea
+continua a misurarla il modello cinematico — le mesh sono come la si mostra,
+non cosa si misura.
+
+    node test-anatomia-mesh.mjs      # orientamento, articolazioni, pose
+    node test-anatomia-pagina.mjs    # la pagina vera, con Playwright
+    node test-prepara.mjs            # il preparatore, su archivi finti
 
 **Attribuzione.** BodyParts3D e' CC-BY-SA: l'attribuzione va mantenuta e le
 opere derivate restano share-alike.
