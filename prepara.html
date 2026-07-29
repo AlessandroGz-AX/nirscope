@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>nirscope — preparatore di mesh anatomiche</title>
+<style>
+  :root {
+    --bg:#0C1211; --panel:#141C1A; --raised:#1B2523; --line:#24322D;
+    --text:#D9E3DE; --muted:#7A8A83; --l2:#35B8C6; --ok:#56C08A; --warn:#E0A03C;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#EDF1EF; --panel:#FFF; --raised:#F5F8F6; --line:#D2DCD7;
+            --text:#0E1614; --muted:#5C6B65; --l2:#16818E; --ok:#1F7A50; --warn:#9A6608; }
+  }
+  :root[data-theme="light"] { --bg:#EDF1EF; --panel:#FFF; --raised:#F5F8F6; --line:#D2DCD7;
+    --text:#0E1614; --muted:#5C6B65; --l2:#16818E; --ok:#1F7A50; --warn:#9A6608; }
+  :root[data-theme="dark"] { --bg:#0C1211; --panel:#141C1A; --raised:#1B2523; --line:#24322D;
+    --text:#D9E3DE; --muted:#7A8A83; --l2:#35B8C6; --ok:#56C08A; --warn:#E0A03C; }
+
+  body { background:var(--bg); color:var(--text); font-family:var(--serif);
+         line-height:1.6; margin:0; padding:0 16px 60px; }
+  .wrap { max-width:760px; margin:0 auto; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+             text-transform:uppercase; color:var(--muted); margin:0; }
+  h1 { font-family:var(--mono); font-weight:600; font-size:clamp(22px,5vw,30px);
+       letter-spacing:-.02em; text-wrap:balance; margin:10px 0 0; }
+  h2 { font-family:var(--mono); font-weight:600; font-size:14px; letter-spacing:.05em; margin:0; }
+  header { padding:30px 0 16px; }
+  .lede { color:var(--muted); margin:12px 0 0; font-size:16px; max-width:60ch; }
+
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:3px; margin-top:16px; }
+  .card-head { padding:13px 16px; border-bottom:1px solid var(--line);
+               display:flex; justify-content:space-between; align-items:baseline;
+               gap:12px; flex-wrap:wrap; }
+  .card-body { padding:16px; }
+  .card-body p { margin:0 0 12px; font-size:15px; color:var(--muted); }
+  .card-body p:last-child { margin-bottom:0; }
+  ol { margin:0; padding-left:22px; font-size:15px; color:var(--muted); }
+  ol li { margin-bottom:8px; }
+  ol li b { color:var(--text); font-weight:600; }
+
+  label.file { display:block; border:2px dashed var(--line); border-radius:4px;
+               padding:26px 16px; text-align:center; cursor:pointer;
+               font-family:var(--mono); font-size:13px; letter-spacing:.06em;
+               text-transform:uppercase; color:var(--muted); }
+  label.file:hover { border-color:var(--l2); color:var(--l2); }
+  input[type=file] { position:absolute; width:1px; height:1px; opacity:0; }
+
+  button { font-family:var(--mono); font-size:12px; letter-spacing:.07em; text-transform:uppercase;
+           background:var(--raised); color:var(--text); border:1px solid var(--line);
+           border-radius:2px; padding:12px 16px; cursor:pointer; width:100%; }
+  button.primary { background:var(--l2); border-color:var(--l2); color:var(--bg); font-weight:600; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  button:focus-visible { outline:2px solid var(--l2); outline-offset:2px; }
+
+  .barra { height:6px; background:var(--raised); border-radius:3px; overflow:hidden; margin-top:14px; }
+  .barra i { display:block; height:100%; width:0; background:var(--l2); transition:width .2s; }
+
+  .log { font-family:var(--mono); font-size:11.5px; line-height:1.75; color:var(--muted);
+         background:var(--raised); border-radius:2px; padding:12px 14px; margin-top:14px;
+         max-height:290px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+  .log b { color:var(--text); font-weight:600; }
+  .log .ok { color:var(--ok); } .log .no { color:var(--warn); }
+
+  .stato { font-family:var(--mono); font-size:12px; padding:12px 16px;
+           border-top:1px solid var(--line); color:var(--muted); }
+  .stato.err { color:var(--warn); } .stato.good { color:var(--ok); }
+  footer { margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
+           color:var(--muted); font-size:14px; }
+  footer p { max-width:62ch; }
+  code { font-family:var(--mono); font-size:.87em; background:var(--raised);
+         padding:1px 5px; border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">nirscope · preparatore</p>
+    <h1>Le mesh anatomiche, preparate qui sull'iPad</h1>
+    <p class="lede">
+      Dell'archivio BodyParts3D servono 126 file su circa tremila. Questa pagina li estrae,
+      unisce i capi di ogni muscolo, riduce la risoluzione e ti restituisce un file solo da
+      qualche mega. Niente computer, niente rete: tutto nel browser.
+    </p>
+  </header>
+
+  <section class="card">
+    <div class="card-head"><h2>Cosa fare</h2><span class="eyebrow">Due minuti</span></div>
+    <div class="card-body">
+      <ol>
+        <li><b>Non serve estrarre lo zip.</b> Lasciato compresso va benissimo — anzi, meglio:
+            leggo solo l'indice e i 126 file che servono, non il resto.</li>
+        <li><b>Tocca il riquadro qui sotto</b> e scegli l'archivio dall'app File.</li>
+        <li><b>Aspetta.</b> Un minuto o due, con l'avanzamento sotto.</li>
+        <li><b>Salva il file</b> che ti propone e mandamelo, oppure caricalo su GitHub.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head"><h2>Archivio</h2><span class="eyebrow" id="info">nessun file</span></div>
+    <div class="card-body">
+      <label class="file" for="zip" id="drop">Scegli l'archivio BodyParts3D (.zip)</label>
+      <input type="file" id="zip" accept=".zip,application/zip">
+      <div class="barra"><i id="prog"></i></div>
+      <div class="log" id="log">In attesa dell'archivio.</div>
+      <button type="button" id="btn-scarica" class="primary" style="margin-top:14px" disabled>
+        Salva il file preparato
+      </button>
+    </div>
+    <div class="stato" id="stato">Pronto.</div>
+  </section>
+
+  <footer>
+    <p>
+      <strong>Perché non serve un giga di memoria.</strong> Un file scelto dall'app File si può
+      leggere a fette senza caricarlo tutto: leggo la coda dell'archivio per l'indice, poi solo i
+      126 blocchi che mi servono. Di un archivio da un giga ne attraverso una sessantina di mega.
+    </p>
+    <p>
+      Fonte: BodyParts3D, The Database Center for Life Science, licenza CC-BY-SA 2.1 Giappone.
+      L'attribuzione va mantenuta. Niente lascia il dispositivo: questa pagina non fa richieste di rete.
+    </p>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const logEl = $("log");
+  let righe = [];
+  const stampa = (t, cls) => {
+    righe.push(cls ? `<span class="${cls}">${t}</span>` : t);
+    if (righe.length > 500) righe = righe.slice(-500);
+    logEl.innerHTML = righe.join("\n");
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  const stato = (t, cls) => { $("stato").textContent = t; $("stato").className = "stato " + (cls || ""); };
+  const avanza = (f) => { $("prog").style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(1) + "%"; };
+  const pausa = () => new Promise(r => setTimeout(r, 0));
+
+  // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
+  // compongono. Risolti sui metadati reali dell'archivio: i muscoli non
+  // esistono interi ma per capi, quindi il bicipite sono due file e il
+  // tricipite tre.
+  const MAPPA = {"adduttore_dx":["BP4982"],"adduttore_sx":["BP8972"],"bacino_dx":["BP8768"],"bacino_sx":["BP8950"],"bicipite_dx":["BP5558","BP5566"],"bicipite_fem_dx":["BP5575","BP5573"],"bicipite_fem_sx":["BP8331","BP8616"],"bicipite_sx":["BP9153","BP8816"],"brachioradiale_dx":["BP4833"],"brachioradiale_sx":["BP8244"],"clavicola_dx":["BP9271"],"clavicola_sx":["BP8841"],"colonna":["BP8981","BP8475","BP8726","BP9156","BP8643","BP8303","BP8840","BP9221","BP8178","BP8412","BP8043","BP9250","BP9108","BP8003","BP8835","BP7845","BP7979","BP8948","BP8995","BP8227","BP8133","BP8280"],"coste":["BP8342","BP8997","BP8358","BP8082","BP8480","BP8212","BP8709","BP8882","BP8439","BP8408","BP8952","BP9062"],"cranio":["BP8209","BP9177","BP8875","BP7991","BP8991","BP9057","BP9209","BP8309","BP9046"],"deltoide_dx":["BP7573","BP7571","BP5607"],"deltoide_sx":["BP8259","BP9075","BP8151"],"dentato_dx":["BP4782"],"dentato_sx":["BP8760"],"femore_dx":["BP8920"],"femore_sx":["BP9042"],"gastrocnemio_dx":["BP5539","BP5541"],"gastrocnemio_sx":["BP9217","BP7939"],"gluteo_dx":["BP5065"],"gluteo_sx":["BP8401"],"mandibola":["BP8107"],"obliquo_dx":["BP4967"],"obliquo_sx":["BP8154"],"omero_dx":["BP9206"],"omero_sx":["BP9191"],"perone_dx":["BP8009"],"perone_sx":["BP8251"],"pettorale_dx":["BP5582","BP5615","BP5613"],"pettorale_sx":["BP9095","BP7862","BP8323"],"radio_dx":["BP8464"],"radio_sx":["BP9059"],"retto_femorale_dx":["BP5598"],"retto_femorale_sx":["BP8094"],"rotula_dx":["BP8390"],"rotula_sx":["BP8378"],"sacro":["BP9174"],"scapola_dx":["BP9101"],"scapola_sx":["BP9121"],"semitendinoso_dx":["BP4991"],"semitendinoso_sx":["BP9066"],"soleo_dx":["BP4999"],"soleo_sx":["BP8819"],"sterno":["BP8989"],"tibia_dx":["BP8031"],"tibia_sx":["BP9202"],"tibiale_ant_dx":["BP5018"],"tibiale_ant_sx":["BP8720"],"trapezio_dx":["BP5638","BP5610","BP5636"],"trapezio_sx":["BP8225","BP8252","BP8267"],"tricipite_dx":["BP5562","BP5550","BP5564"],"tricipite_sx":["BP8257","BP8525","BP8344"],"ulna_dx":["BP8233"],"ulna_sx":["BP9070"],"vasto_dx":["BP5602","BP5600","BP5604"],"vasto_sx":["BP8754","BP9128","BP9207"]};
+
+  // Le ossa reggono piu' dettaglio dei muscoli: hanno spigoli e creste che si
+  // notano, mentre un ventre muscolare e' liscio e sopporta la riduzione.
+  const BUDGET_OSSO = 8000, BUDGET_MUSCOLO = 4000;
+
+  // Elenco esplicito e non un'espressione regolare: "tibia" e' un osso ma
+  // "tibiale_ant" e' un muscolo, e una ricerca per sottostringa li confonde.
+  const OSSA = new Set(["bacino","clavicola","colonna","coste","cranio","femore","mandibola",
+                        "omero","perone","radio","rotula","sacro","scapola","sterno","tibia","ulna"]);
+  const senzaLato = (k) => (k.endsWith("_dx") || k.endsWith("_sx")) ? k.slice(0, -3) : k;
+  const isOsso = (k) => OSSA.has(senzaLato(k));
+
+  // ── Lettura dello ZIP ──────────────────────────────────────────────
+  const leggi = async (file, da, a) => new Uint8Array(await file.slice(da, a).arrayBuffer());
+  const u16 = (d, o) => d[o] | (d[o+1] << 8);
+  const u32 = (d, o) => (d[o] | (d[o+1] << 8) | (d[o+2] << 16) | (d[o+3] << 24)) >>> 0;
+  // I campi a 64 bit dello ZIP64 non entrano in un intero JavaScript esatto
+  // oltre i 9 milioni di terabyte; ben oltre qualunque archivio, quindi la
+  // parte alta si puo' sommare come numero.
+  const u64 = (d, o) => u32(d, o) + u32(d, o + 4) * 4294967296;
+
+  const FINE = 0x06054b50, LOC64 = 0x07064b50, FINE64 = 0x06064b50, CENTRALE = 0x02014b50;
+
+  /** Trova il record di coda. Sta in fondo al file, quindi si legge solo
+   *  l'ultimo tratto invece dell'intero archivio. Il commento finale puo'
+   *  contenere per caso la stessa firma, percio' si verifica che la lunghezza
+   *  dichiarata del commento arrivi esattamente a fine file. */
+  async function trovaFine(file) {
+    const coda = Math.min(file.size, 66000);
+    const inizioCoda = file.size - coda;
+    const d = await leggi(file, inizioCoda, file.size);
+    for (let i = d.length - 22; i >= 0; i--) {
+      if (u32(d, i) !== FINE) continue;
+      const lnComm = u16(d, i + 20);
+      if (i + 22 + lnComm === d.length) return { d, i, inizioCoda };
+    }
+    for (let i = d.length - 22; i >= 0; i--) {     // ripiego, senza la verifica
+      if (u32(d, i) === FINE) return { d, i, inizioCoda };
+    }
+    throw new Error("Non sembra un archivio ZIP: manca il record di coda.");
+  }
+
+  /** Indice centrale: nome, metodo, dimensione compressa e posizione di ogni
+   *  voce. Gestisce anche il formato ZIP64, in cui i campi normali saturano a
+   *  tutti-uno e i valori veri stanno in un record separato. */
+  async function indice(file) {
+    const { d, i: eocd, inizioCoda } = await trovaFine(file);
+    let nVoci = u16(d, eocd + 10);
+    let dimCD  = u32(d, eocd + 12);   // dimensione dell'indice centrale
+    let offCD  = u32(d, eocd + 16);   // sua posizione nel file
+    let zip64 = false;
+
+    if (nVoci === 0xFFFF || dimCD === 0xFFFFFFFF || offCD === 0xFFFFFFFF) {
+      // Il localizzatore ZIP64 sta nei 20 byte prima del record di coda.
+      const l = eocd - 20;
+      if (l < 0 || u32(d, l) !== LOC64) throw new Error("Archivio ZIP64 senza localizzatore.");
+      const off64 = u64(d, l + 8);
+      const r = await leggi(file, off64, off64 + 56);
+      if (u32(r, 0) !== FINE64) throw new Error("Record ZIP64 di coda non valido.");
+      nVoci = u64(r, 32); dimCD = u64(r, 40); offCD = u64(r, 48);
+      zip64 = true;
+    }
+    if (offCD + dimCD > file.size) throw new Error("Indice dell'archivio fuori dal file.");
+
+    const cd = await leggi(file, offCD, offCD + dimCD);
+    const voci = new Map();
+    const dec = new TextDecoder();
+    let o = 0;
+    while (o + 46 <= cd.length && u32(cd, o) === CENTRALE) {
+      const metodo = u16(cd, o + 10);
+      let dimComp = u32(cd, o + 20);
+      const dimGrezza = u32(cd, o + 24);
+      const lnNome = u16(cd, o + 28), lnExtra = u16(cd, o + 30), lnComm = u16(cd, o + 32);
+      let offLocale = u32(cd, o + 42);
+      const nome = dec.decode(cd.subarray(o + 46, o + 46 + lnNome));
+
+      // Nel campo extra 0x0001 stanno, in quest'ordine, dimensione grezza,
+      // compressa e posizione: per specifica solo quelle il cui campo normale
+      // e' saturo. Alcuni programmi pero' le scrivono tutte e tre comunque,
+      // quindi si conta quanti spazi da otto byte ci sono davvero e si sceglie
+      // fra le due letture invece di fidarsi.
+      if (dimComp === 0xFFFFFFFF || offLocale === 0xFFFFFFFF || dimGrezza === 0xFFFFFFFF) {
+        let e = o + 46 + lnNome;
+        const fine = e + lnExtra;
+        let trovato = false;
+        while (e + 4 <= fine) {
+          const id = u16(cd, e), ln = u16(cd, e + 2);
+          if (id === 0x0001) {
+            const spazi = Math.min(3, ln >> 3);
+            const saturi = (dimGrezza === 0xFFFFFFFF) + (dimComp === 0xFFFFFFFF) +
+                           (offLocale === 0xFFFFFFFF);
+            const p = e + 4;
+            if (spazi >= 3 && saturi < 3) {          // scritti tutti, si legge a posto fisso
+              if (dimComp   === 0xFFFFFFFF) dimComp   = u64(cd, p + 8);
+              if (offLocale === 0xFFFFFFFF) offLocale = u64(cd, p + 16);
+            } else {                                  // solo i saturi, in ordine
+              let q = p;
+              if (dimGrezza === 0xFFFFFFFF) q += 8;
+              if (dimComp   === 0xFFFFFFFF) { dimComp = u64(cd, q); q += 8; }
+              if (offLocale === 0xFFFFFFFF) { offLocale = u64(cd, q); q += 8; }
+            }
+            trovato = true;
+            break;
+          }
+          e += 4 + ln;
+        }
+        if (!trovato) throw new Error("voce ZIP64 senza campo esteso: " + nome);
+      }
+
+      const base = nome.split("/").pop().toLowerCase();
+      if (base) voci.set(base, { metodo, dimComp, offLocale, nome });
+      o += 46 + lnNome + lnExtra + lnComm;
+    }
+    return { voci, zip64, dichiarate: nVoci };
+  }
+
+  /** Estrae una voce. L'intestazione locale ripete i campi di lunghezza
+   *  variabile con valori propri, quindi va riletta per sapere dove
+   *  cominciano davvero i dati. */
+  async function estrai(file, v) {
+    const h = await leggi(file, v.offLocale, v.offLocale + 30);
+    if (u32(h, 0) !== 0x04034b50) throw new Error("intestazione locale non valida per " + v.nome);
+    const inizio = v.offLocale + 30 + u16(h, 26) + u16(h, 28);
+    const blob = file.slice(inizio, inizio + v.dimComp);
+    if (v.metodo === 0) return new Uint8Array(await blob.arrayBuffer());
+    if (v.metodo !== 8) throw new Error("compressione non gestita (metodo " + v.metodo + ")");
+    const flusso = blob.stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return new Uint8Array(await new Response(flusso).arrayBuffer());
+  }
+
+  // ── OBJ ────────────────────────────────────────────────────────────
+  const dec = new TextDecoder();
+  function leggiObj(bytes) {
+    const testo = dec.decode(bytes);
+    const V = [], F = [];
+    for (const grezza of testo.split("\n")) {
+      const riga = grezza.trim();
+      const c0 = riga.charCodeAt(0), c1 = riga.charCodeAt(1);
+      if (c1 !== 32 && c1 !== 9) continue;
+      if (c0 === 118) {                                        // "v "
+        const p = riga.split(/\s+/);
+        V.push(+p[1], +p[2], +p[3]);
+      } else if (c0 === 102) {                                 // "f "
+        const p = riga.split(/\s+/);
+        const idx = [];
+        for (let i = 1; i < p.length; i++) {
+          let n = parseInt(p[i], 10);
+          if (!Number.isFinite(n)) continue;
+          idx.push(n > 0 ? n - 1 : V.length / 3 + n);           // negativi = relativi
+        }
+        for (let i = 1; i < idx.length - 1; i++) F.push(idx[0], idx[i], idx[i+1]);
+      }
+    }
+    return { V: new Float64Array(V), F: new Uint32Array(F) };
+  }
+
+  /** Unisce piu' mesh in una sola spostando gli indici. Serve perche' un
+   *  muscolo nell'archivio e' diviso per capi. */
+  function unisci(pezzi) {
+    if (pezzi.length === 1) return pezzi[0];
+    let nv = 0, nf = 0;
+    for (const p of pezzi) { nv += p.V.length; nf += p.F.length; }
+    const V = new Float64Array(nv), F = new Uint32Array(nf);
+    let ov = 0, of_ = 0, base = 0;
+    for (const p of pezzi) {
+      V.set(p.V, ov);
+      for (let i = 0; i < p.F.length; i++) F[of_ + i] = p.F[i] + base;
+      base += p.V.length / 3; ov += p.V.length; of_ += p.F.length;
+    }
+    return { V, F };
+  }
+
+  /** Riduzione per raggruppamento su griglia: i vertici che cadono nella
+   *  stessa cella diventano un vertice solo, nel loro baricentro. */
+  function riduci(V, F, celle) {
+    const n = V.length / 3;
+    if (!n) return { V, F };
+    let mnx=Infinity,mny=Infinity,mnz=Infinity,mxx=-Infinity,mxy=-Infinity,mxz=-Infinity;
+    for (let i = 0; i < n; i++) {
+      const x=V[i*3], y=V[i*3+1], z=V[i*3+2];
+      if(x<mnx)mnx=x; if(y<mny)mny=y; if(z<mnz)mnz=z;
+      if(x>mxx)mxx=x; if(y>mxy)mxy=y; if(z>mxz)mxz=z;
+    }
+    const lato = Math.max(mxx-mnx, mxy-mny, mxz-mnz) / celle;
+    if (!(lato > 0)) return { V, F };
+
+    // Chiave numerica e non stringa: su una mesh da centomila vertici, ripetuta
+    // per ogni passo della ricerca binaria, la differenza si sente.
+    const passo = celle + 1;
+    const mappa = new Map();
+    const somma = [], conta = [];
+    const rimap = new Uint32Array(n);
+    for (let i = 0; i < n; i++) {
+      const cx = Math.floor((V[i*3]-mnx)/lato), cy = Math.floor((V[i*3+1]-mny)/lato),
+            cz = Math.floor((V[i*3+2]-mnz)/lato);
+      const k = (cx * passo + cy) * passo + cz;
+      let id = mappa.get(k);
+      if (id === undefined) { id = conta.length; mappa.set(k, id); somma.push(0,0,0); conta.push(0); }
+      somma[id*3]+=V[i*3]; somma[id*3+1]+=V[i*3+1]; somma[id*3+2]+=V[i*3+2];
+      conta[id]++; rimap[i] = id;
+    }
+    const NV = new Float64Array(somma.length);
+    for (let i = 0; i < conta.length; i++) {
+      NV[i*3]=somma[i*3]/conta[i]; NV[i*3+1]=somma[i*3+1]/conta[i]; NV[i*3+2]=somma[i*3+2]/conta[i];
+    }
+    // Le facce con due vertici finiti nella stessa cella sono degenerate.
+    const tenute = [];
+    for (let i = 0; i < F.length; i += 3) {
+      const a=rimap[F[i]], b=rimap[F[i+1]], c=rimap[F[i+2]];
+      if (a!==b && b!==c && a!==c) tenute.push(a,b,c);
+    }
+    return tenute.length ? { V: NV, F: new Uint32Array(tenute) } : { V, F };
+  }
+
+  /** La griglia piu' fine che sta nel budget. Il numero di triangoli cresce
+   *  con la finezza, quindi la ricerca binaria e' lecita. */
+  function riduciABudget(V, F, budget) {
+    if (F.length / 3 <= budget) return { V, F };
+    let basso = 6, alto = 400, migliore = null;
+    while (basso <= alto) {
+      const mid = (basso + alto) >> 1;
+      const r = riduci(V, F, mid);
+      if (r.F.length / 3 <= budget) { migliore = r; basso = mid + 1; } else alto = mid - 1;
+    }
+    return migliore || riduci(V, F, basso);
+  }
+
+  // ── Scrittura del risultato ────────────────────────────────────────
+  /** Formato compatto: intestazione, poi per ogni struttura nome, tipo,
+   *  vertici e indici. Posizioni in Float32 e indici in Uint32, il tutto
+   *  allineato a quattro byte perche' le viste tipizzate lo pretendono. */
+  function serializza(strutture) {
+    const enc = new TextEncoder();
+    let dim = 12;
+    const meta = strutture.map(s => {
+      const nome = enc.encode(s.chiave);
+      if (nome.length > 255) throw new Error("nome troppo lungo: " + s.chiave);
+      const pad = (4 - ((nome.length + 10) % 4)) % 4;
+      dim += 10 + nome.length + pad + s.V.length * 4 + s.F.length * 4;
+      return { nome, pad, s };
+    });
+
+    const buf = new ArrayBuffer(dim);
+    const dv = new DataView(buf), u8 = new Uint8Array(buf);
+    u8.set(enc.encode("NIRANAT1"), 0);
+    dv.setUint32(8, strutture.length, true);
+    let o = 12;
+    for (const { nome, pad, s } of meta) {
+      dv.setUint8(o, nome.length);
+      dv.setUint8(o + 1, isOsso(s.chiave) ? 0 : 1);
+      dv.setUint32(o + 2, s.V.length / 3, true);
+      dv.setUint32(o + 6, s.F.length / 3, true);
+      u8.set(nome, o + 10);
+      o += 10 + nome.length + pad;
+      const pos = new Float32Array(buf, o, s.V.length);
+      for (let i = 0; i < s.V.length; i++) pos[i] = s.V[i];
+      o += s.V.length * 4;
+      new Uint32Array(buf, o, s.F.length).set(s.F);
+      o += s.F.length * 4;
+    }
+    if (o !== dim) throw new Error("scrittura incoerente: " + o + " invece di " + dim);
+    return buf;
+  }
+
+  // ── Elaborazione ───────────────────────────────────────────────────
+  let risultato = null;
+
+  async function elabora(file) {
+    righe = []; risultato = null; $("btn-scarica").disabled = true;
+    $("info").textContent = `${file.name} · ${(file.size/1e6).toFixed(0)} MB`;
+    if (typeof DecompressionStream === "undefined") {
+      stato("Questo browser non sa decomprimere gli archivi: serve iPadOS 16.4 o piu' recente.", "err");
+      return null;
+    }
+    const avvio = performance.now();
+    try {
+      stato("Leggo l'indice dell'archivio…"); avanza(0.02);
+      stampa(`<b>${file.name}</b> — ${(file.size/1e6).toFixed(1)} MB`);
+      const { voci, zip64 } = await indice(file);
+      stampa(`indice: ${voci.size} file${zip64 ? " (formato ZIP64)" : ""}`);
+
+      const chiavi = Object.keys(MAPPA);
+      const fatte = [], mancanti = [];
+      let letti = 0, trianOrig = 0, trianFin = 0;
+      const bbox = [Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
+
+      for (let i = 0; i < chiavi.length; i++) {
+        const k = chiavi[i];
+        const pezzi = [], persi = [];
+        for (const bp of MAPPA[k]) {
+          const v = voci.get(bp.toLowerCase() + ".obj");
+          if (!v) { persi.push(bp); continue; }
+          const m = leggiObj(await estrai(file, v));
+          if (m.F.length) { pezzi.push(m); letti++; } else persi.push(bp);
+        }
+        avanza(0.02 + 0.93 * (i + 1) / chiavi.length);
+        if (!pezzi.length) { mancanti.push(`${k} (${MAPPA[k].join(", ")})`); await pausa(); continue; }
+
+        const u = unisci(pezzi);
+        trianOrig += u.F.length / 3;
+        const r = riduciABudget(u.V, u.F, isOsso(k) ? BUDGET_OSSO : BUDGET_MUSCOLO);
+        trianFin += r.F.length / 3;
+        for (let j = 0; j < r.V.length; j += 3) {
+          for (let a = 0; a < 3; a++) {
+            if (r.V[j+a] < bbox[a]) bbox[a] = r.V[j+a];
+            if (r.V[j+a] > bbox[3+a]) bbox[3+a] = r.V[j+a];
+          }
+        }
+        fatte.push({ chiave: k, V: r.V, F: r.F });
+        stampa(`  ${k.padEnd(18)}${String(pezzi.length).padStart(2)} pz  ` +
+               `${String(u.F.length/3).padStart(7)} → ${String(r.F.length/3).padStart(6)} tri` +
+               (persi.length ? `  <span class="no">(${persi.length} non trovati)</span>` : ""));
+        stato(`${fatte.length} di ${chiavi.length} strutture…`);
+        await pausa();
+      }
+
+      if (!fatte.length) {
+        stato("Nessuna struttura trovata: probabilmente e' l'archivio sbagliato, serve quello dei modelli OBJ.", "err");
+        stampa("\nNessuno dei 126 file cercati e' nell'archivio.", "no");
+        return null;
+      }
+
+      const buf = serializza(fatte);
+      risultato = new Blob([buf], { type: "application/octet-stream" });
+      avanza(1);
+      const secondi = ((performance.now() - avvio) / 1000).toFixed(0);
+      stampa(`\n<b>${fatte.length} strutture</b> da ${letti} file, in ${secondi} s`);
+      stampa(`triangoli: ${trianOrig.toLocaleString("it")} → <b>${trianFin.toLocaleString("it")}</b>`);
+      stampa(`ingombro: ${(bbox[3]-bbox[0]).toFixed(0)} × ${(bbox[4]-bbox[1]).toFixed(0)} × ${(bbox[5]-bbox[2]).toFixed(0)}`);
+      stampa(`file pronto: <b>${(buf.byteLength/1e6).toFixed(1)} MB</b>`, "ok");
+      if (mancanti.length) {
+        stampa(`\n<span class="no">${mancanti.length} strutture senza file:</span>`);
+        for (const m of mancanti) stampa("  " + m, "no");
+      }
+      $("btn-scarica").disabled = false;
+      stato(`Pronto: ${fatte.length} strutture, ${(buf.byteLength/1e6).toFixed(1)} MB. Salva il file.`, "good");
+      return { strutture: fatte.length, mancanti: mancanti.length, byte: buf.byteLength, bbox,
+               trianOrig, trianFin, letti };
+    } catch (e) {
+      stato("Errore: " + e.message, "err");
+      stampa("\n" + e.message, "no");
+      return null;
+    }
+  }
+
+  $("zip").addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    if (f) elabora(f);
+  });
+  $("btn-scarica").addEventListener("click", () => {
+    if (!risultato) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(risultato);
+    a.download = "anatomia.nira";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  });
+
+  // Aggancio per le prove automatiche.
+  window.__prep = {
+    elabora, indice, leggiObj, unisci, riduci, riduciABudget, serializza, isOsso, MAPPA,
+    get risultato() { return risultato; },
+    conteggi: () => ({ strutture: Object.keys(MAPPA).length,
+                       file: Object.values(MAPPA).flat().length,
+                       ossa: Object.keys(MAPPA).filter(isOsso).length }),
+  };
+})();
+</script>
+</body>
+</html>
