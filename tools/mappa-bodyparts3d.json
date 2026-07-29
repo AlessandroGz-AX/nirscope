@@ -1,0 +1,626 @@
+{
+ "adduttore_dx": [
+  {
+   "bp": "BP4982",
+   "nome": "right adductor magnus"
+  }
+ ],
+ "adduttore_sx": [
+  {
+   "bp": "BP8972",
+   "nome": "left adductor magnus"
+  }
+ ],
+ "bacino_dx": [
+  {
+   "bp": "BP8768",
+   "nome": "right hip bone"
+  }
+ ],
+ "bacino_sx": [
+  {
+   "bp": "BP8950",
+   "nome": "left hip bone"
+  }
+ ],
+ "bicipite_dx": [
+  {
+   "bp": "BP5558",
+   "nome": "short head of right biceps brachii"
+  },
+  {
+   "bp": "BP5566",
+   "nome": "long head of right biceps brachii"
+  }
+ ],
+ "bicipite_fem_dx": [
+  {
+   "bp": "BP5575",
+   "nome": "long head of right biceps femoris"
+  },
+  {
+   "bp": "BP5573",
+   "nome": "short head of right biceps femoris"
+  }
+ ],
+ "bicipite_fem_sx": [
+  {
+   "bp": "BP8331",
+   "nome": "long head of left biceps femoris"
+  },
+  {
+   "bp": "BP8616",
+   "nome": "short head of left biceps femoris"
+  }
+ ],
+ "bicipite_sx": [
+  {
+   "bp": "BP9153",
+   "nome": "short head of left biceps brachii"
+  },
+  {
+   "bp": "BP8816",
+   "nome": "long head of left biceps brachii"
+  }
+ ],
+ "brachioradiale_dx": [
+  {
+   "bp": "BP4833",
+   "nome": "right brachioradialis"
+  }
+ ],
+ "brachioradiale_sx": [
+  {
+   "bp": "BP8244",
+   "nome": "left brachioradialis"
+  }
+ ],
+ "clavicola_dx": [
+  {
+   "bp": "BP9271",
+   "nome": "right clavicle"
+  }
+ ],
+ "clavicola_sx": [
+  {
+   "bp": "BP8841",
+   "nome": "left clavicle"
+  }
+ ],
+ "colonna": [
+  {
+   "bp": "BP8981",
+   "nome": "first thoracic vertebra"
+  },
+  {
+   "bp": "BP8475",
+   "nome": "second thoracic vertebra"
+  },
+  {
+   "bp": "BP8726",
+   "nome": "third thoracic vertebra"
+  },
+  {
+   "bp": "BP9156",
+   "nome": "fourth thoracic vertebra"
+  },
+  {
+   "bp": "BP8643",
+   "nome": "fifth thoracic vertebra"
+  },
+  {
+   "bp": "BP8303",
+   "nome": "sixth thoracic vertebra"
+  },
+  {
+   "bp": "BP8840",
+   "nome": "seventh thoracic vertebra"
+  },
+  {
+   "bp": "BP9221",
+   "nome": "eighth thoracic vertebra"
+  },
+  {
+   "bp": "BP8178",
+   "nome": "ninth thoracic vertebra"
+  },
+  {
+   "bp": "BP8412",
+   "nome": "tenth thoracic vertebra"
+  },
+  {
+   "bp": "BP8043",
+   "nome": "eleventh thoracic vertebra"
+  },
+  {
+   "bp": "BP9250",
+   "nome": "twelfth thoracic vertebra"
+  },
+  {
+   "bp": "BP9108",
+   "nome": "third cervical vertebra"
+  },
+  {
+   "bp": "BP8003",
+   "nome": "fourth cervical vertebra"
+  },
+  {
+   "bp": "BP8835",
+   "nome": "fifth cervical vertebra"
+  },
+  {
+   "bp": "BP7845",
+   "nome": "sixth cervical vertebra"
+  },
+  {
+   "bp": "BP7979",
+   "nome": "seventh cervical vertebra"
+  },
+  {
+   "bp": "BP8948",
+   "nome": "first lumbar vertebra"
+  },
+  {
+   "bp": "BP8995",
+   "nome": "second lumbar vertebra"
+  },
+  {
+   "bp": "BP8227",
+   "nome": "third lumbar vertebra"
+  },
+  {
+   "bp": "BP8133",
+   "nome": "fourth lumbar vertebra"
+  },
+  {
+   "bp": "BP8280",
+   "nome": "fifth lumbar vertebra"
+  }
+ ],
+ "coste": [
+  {
+   "bp": "BP8342",
+   "nome": "first rib"
+  },
+  {
+   "bp": "BP8997",
+   "nome": "second rib"
+  },
+  {
+   "bp": "BP8358",
+   "nome": "third rib"
+  },
+  {
+   "bp": "BP8082",
+   "nome": "fourth rib"
+  },
+  {
+   "bp": "BP8480",
+   "nome": "fifth rib"
+  },
+  {
+   "bp": "BP8212",
+   "nome": "seventh rib"
+  },
+  {
+   "bp": "BP8709",
+   "nome": "eighth rib"
+  },
+  {
+   "bp": "BP8882",
+   "nome": "sixth rib"
+  },
+  {
+   "bp": "BP8439",
+   "nome": "ninth rib"
+  },
+  {
+   "bp": "BP8408",
+   "nome": "tenth rib"
+  },
+  {
+   "bp": "BP8952",
+   "nome": "eleventh rib"
+  },
+  {
+   "bp": "BP9062",
+   "nome": "twelfth rib"
+  }
+ ],
+ "cranio": [
+  {
+   "bp": "BP8209",
+   "nome": "frontal bone"
+  },
+  {
+   "bp": "BP9177",
+   "nome": "occipital bone"
+  },
+  {
+   "bp": "BP8875",
+   "nome": "right temporal bone"
+  },
+  {
+   "bp": "BP7991",
+   "nome": "left temporal bone"
+  },
+  {
+   "bp": "BP8991",
+   "nome": "ethmoid"
+  },
+  {
+   "bp": "BP9057",
+   "nome": "right parietal bone"
+  },
+  {
+   "bp": "BP9209",
+   "nome": "left parietal bone"
+  },
+  {
+   "bp": "BP8309",
+   "nome": "right maxilla"
+  },
+  {
+   "bp": "BP9046",
+   "nome": "left maxilla"
+  }
+ ],
+ "deltoide_dx": [
+  {
+   "bp": "BP7573",
+   "nome": "clavicular part of right deltoid"
+  },
+  {
+   "bp": "BP7571",
+   "nome": "acromial part of right deltoid"
+  },
+  {
+   "bp": "BP5607",
+   "nome": "spinal part of right deltoid"
+  }
+ ],
+ "deltoide_sx": [
+  {
+   "bp": "BP8259",
+   "nome": "clavicular part of left deltoid"
+  },
+  {
+   "bp": "BP9075",
+   "nome": "acromial part of left deltoid"
+  },
+  {
+   "bp": "BP8151",
+   "nome": "spinal part of left deltoid"
+  }
+ ],
+ "dentato_dx": [
+  {
+   "bp": "BP4782",
+   "nome": "right serratus anterior"
+  }
+ ],
+ "dentato_sx": [
+  {
+   "bp": "BP8760",
+   "nome": "left serratus anterior"
+  }
+ ],
+ "femore_dx": [
+  {
+   "bp": "BP8920",
+   "nome": "right femur"
+  }
+ ],
+ "femore_sx": [
+  {
+   "bp": "BP9042",
+   "nome": "left femur"
+  }
+ ],
+ "gastrocnemio_dx": [
+  {
+   "bp": "BP5539",
+   "nome": "medial head of right gastrocnemius"
+  },
+  {
+   "bp": "BP5541",
+   "nome": "lateral head of right gastrocnemius"
+  }
+ ],
+ "gastrocnemio_sx": [
+  {
+   "bp": "BP9217",
+   "nome": "medial head of left gastrocnemius"
+  },
+  {
+   "bp": "BP7939",
+   "nome": "lateral head of left gastrocnemius"
+  }
+ ],
+ "gluteo_dx": [
+  {
+   "bp": "BP5065",
+   "nome": "right gluteus maximus"
+  }
+ ],
+ "gluteo_sx": [
+  {
+   "bp": "BP8401",
+   "nome": "left gluteus maximus"
+  }
+ ],
+ "mandibola": [
+  {
+   "bp": "BP8107",
+   "nome": "mandible"
+  }
+ ],
+ "obliquo_dx": [
+  {
+   "bp": "BP4967",
+   "nome": "right external oblique"
+  }
+ ],
+ "obliquo_sx": [
+  {
+   "bp": "BP8154",
+   "nome": "left external oblique"
+  }
+ ],
+ "omero_dx": [
+  {
+   "bp": "BP9206",
+   "nome": "right humerus"
+  }
+ ],
+ "omero_sx": [
+  {
+   "bp": "BP9191",
+   "nome": "left humerus"
+  }
+ ],
+ "perone_dx": [
+  {
+   "bp": "BP8009",
+   "nome": "right fibula"
+  }
+ ],
+ "perone_sx": [
+  {
+   "bp": "BP8251",
+   "nome": "left fibula"
+  }
+ ],
+ "pettorale_dx": [
+  {
+   "bp": "BP5582",
+   "nome": "clavicular part of right pectoralis major"
+  },
+  {
+   "bp": "BP5615",
+   "nome": "abdominal part of right pectoralis major"
+  },
+  {
+   "bp": "BP5613",
+   "nome": "sternocostal part of right pectoralis major"
+  }
+ ],
+ "pettorale_sx": [
+  {
+   "bp": "BP9095",
+   "nome": "clavicular part of left pectoralis major"
+  },
+  {
+   "bp": "BP7862",
+   "nome": "abdominal part of left pectoralis major"
+  },
+  {
+   "bp": "BP8323",
+   "nome": "sternocostal part of left pectoralis major"
+  }
+ ],
+ "radio_dx": [
+  {
+   "bp": "BP8464",
+   "nome": "right radius"
+  }
+ ],
+ "radio_sx": [
+  {
+   "bp": "BP9059",
+   "nome": "left radius"
+  }
+ ],
+ "retto_femorale_dx": [
+  {
+   "bp": "BP5598",
+   "nome": "right rectus femoris"
+  }
+ ],
+ "retto_femorale_sx": [
+  {
+   "bp": "BP8094",
+   "nome": "left rectus femoris"
+  }
+ ],
+ "rotula_dx": [
+  {
+   "bp": "BP8390",
+   "nome": "right patella"
+  }
+ ],
+ "rotula_sx": [
+  {
+   "bp": "BP8378",
+   "nome": "left patella"
+  }
+ ],
+ "sacro": [
+  {
+   "bp": "BP9174",
+   "nome": "sacrum"
+  }
+ ],
+ "scapola_dx": [
+  {
+   "bp": "BP9101",
+   "nome": "right scapula"
+  }
+ ],
+ "scapola_sx": [
+  {
+   "bp": "BP9121",
+   "nome": "left scapula"
+  }
+ ],
+ "semitendinoso_dx": [
+  {
+   "bp": "BP4991",
+   "nome": "right semitendinosus"
+  }
+ ],
+ "semitendinoso_sx": [
+  {
+   "bp": "BP9066",
+   "nome": "left semitendinosus"
+  }
+ ],
+ "soleo_dx": [
+  {
+   "bp": "BP4999",
+   "nome": "right soleus"
+  }
+ ],
+ "soleo_sx": [
+  {
+   "bp": "BP8819",
+   "nome": "left soleus"
+  }
+ ],
+ "sterno": [
+  {
+   "bp": "BP8989",
+   "nome": "body of sternum"
+  }
+ ],
+ "tibia_dx": [
+  {
+   "bp": "BP8031",
+   "nome": "right tibia"
+  }
+ ],
+ "tibia_sx": [
+  {
+   "bp": "BP9202",
+   "nome": "left tibia"
+  }
+ ],
+ "tibiale_ant_dx": [
+  {
+   "bp": "BP5018",
+   "nome": "right tibialis anterior"
+  }
+ ],
+ "tibiale_ant_sx": [
+  {
+   "bp": "BP8720",
+   "nome": "left tibialis anterior"
+  }
+ ],
+ "trapezio_dx": [
+  {
+   "bp": "BP5638",
+   "nome": "ascending part of right trapezius"
+  },
+  {
+   "bp": "BP5610",
+   "nome": "transverse part of right trapezius"
+  },
+  {
+   "bp": "BP5636",
+   "nome": "descending part of right trapezius"
+  }
+ ],
+ "trapezio_sx": [
+  {
+   "bp": "BP8225",
+   "nome": "ascending part of left trapezius"
+  },
+  {
+   "bp": "BP8252",
+   "nome": "transverse part of left trapezius"
+  },
+  {
+   "bp": "BP8267",
+   "nome": "descending part of left trapezius"
+  }
+ ],
+ "tricipite_dx": [
+  {
+   "bp": "BP5562",
+   "nome": "medial head of right triceps brachii"
+  },
+  {
+   "bp": "BP5550",
+   "nome": "lateral head of right triceps brachii"
+  },
+  {
+   "bp": "BP5564",
+   "nome": "long head of right triceps brachii"
+  }
+ ],
+ "tricipite_sx": [
+  {
+   "bp": "BP8257",
+   "nome": "medial head of left triceps brachii"
+  },
+  {
+   "bp": "BP8525",
+   "nome": "lateral head of left triceps brachii"
+  },
+  {
+   "bp": "BP8344",
+   "nome": "long head of left triceps brachii"
+  }
+ ],
+ "ulna_dx": [
+  {
+   "bp": "BP8233",
+   "nome": "right ulna"
+  }
+ ],
+ "ulna_sx": [
+  {
+   "bp": "BP9070",
+   "nome": "left ulna"
+  }
+ ],
+ "vasto_dx": [
+  {
+   "bp": "BP5602",
+   "nome": "right vastus lateralis"
+  },
+  {
+   "bp": "BP5600",
+   "nome": "right vastus medialis"
+  },
+  {
+   "bp": "BP5604",
+   "nome": "right vastus intermedius"
+  }
+ ],
+ "vasto_sx": [
+  {
+   "bp": "BP8754",
+   "nome": "left vastus lateralis"
+  },
+  {
+   "bp": "BP9128",
+   "nome": "left vastus medialis"
+  },
+  {
+   "bp": "BP9207",
+   "nome": "left vastus intermedius"
+  }
+ ]
+}
