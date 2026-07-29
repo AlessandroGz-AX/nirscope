@@ -140,9 +140,13 @@
   </header>
 
   <section class="card">
-    <div class="card-head"><h2>Come disporsi</h2><span class="eyebrow">Al buio</span></div>
+    <div class="card-head"><h2>Come disporsi</h2><span class="eyebrow">Due geometrie</span></div>
     <div class="card-body">
-      <div class="geo">  torcia  →  [ tessuto sottile ]  →  fotocamera</div>
+      <div class="geo">RIFLETTANZA   flash + fotocamera  →  [ pelle ]   ← luce di ritorno
+              avambraccio, dorso mano, incavo del gomito
+
+TRANSILLUMINAZIONE   torcia  →  [ dito ]  →  fotocamera
+              solo tessuti sottili, al buio</div>
       <ol style="margin-top:14px">
         <li><b>Spegni la luce.</b> Non è un dettaglio: la luce ambiente arriva alla fotocamera
             senza attraversare niente, e sommerge il poco che esce dal tessuto.</li>
@@ -163,6 +167,11 @@
       <div class="badge" id="badge">non avviato</div>
     </div>
     <div class="card-body">
+      <div class="seg" role="group" aria-label="Geometria" style="margin-bottom:12px">
+        <button type="button" data-mod="refl" aria-pressed="true">Riflettanza</button>
+        <button type="button" data-mod="trans">Transilluminazione</button>
+      </div>
+      <p style="margin:0 0 12px;font-size:14px;color:var(--muted)" id="mod-hint"></p>
       <div class="row">
         <button type="button" id="btn-start" class="primary">Attiva fotocamera</button>
         <button type="button" id="btn-flip">Cambia lato</button>
@@ -200,6 +209,7 @@
       <div class="m"><div class="k">Livello medio</div><div class="v" id="q-mean">—</div></div>
       <div class="m"><div class="k">Saturato</div><div class="v" id="q-sat">—</div></div>
       <div class="m"><div class="k">Struttura / rumore</div><div class="v" id="q-contrast">—</div></div>
+      <div class="m"><div class="k">Rossore R/G</div><div class="v" id="q-rg">—</div></div>
     </div>
     <div class="status" id="status">Attiva la fotocamera per cominciare.</div>
   </section>
@@ -250,13 +260,16 @@
 
   // Buffer riusati: allocarli per frame farebbe partire il garbage collector
   // in mezzo all'elaborazione e la resa scenderebbe a scatti.
-  const src = new Float32Array(N), bgBuf = new Float32Array(N);
+  const src = new Float32Array(N), srcG = new Float32Array(N), srcB = new Float32Array(N);
+  const bgBuf = new Float32Array(N);
+  const work = new Float32Array(N), accG = new Float32Array(N);
   const tmp = new Float32Array(N), att = new Float32Array(N);
   const blur1 = new Float32Array(N), vess = new Float32Array(N);
   const acc = new Float32Array(N);
   const mask = new Uint8Array(N);
   const roiBuf = new Float32Array(N);
-  let accCount = 0, stacking = 0, frozen = null, quality = null;
+  let accCount = 0, stacking = 0, frozen = null, frozenG = null, quality = null;
+  let modality = "refl";   // "trans" = luce attraverso | "refl" = luce di ritorno
 
   /** Box blur a somma scorrevole: costo indipendente dal raggio. Un blur
    *  gaussiano vero costerebbe O(r) per pixel e a raggio 45 non terrebbe il
@@ -351,35 +364,80 @@
    *  al livello alto della scena, non assoluta: cambia con torcia e distanza. */
   function buildMask(gray) {
     sortBuf.set(gray);
-    const s = sortBuf.slice().sort();
-    const hi = s[(N * 0.98) | 0];
+    const sorted = sortBuf.slice().sort();
+    const hi = sorted[(N * 0.98) | 0];
     const thr = Math.max(14, hi * 0.30);
-    let count = 0, sat = 0, dark = 0, sum = 0;
+    let count = 0, sat = 0, dark = 0, sum = 0, sumR = 0, sumG = 0;
     for (let i = 0; i < N; i++) {
-      const v = gray[i];
-      const inside = v >= thr;
+      const R = src[i], G = srcG[i], B = srcB[i];
+      // In transilluminazione il tessuto e' la zona luminosa e tutto il resto e'
+      // buio. In riflettanza no: la scena e' illuminata tutta, e una soglia di
+      // luminosita' includerebbe tavolo, oggetti e sfondo — che poi dominano la
+      // statistica e fanno dire "struttura ottima" davanti a una foto di stanza.
+      // Serve un criterio sul colore della pelle: R > G > B con distacco.
+      const inside = modality === "trans"
+        ? gray[i] >= thr
+        : (R > 55 && R < 252 && R > G + 10 && G >= B - 6);
       mask[i] = inside ? 1 : 0;
-      if (inside) { count++; sum += v; if (v >= 250) sat++; }
-      if (v <= 8) dark++;
+      if (inside) {
+        count++; sum += gray[i]; sumR += R; sumG += G;
+        if (R >= 250) sat++;
+      }
+      if (gray[i] <= 8) dark++;
     }
     quality = {
       area: count / N,
       mean: count ? sum / count : 0,
       satPct: count ? (100 * sat) / count : 0,
       darkPct: (100 * dark) / N,
+      // Quanto e' rosso cio' che si sta guardando. La luce che ha attraversato
+      // il tessuto esce rosso profondo (R/G alto); la luce di una stanza
+      // riflessa dalla pelle resta quasi neutra. E' il modo per accorgersi che
+      // la geometria non e' quella dichiarata.
+      rg: (count && sumG > 0) ? sumR / sumG : 0,
     };
+  }
+
+  /** Il segnale da analizzare dipende da come la luce ha raggiunto la
+   *  fotocamera.
+   *
+   *  TRANSILLUMINAZIONE — la luce ha attraversato il tessuto: arriva quasi solo
+   *  rosso profondo, e il canale rosso e' tutto il segnale. Mediarlo con verde e
+   *  blu, praticamente vuoti, lo dividerebbe per tre aggiungendo rumore.
+   *
+   *  RIFLETTANZA — la luce e' entrata di qualche millimetro ed e' tornata
+   *  indietro. Qui il canale rosso da solo e' dominato da ombreggiatura, curvatura
+   *  dell'arto e melanina, che sommergono i vasi. Ma l'emoglobina assorbe molto il
+   *  verde (~540-577 nm) e poco il rosso: log(R) - log(G) cancella tutto cio' che
+   *  agisce da fattore moltiplicativo su entrambi i canali — illuminazione, ombra,
+   *  gran parte della melanina — e lascia il sangue. E' l'indice di emoglobina
+   *  della dermatologia strumentale, ed e' il motivo per cui su un avambraccio
+   *  funziona questa modalita' e non l'altra. */
+  function buildWorking() {
+    if (modality === "trans") { work.set(src); return; }
+    for (let i = 0; i < N; i++) {
+      work[i] = 255 * (Math.log(src[i] + 1) - Math.log(srcG[i] + 1));
+    }
   }
 
   function process(gray) {
     buildMask(gray);
     const r = Math.round(P.bg);
-    boxBlur(gray, bgBuf, r);
-    // Attenuazione rispetto al fondo locale: in transilluminazione non esiste
-    // una misura della luce incidente, quindi il riferimento è ciò che ci si
-    // aspetterebbe lì se non ci fosse nulla ad assorbire.
-    for (let i = 0; i < N; i++) {
-      const sig = Math.max(1, gray[i]);
-      att[i] = Math.log(Math.max(1, bgBuf[i]) / sig);
+    buildWorking();
+    boxBlur(work, bgBuf, r);
+    if (modality === "trans") {
+      // Attenuazione rispetto al fondo locale: in transilluminazione non esiste
+      // una misura della luce incidente, quindi il riferimento è ciò che ci si
+      // aspetterebbe lì se non ci fosse nulla ad assorbire.
+      for (let i = 0; i < N; i++) {
+        att[i] = Math.log(Math.max(1, bgBuf[i]) / Math.max(1, work[i]));
+      }
+    } else {
+      // L'indice di emoglobina è già un rapporto logaritmico: qui il fondo si
+      // toglie per sottrazione. Passarlo dentro un altro logaritmo lo
+      // comprimerebbe e basta. Segno invertito perché più sangue significa
+      // indice più alto, e a valle si cercano creste chiare.
+      for (let i = 0; i < N; i++) att[i] = (work[i] - bgBuf[i]) * 0.02;
     }
     vesselness(att, vess, P.scale);
   }
@@ -415,8 +473,20 @@
     set("q-mean", quality.mean.toFixed(0), quality.mean < 25 || quality.mean > 245 ? "bad" : "good");
     set("q-sat", quality.satPct.toFixed(0) + "%", quality.satPct > SOGLIA_SATURO ? "bad" : "good");
     set("q-contrast", contrast.toFixed(1) + "×", contrast < SOGLIA_STRUTTURA ? "bad" : "good");
+    set("q-rg", quality.rg.toFixed(2),
+        modality === "trans" ? (quality.rg < 2.0 ? "bad" : "good")
+                             : (quality.rg > 1.05 ? "good" : "bad"));
 
     const st = $("status");
+    // Prima di tutto: la geometria dichiarata corrisponde a quella reale? Un
+    // "livelli buoni" su una foto di stanza e' peggio di nessun messaggio.
+    if (modality === "trans" && quality.rg < 2.0 && quality.area > 0.12) {
+      st.textContent = "Questa non e' transilluminazione: la luce che arriva al sensore e' "
+        + "quasi neutra (R/G " + quality.rg.toFixed(2) + "), quindi non ha attraversato "
+        + "tessuto. O premi la torcia dal lato opposto, oppure passa a Riflettanza.";
+      st.className = "status err";
+      return;
+    }
     if (quality.area < 0.12) {
       st.textContent = "Quasi nulla di illuminato in campo. La torcia deve essere PREMUTA "
         + "contro la pelle dal lato opposto alla fotocamera, non puntata da lontano.";
@@ -485,10 +555,9 @@
     gctx.drawImage(vid, 0, 0, W, H);
     let data;
     try { data = gctx.getImageData(0, 0, W, H).data; } catch { return false; }
-    // Canale rosso, non luminanza: attraverso il tessuto arriva quasi solo
-    // rosso profondo, e mediarlo con verde e blu — che sono praticamente
-    // vuoti — dividerebbe il segnale per tre aggiungendo solo rumore.
-    for (let i = 0; i < N; i++) src[i] = data[i * 4];
+    for (let i = 0; i < N; i++) {
+      src[i] = data[i*4]; srcG[i] = data[i*4+1]; srcB[i] = data[i*4+2];
+    }
     return true;
   }
 
@@ -496,13 +565,16 @@
     if (token !== loopToken || !running) return;
     if (vid.readyState >= 2 && frameToGray()) {
       if (stacking > 0) {
-        for (let i = 0; i < N; i++) acc[i] += src[i];
+        for (let i = 0; i < N; i++) { acc[i] += src[i]; accG[i] += srcG[i]; }
         accCount++; stacking--;
         $("status").textContent = `Accumulo… ${stacking} fotogrammi rimasti — non muoverti`;
         $("status").className = "status";
         if (stacking === 0) {
-          frozen = new Float32Array(N);
-          for (let i = 0; i < N; i++) frozen[i] = acc[i] / accCount;
+          frozen = new Float32Array(N); frozenG = new Float32Array(N);
+          for (let i = 0; i < N; i++) {
+            frozen[i] = acc[i] / accCount; frozenG[i] = accG[i] / accCount;
+          }
+          src.set(frozen); srcG.set(frozenG);
           process(frozen); render(frozen); reportQuality();
           $("badge").textContent = `accumulato ×${accCount}`;
           $("status").textContent =
@@ -522,10 +594,29 @@
 
   function redrawFrozen() {
     if (!frozen) return;
+    src.set(frozen); srcG.set(frozenG);
     process(frozen); render(frozen); reportQuality();
   }
 
   // ── Comandi ────────────────────────────────────────────────────────
+  const MOD_HINT = {
+    refl: "Luce e fotocamera dallo stesso lato. Funziona su avambraccio, dorso della mano, "
+        + "incavo del gomito — dove i vasi stanno pochi millimetri sotto la pelle. "
+        + "Usa il rapporto fra rosso e verde per isolare il sangue dall'ombreggiatura.",
+    trans: "Luce PREMUTA dal lato opposto alla fotocamera, al buio. Solo tessuti sottili: "
+         + "dita, plica fra pollice e indice, lobo. Su un avambraccio non passa nulla.",
+  };
+  function setModality(m) {
+    modality = m;
+    document.querySelectorAll("[data-mod]").forEach(o =>
+      o.setAttribute("aria-pressed", String(o.dataset.mod === m)));
+    $("mod-hint").textContent = MOD_HINT[m];
+    redrawFrozen();
+  }
+  document.querySelectorAll("[data-mod]").forEach(b => {
+    b.addEventListener("click", () => setModality(b.dataset.mod));
+  });
+
   document.querySelectorAll("[data-view]").forEach(b => {
     b.addEventListener("click", () => {
       mode = b.dataset.view;
@@ -547,7 +638,7 @@
   bind("gain", "gain", v => v.toFixed(1) + "×");
 
   $("btn-stack").addEventListener("click", () => {
-    acc.fill(0); accCount = 0; stacking = 40; frozen = null;
+    acc.fill(0); accG.fill(0); accCount = 0; stacking = 40; frozen = null;
     $("btn-stack").disabled = true;
     $("badge").textContent = "accumulo…";
   });
@@ -620,6 +711,7 @@
     else if (track) { running = true; tick(++loopToken); }
   });
 
+  setModality("refl");
   vctx.fillStyle = "#000"; vctx.fillRect(0, 0, W, H);
 })();
 </script>
