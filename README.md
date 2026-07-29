@@ -3,6 +3,10 @@
 Due pagine sull'imaging in transilluminazione con la fotocamera di un telefono.
 Nessuna dipendenza, nessuna rete: sono due file HTML autonomi.
 
+- **[anatomia.html](https://alessandrogz-ax.github.io/nirscope/anatomia.html)** — anatomia in
+  movimento. Riconosce le parti del corpo dalla fotocamera, ne ricostruisce 33 punti in tre
+  dimensioni e ne ricava scheletro e lunghezza di 31 muscoli, colorati secondo accorciamento
+  o allungamento. Tutto sul dispositivo, nessuna dipendenza esterna.
 - **[vasi.html](https://alessandrogz-ax.github.io/nirscope/vasi.html)** — visore di vasi.
   Transilluminazione: torcia da una parte del tessuto, fotocamera dall'altra. Calcola
   l'attenuazione rispetto al fondo locale e applica il filtro di Frangi, tirando fuori i
@@ -48,3 +52,34 @@ forte; gli iPad non hanno flash, quindi quel pulsante resta spento.
 
 Se la fotocamera non parte, il pulsante **Diagnostica** dice quale dei
 prerequisiti manca invece di limitarsi a fallire.
+
+
+## Il modello muscolare
+
+Ogni muscolo e' una polilinea fra punti di attacco ancorati ai landmark della
+posa, e la sua lunghezza approssima quella muscolo-tendinea. E' la stessa
+grandezza che un simulatore muscoloscheletrico calcola come primo passo dagli
+angoli articolari; da li' alle forze servirebbe la dinamica inversa, che da un
+solo video non si ricava.
+
+Gli scostamenti dei punti di attacco vivono nel sistema locale del segmento
+osseo, non in quello del tronco. Non e' un dettaglio: nel sistema del tronco
+"anteriore" sull'avambraccio resta anteriore *rispetto al torace* anche quando
+l'avambraccio ruota, e per il quadricipite questo arrivava a invertire il segno
+della deformazione.
+
+Tre attacchi hanno richiesto la geometria giusta per dare il segno giusto:
+
+- il **tricipite** si inserisce sull'olecrano, oltre il gomito e dalla parte
+  opposta al polso; modellato lungo gomito-polso si accorciava in flessione
+- il **deltoide** ha origine sull'acromion, *lateralmente* al centro articolare:
+  senza quello scarto l'abduzione non produce accorciamento
+- il **tibiale anteriore** passa sotto il retinacolo sopra l'articolazione e si
+  inserisce sul dorso del piede; con entrambi i punti alla stessa altezza la
+  dorsiflessione non cambiava nulla
+
+`test-muscoli.mjs` verifica il segno della deformazione su cinque articolazioni
+usando rotazioni rigide (le pose scritte a mano allungavano le ossa, e il test
+finiva per misurare quella deformazione invece del movimento articolare):
+
+    node test-muscoli.mjs

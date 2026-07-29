@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>nirscope — anatomia in movimento</title>
+</head>
+<body>
+<style>
+  :root {
+    --bg: #0C1211; --panel: #141C1A; --raised: #1B2523; --line: #24322D;
+    --text: #D9E3DE; --muted: #7A8A83; --l2: #35B8C6;
+    --contrae: #E0364C; --allunga: #5B8DEF; --ok: #56C08A; --warn: #E0A03C;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --serif: ui-serif, Georgia, "Iowan Old Style", "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#EDF1EF; --panel:#FFF; --raised:#F5F8F6; --line:#D2DCD7;
+            --text:#0E1614; --muted:#5C6B65; --l2:#16818E;
+            --contrae:#C31E36; --allunga:#2C5FD0; --ok:#1F7A50; --warn:#9A6608; }
+  }
+  :root[data-theme="light"] { --bg:#EDF1EF; --panel:#FFF; --raised:#F5F8F6; --line:#D2DCD7;
+    --text:#0E1614; --muted:#5C6B65; --l2:#16818E;
+    --contrae:#C31E36; --allunga:#2C5FD0; --ok:#1F7A50; --warn:#9A6608; }
+  :root[data-theme="dark"] { --bg:#0C1211; --panel:#141C1A; --raised:#1B2523; --line:#24322D;
+    --text:#D9E3DE; --muted:#7A8A83; --l2:#35B8C6;
+    --contrae:#E0364C; --allunga:#5B8DEF; --ok:#56C08A; --warn:#E0A03C; }
+
+  body { background:var(--bg); color:var(--text); font-family:var(--serif);
+         line-height:1.6; margin:0; padding:0 16px 60px; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+             text-transform:uppercase; color:var(--muted); margin:0; }
+  h1 { font-family:var(--mono); font-weight:600; font-size:clamp(22px,5vw,30px);
+       letter-spacing:-.02em; text-wrap:balance; margin:10px 0 0; }
+  h2 { font-family:var(--mono); font-weight:600; font-size:14px; letter-spacing:.05em; margin:0; }
+  header { padding:28px 0 16px; }
+  .lede { color:var(--muted); margin:12px 0 0; font-size:16px; max-width:62ch; }
+
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:3px; margin-top:16px; }
+  .card-head { padding:12px 16px; border-bottom:1px solid var(--line); display:flex;
+               justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .card-body { padding:16px; }
+  .card-body p { margin:0 0 10px; font-size:15px; color:var(--muted); }
+  .card-body p:last-child { margin-bottom:0; }
+
+  .stage { position:relative; background:#070B0A; border-radius:3px 3px 0 0; overflow:hidden; }
+  #scena { display:block; width:100%; height:auto; touch-action:none; }
+  #preview { position:absolute; right:10px; bottom:10px; width:22%; max-width:150px;
+             border-radius:2px; opacity:.85; transform:scaleX(-1); }
+  .badge { position:absolute; top:10px; left:10px; background:rgba(0,0,0,.72); color:#fff;
+           font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+           padding:5px 10px; border-radius:2px; }
+
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  button { font-family:var(--mono); font-size:12px; letter-spacing:.07em; text-transform:uppercase;
+           background:var(--raised); color:var(--text); border:1px solid var(--line);
+           border-radius:2px; padding:11px 14px; cursor:pointer; flex:1 1 auto; min-width:110px; }
+  button:hover:not(:disabled) { border-color:var(--l2); color:var(--l2); }
+  button:focus-visible { outline:2px solid var(--l2); outline-offset:2px; }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  button.primary { background:var(--l2); border-color:var(--l2); color:var(--bg); font-weight:600; }
+  .seg { display:flex; border:1px solid var(--line); border-radius:2px; overflow:hidden; }
+  .seg button { border:0; border-right:1px solid var(--line); border-radius:0; min-width:0; }
+  .seg button:last-child { border-right:0; }
+  .seg button[aria-pressed="true"] { background:var(--l2); color:var(--bg); font-weight:600; }
+
+  .parti { display:flex; flex-wrap:wrap; gap:6px; padding:14px 16px; border-top:1px solid var(--line); }
+  .chip { font-family:var(--mono); font-size:11px; letter-spacing:.06em; padding:5px 10px;
+          border-radius:11px; border:1px solid var(--line); color:var(--muted); }
+  .chip.on { border-color:var(--ok); color:var(--ok); }
+
+  .classifica { border-top:1px solid var(--line); padding:14px 16px; display:flex;
+                flex-direction:column; gap:9px; }
+  .mrow { display:grid; grid-template-columns:1fr 62px; gap:10px; align-items:center; }
+  .mrow .nm { font-family:var(--mono); font-size:11.5px; letter-spacing:.04em; }
+  .mrow .nm span { color:var(--muted); }
+  .mrow .vv { font-family:var(--mono); font-size:12px; font-weight:600;
+              font-variant-numeric:tabular-nums; text-align:right; }
+  .bar { grid-column:1 / -1; height:5px; background:var(--raised); border-radius:3px;
+         position:relative; overflow:hidden; }
+  .bar i { position:absolute; top:0; bottom:0; left:50%; border-radius:2px; }
+
+  .status { font-family:var(--mono); font-size:12px; padding:11px 16px;
+            border-top:1px solid var(--line); color:var(--muted); }
+  .status.err { color:var(--warn); } .status.good { color:var(--ok); }
+  .legenda { font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--muted);
+             display:flex; gap:16px; flex-wrap:wrap; padding:0 16px 14px; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; }
+  video#src { display:none; }
+  footer { margin-top:28px; padding-top:20px; border-top:1px solid var(--line);
+           color:var(--muted); font-size:14px; }
+  footer p { max-width:64ch; }
+  a { color:var(--l2); }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">nirscope · anatomia in movimento</p>
+    <h1>Il tuo movimento su un modello muscolare</h1>
+    <p class="lede">
+      La fotocamera riconosce le parti del corpo e ne ricostruisce 33 punti in tre dimensioni.
+      Da quelli si ricava lo scheletro e la lunghezza di 31 muscoli: quali si accorciano e
+      quali si allungano, mentre ti muovi.
+    </p>
+  </header>
+
+  <section class="card">
+    <div class="stage">
+      <canvas id="scena" width="900" height="620"></canvas>
+      <video id="preview" playsinline muted></video>
+      <div class="badge" id="badge">non avviato</div>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <button type="button" id="btn-start" class="primary">Attiva fotocamera</button>
+        <button type="button" id="btn-flip">Cambia lato</button>
+        <button type="button" id="btn-cal" disabled>Calibra riposo</button>
+      </div>
+      <div class="seg" style="margin-top:10px" role="group" aria-label="Vista">
+        <button type="button" data-v="tutto" aria-pressed="true">Tutto</button>
+        <button type="button" data-v="muscoli">Solo muscoli</button>
+        <button type="button" data-v="ossa">Solo ossa</button>
+      </div>
+    </div>
+    <div class="legenda">
+      <span><i class="dot" style="background:var(--contrae)"></i>si accorcia — contrazione</span>
+      <span><i class="dot" style="background:var(--allunga)"></i>si allunga</span>
+      <span><i class="dot" style="background:#8B6F5A"></i>osso</span>
+    </div>
+    <div class="parti" id="parti"></div>
+    <div class="classifica" id="classifica"></div>
+    <div class="status" id="status">Attiva la fotocamera e inquadra tutto il corpo.</div>
+  </section>
+
+  <footer>
+    <p>
+      <strong>Cosa fa e cosa no.</strong> La lunghezza muscolo-tendinea si ricava dagli angoli
+      articolari, ed e' esattamente il primo passo che compie un simulatore muscoloscheletrico.
+      Da li' alle <em>forze</em> servirebbe la dinamica inversa con masse, inerzie e reazioni al
+      suolo: da un solo video non si ricavano. Quindi qui leggi accorciamento e allungamento,
+      non quanta forza stai producendo.
+    </p>
+    <p>
+      I muscoli sono modellati come percorsi fra punti di attacco, non come volumi: la forma e'
+      schematica. Fasce e legamenti non ci sono — non sono modellati praticamente in nessun
+      software, nemmeno clinico. Per la catena completa fino alle forze muscolari esiste
+      <strong>OpenCap</strong> di Stanford: due video da smartphone, modello OpenSim, gratuito e
+      open source, ma non in tempo reale.
+    </p>
+    <p>Le immagini non lasciano il dispositivo: questa pagina non fa richieste di rete.</p>
+  </footer>
+</div>
+
+<video id="src" playsinline muted></video>
+
+<script type="module">
+import * as THREE from "./vendor/three.module.js";
+import { PoseLandmarker, FilesetResolver } from "./vendor/vision_bundle.mjs";
+import { MUSCOLI, OSSA, REGIONI, frameCorpo, tracciaMuscolo, deformazione } from "./muscoli.js";
+
+const $ = (id) => document.getElementById(id);
+const cv = $("scena"), video = $("src");
+
+// ── Scena ──────────────────────────────────────────────────────────
+const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 900 / 620, 0.05, 20);
+camera.position.set(0, 0, 2.75);
+
+scene.add(new THREE.HemisphereLight(0xdfe8ff, 0x202a28, 1.5));
+const key = new THREE.DirectionalLight(0xffffff, 2.0);
+key.position.set(1.2, 1.6, 2.0); scene.add(key);
+const fill = new THREE.DirectionalLight(0x88a0c0, 0.7);
+fill.position.set(-1.5, 0.4, -1.2); scene.add(fill);
+
+const gruppo = new THREE.Group(); scene.add(gruppo);
+
+const matOsso = new THREE.MeshStandardMaterial({ color: 0xE8DCC0, roughness: .65, metalness: .05 });
+const geoCil = new THREE.CylinderGeometry(1, 1, 1, 12);
+// Il cilindro nasce lungo Y: orientarlo fra due punti significa ruotare Y sul
+// vettore che li congiunge, ed e' la stessa operazione per ossa e muscoli.
+const ASSE_Y = new THREE.Vector3(0, 1, 0);
+function poni(mesh, a, b, raggio) {
+  const dir = new THREE.Vector3().subVectors(b, a);
+  const len = dir.length();
+  if (len < 1e-6) { mesh.visible = false; return; }
+  mesh.visible = true;
+  mesh.position.copy(a).addScaledVector(dir, 0.5);
+  mesh.quaternion.setFromUnitVectors(ASSE_Y, dir.clone().normalize());
+  mesh.scale.set(raggio, len, raggio);
+}
+
+const meshOssa = OSSA.map(() => {
+  const m = new THREE.Mesh(geoCil, matOsso); gruppo.add(m); return m;
+});
+
+// Un cilindro per ogni tratto di ogni muscolo, con materiale proprio perche' il
+// colore cambia muscolo per muscolo a ogni fotogramma.
+const meshMuscoli = MUSCOLI.map((m) => {
+  const mat = new THREE.MeshStandardMaterial({ color: 0xB4494B, roughness: .5, metalness: .02 });
+  const tratti = [];
+  for (let i = 1; i < m.via.length; i++) {
+    const mesh = new THREE.Mesh(geoCil, mat); gruppo.add(mesh); tratti.push(mesh);
+  }
+  return { mat, tratti };
+});
+
+const COL_NEUTRO = new THREE.Color(0xB4494B);
+const COL_CONTRAE = new THREE.Color(0xFF3B3B);
+const COL_ALLUNGA = new THREE.Color(0x5B8DEF);
+const tmpCol = new THREE.Color();
+
+let vistaMuscoli = true, vistaOssa = true;
+
+// ── Orbita ─────────────────────────────────────────────────────────
+let theta = 0, phi = 0.05, trascina = false, lastX = 0, lastY = 0;
+cv.addEventListener("pointerdown", (e) => { trascina = true; lastX = e.clientX; lastY = e.clientY; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener("pointerup", (e) => { trascina = false; cv.releasePointerCapture(e.pointerId); });
+cv.addEventListener("pointermove", (e) => {
+  if (!trascina) return;
+  theta -= (e.clientX - lastX) * 0.008;
+  phi = Math.max(-1.1, Math.min(1.1, phi - (e.clientY - lastY) * 0.006));
+  lastX = e.clientX; lastY = e.clientY;
+});
+
+// ── Stato ──────────────────────────────────────────────────────────
+let landmarker = null, running = false, riposo = null, ultimiPts = null;
+const strainLisciato = new Float32Array(MUSCOLI.length);
+
+function toVec(p) {
+  // MediaPipe: metri, origine fra le anche, y verso il basso, z profondita'.
+  // Three.js vuole y verso l'alto, e il soggetto deve guardare la telecamera.
+  return new THREE.Vector3(p[0], -p[1], -p[2]);
+}
+
+function aggiornaScena(pts) {
+  const F = frameCorpo(pts);
+  if (!F) return null;
+
+  if (vistaOssa) {
+    OSSA.forEach(([a, b], i) => {
+      if (!pts[a] || !pts[b]) { meshOssa[i].visible = false; return; }
+      poni(meshOssa[i], toVec(pts[a]), toVec(pts[b]), 0.016);
+    });
+  }
+  meshOssa.forEach(m => { if (!vistaOssa) m.visible = false; });
+
+  const risultati = [];
+  MUSCOLI.forEach((m, idx) => {
+    const t = tracciaMuscolo(m, pts, F);
+    const G = meshMuscoli[idx];
+    if (!t || !vistaMuscoli) { G.tratti.forEach(x => x.visible = false); return; }
+
+    const eps = riposo ? deformazione(t.len, riposo[idx]) : 0;
+    // Lisciatura temporale: i landmark tremolano di qualche millimetro e senza
+    // questo i colori sfarfallano a ogni fotogramma.
+    strainLisciato[idx] = strainLisciato[idx] * 0.7 + eps * 0.3;
+    const e = strainLisciato[idx];
+
+    const k = Math.min(1, Math.abs(e) / 0.18);
+    tmpCol.copy(COL_NEUTRO).lerp(e < 0 ? COL_CONTRAE : COL_ALLUNGA, k);
+    G.mat.color.copy(tmpCol);
+    // Il ventre si ingrossa accorciandosi: il volume si conserva, quindi il
+    // raggio va come l'inverso della radice della lunghezza.
+    const raggio = 0.011 * (e < 0 ? 1 + k * 0.5 : 1 - k * 0.2);
+
+    for (let i = 1; i < t.punti.length; i++) {
+      poni(G.tratti[i - 1], toVec(t.punti[i - 1]), toVec(t.punti[i]), raggio);
+    }
+    risultati.push({ m, e, len: t.len, idx });
+  });
+  return risultati;
+}
+
+function aggiornaParti(lm) {
+  const el = $("parti");
+  if (!el.dataset.pronto) {
+    el.innerHTML = REGIONI.map((r, i) => `<span class="chip" id="chip${i}">${r.nome}</span>`).join("");
+    el.dataset.pronto = "1";
+  }
+  REGIONI.forEach((r, i) => {
+    let v = 0, n = 0;
+    for (const p of r.punti) { if (lm[p]) { v += (lm[p].visibility ?? 0); n++; } }
+    const vis = n ? v / n : 0;
+    $("chip" + i).className = "chip" + (vis > 0.7 ? " on" : "");
+  });
+}
+
+function aggiornaClassifica(ris) {
+  const el = $("classifica");
+  const top = ris.filter(r => Math.abs(r.e) > 0.015)
+                .sort((a, b) => Math.abs(b.e) - Math.abs(a.e)).slice(0, 6);
+  if (!top.length) {
+    el.innerHTML = `<div class="mrow"><div class="nm"><span>nessun muscolo lontano dal riposo</span></div><div class="vv"></div></div>`;
+    return;
+  }
+  el.innerHTML = top.map(r => {
+    const pc = (r.e * 100).toFixed(1);
+    const w = Math.min(50, Math.abs(r.e) / 0.30 * 50);
+    const col = r.e < 0 ? "var(--contrae)" : "var(--allunga)";
+    const stile = r.e < 0 ? `right:50%;width:${w}%` : `left:50%;width:${w}%`;
+    return `<div class="mrow">
+      <div class="nm">${r.m.nome} <span>${r.m.lato}</span></div>
+      <div class="vv" style="color:${col}">${pc > 0 ? "+" : ""}${pc}%</div>
+      <div class="bar"><i style="${stile};background:${col}"></i></div></div>`;
+  }).join("");
+}
+
+// ── Ciclo ──────────────────────────────────────────────────────────
+let lastT = -1;
+function loop() {
+  if (!running) return;
+  // Gancio di prova: permette di pilotare la scena con pose sintetiche senza
+  // fotocamera, per verificare il modello e il rendering.
+  const iniettati = window.__posaTest;
+  let pts = null, lm = null;
+
+  if (iniettati) {
+    pts = iniettati;
+  } else if (landmarker && video.readyState >= 2) {
+    const t = performance.now();
+    if (t !== lastT) {
+      lastT = t;
+      const res = landmarker.detectForVideo(video, t);
+      if (res.worldLandmarks?.length) {
+        pts = res.worldLandmarks[0].map(p => [p.x, p.y, p.z]);
+        lm = res.landmarks[0];
+      }
+    }
+  }
+
+  if (pts) {
+    ultimiPts = pts;
+    const ris = aggiornaScena(pts);
+    if (lm) aggiornaParti(lm);
+    if (ris) {
+      aggiornaClassifica(ris);
+      $("badge").textContent = riposo ? "in ascolto" : "calibra il riposo";
+    }
+    $("btn-cal").disabled = false;
+  } else if (running && !iniettati) {
+    $("badge").textContent = "nessuna persona rilevata";
+  }
+
+  const r = 2.75, cy = -0.12;   // centro verticale della figura, non l'origine
+  camera.position.set(Math.sin(theta) * Math.cos(phi) * r,
+                      Math.sin(phi) * r + cy, Math.cos(theta) * Math.cos(phi) * r);
+  camera.lookAt(0, cy, 0);
+  renderer.render(scene, camera);
+  requestAnimationFrame(loop);
+}
+
+function ridimensiona() {
+  const w = cv.clientWidth || 900, h = Math.round(w * 0.69);
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener("resize", ridimensiona);
+
+// ── Avvio ──────────────────────────────────────────────────────────
+let facing = "user";
+async function avvia() {
+  const st = $("status");
+  try {
+    st.textContent = "Carico il modello di posa…"; st.className = "status";
+    if (!landmarker) {
+      const fileset = await FilesetResolver.forVisionTasks("./vendor/wasm");
+      landmarker = await PoseLandmarker.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: "./vendor/pose_landmarker_full.task", delegate: "GPU" },
+        runningMode: "VIDEO", numPoses: 1, minPoseDetectionConfidence: 0.5,
+      });
+    }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: facing }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false,
+    });
+    video.srcObject = stream; $("preview").srcObject = stream;
+    await video.play(); await $("preview").play();
+
+    running = true; ridimensiona(); loop();
+    $("btn-start").textContent = "Riavvia fotocamera";
+    st.className = "status good";
+    st.textContent = "Attiva. Mettiti in piedi, fatti inquadrare tutto, poi premi Calibra riposo.";
+  } catch (e) {
+    st.className = "status err";
+    st.textContent = e.name === "NotAllowedError"
+      ? "Permesso negato. Se la pagina e' dentro un riquadro, aprila in una scheda del browser."
+      : "Avvio fallito: " + e.message;
+  }
+}
+
+$("btn-start").addEventListener("click", avvia);
+$("btn-flip").addEventListener("click", () => { facing = facing === "user" ? "environment" : "user"; avvia(); });
+$("btn-cal").addEventListener("click", () => {
+  if (!ultimiPts) return;
+  const F = frameCorpo(ultimiPts);
+  if (!F) return;
+  riposo = MUSCOLI.map(m => { const t = tracciaMuscolo(m, ultimiPts, F); return t ? t.len : 0; });
+  strainLisciato.fill(0);
+  $("status").className = "status good";
+  $("status").textContent = "Riposo calibrato su questa posa. Ora muoviti: i colori seguono i muscoli.";
+});
+document.querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-v]").forEach(o => o.setAttribute("aria-pressed", String(o === b)));
+  vistaMuscoli = b.dataset.v !== "ossa";
+  vistaOssa = b.dataset.v !== "muscoli";
+}));
+
+// Espone il minimo per i test automatici.
+window.__anatomia = {
+  avviaSenzaCamera() { running = true; ridimensiona(); loop(); },
+  calibra() { $("btn-cal").click(); },
+  strain: () => Array.from(strainLisciato),
+  nomi: () => MUSCOLI.map(m => m.nome + " " + m.lato),
+  conteggi: () => ({ muscoli: MUSCOLI.length, ossa: OSSA.length,
+                     meshVisibili: gruppo.children.filter(c => c.visible).length }),
+};
+ridimensiona();
+renderer.render(scene, camera);
+</script>
+</body>
+</html>
