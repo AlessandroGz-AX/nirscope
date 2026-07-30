@@ -78,7 +78,7 @@ const ANALIZZA = async () => page.evaluate(async () => {
 
 // Stati di arrivo. "Leggo…", "N di 60 strutture…" e "Riprendo l'archivio…"
 // sono di passaggio: scambiarli per la fine fa leggere risultati a meta'.
-const FINE = /^(Pronto:|Errore:|Nessuna struttura|Nomi diversi|Non riesco|Tabella pronta:|Tabella gia)/;
+const FINE = /^(Pronto:|Errore:|Nessuna struttura|Nomi diversi|Non riesco|Tabella letta:|Tabella gia)/;
 const esegui = async (zip) => {
   await page.goto(url, { waitUntil: "load" });
   await page.setInputFiles("#zip", `${PROVE}/${zip}`);
@@ -247,39 +247,45 @@ check("dice se i numeri cercati compaiono altrove", /numeri cercati/.test(r4.log
 
 
 // ── 10. Riconoscimento per nome anatomico ──────────────────────────
-// La via che rende la pagina indipendente dal pacchetto: si carica la tabella
-// dei nomi e le strutture si riconoscono da "femur", non da un identificativo.
-// L'archivio di prova usa identificativi di forma diversa da quelli della mappa
-// scritta a mano, cosi' se funzionasse solo perche' coincidono non passerebbe.
+// La via che rende la pagina indipendente dal pacchetto. La tabella ha quattro
+// colonne, e quella dell'identificativo del modello e' la terza: prima di lei
+// ce n'e' un'altra di identificativi con numeri del tutto diversi. Sceglierla a
+// occhio e' l'errore che ha fatto girare a vuoto sull'archivio vero, quindi la
+// colonna la deve indicare l'archivio, non un'ipotesi.
 console.log("\n\x1b[1m10. Riconoscimento per nome anatomico\x1b[0m");
 await page.goto(url, { waitUntil: "load" });
 await page.setInputFiles("#zip", `${PROVE}/finto_parts_list.txt`);
-await page.waitForFunction(
-  () => /^(Tabella|Errore|Non riesco)/.test(document.getElementById("stato").textContent),
-  null, { timeout: 60000 });
+await page.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+  FINE.source, { timeout: 60000, polling: 200 });
 const tab = { stato: await page.textContent("#stato"), log: await page.textContent("#log") };
-check("tabella letta", /Tabella pronta/.test(tab.stato), tab.stato);
-check("60 strutture riconosciute dai nomi", /60 strutture riconosciute su 60/.test(tab.log),
-      (tab.log.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
-check("nessuna struttura data per mancante", !/non trovate nella tabella/.test(tab.log));
+check("tabella letta", /Tabella letta/.test(tab.stato), tab.stato);
+check("1050 righe (intestazione compresa) e 4 colonne", /righe leggibili: 1050, colonne: 4/.test(tab.log),
+      (tab.log.match(/righe leggibili.*/) || ["-"])[0]);
 
 await page.setInputFiles("#zip", `${PROVE}/finto_per_nome.zip`);
-await page.waitForFunction(
-  () => /^(Pronto:|Errore:|Nessun|Nomi diversi)/.test(document.getElementById("stato").textContent),
-  null, { timeout: 300000 });
+await page.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+  FINE.source, { timeout: 300000, polling: 200 });
 const perNomeLog = await page.textContent("#log");
 const d = await ANALIZZA();
-check("l'archivio viene letto con quegli identificativi",
-      /identificativi presi dalla tabella/.test(perNomeLog));
+check("sceglie la terza colonna, non la prima", /colonna 3 di 4 e' l'identificativo/.test(perNomeLog),
+      (perNomeLog.match(/tabella: colonna.*/) || ["-"])[0]);
+check("e la seconda per il nome", /colonna 2 il nome/.test(perNomeLog));
+check("60 strutture riconosciute", /60 strutture riconosciute su 60/.test(perNomeLog),
+      (perNomeLog.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
 check("60 strutture estratte", d?.n === 60, `${d?.n}`);
 check("nessuna parte data per non trovata", !/non trovati/.test(perNomeLog),
       (perNomeLog.match(/.*non trovati.*/) || [""])[0].trim());
 check("tipi osso/muscolo corretti", d.strutture.filter(x => x.tipo === 0).length === 26,
       `${d.strutture.filter(x => x.tipo === 0).length} ossa`);
+check("gli identificativi con la lettera in coda non si perdono",
+      !/non trovati/.test(perNomeLog));
 // Tendini e legamenti portano il nome del muscolo: non devono finirci dentro.
 check("tendini, legamenti e fasce restano fuori",
       !/tendon|ligament|fascia/.test(perNomeLog));
-
+// Le vertebre sono ventiquattro nella tabella di prova e devono esserci tutte:
+// il taglio a trenta pezzi scartava roba in mezzo alla schiena.
+check("la colonna vertebrale non viene tagliata", /colonna\s+24 pz/.test(perNomeLog),
+      (perNomeLog.match(/colonna\s+\d+ pz/) || ["-"])[0]);
 
 // ── 11. Tabella dentro l'archivio ──────────────────────────────────
 // Se il pacchetto se la porta dentro non c'e' motivo di chiederla a parte:

@@ -59,14 +59,20 @@ def nomi():
     return v
 
 VOCI = nomi()
-# Identificativi di forma diversa da quella della mappa scritta a mano.
-ids = {n: "FJ%04d" % (2000 + i) for i, n in enumerate(VOCI)}
+# Identificativi del modello: forma diversa da quella della mappa scritta a
+# mano, e un pezzo con la lettera in coda come nell'archivio vero.
+ids = {n: ("FJ%04d%s" % (2000 + i, "a" if i % 9 == 0 else ""))
+       for i, n in enumerate(VOCI)}
 
+# La colonna del modello NON e' la prima, e prima di lei c'e' un'altra colonna
+# di identificativi con numeri completamente diversi. E' la disposizione vera:
+# prendere la prima colonna che sembra un identificativo porta fuori strada, ed
+# e' esattamente l'errore che ha fatto girare a vuoto tutta la mattina.
 with open("finto_parts_list.txt", "w") as f:
-    f.write("BP3D_id\tFMA_id\tname\n")           # intestazione, da ignorare
+    f.write("FMA_id\tname\tmodel_id\tcount\n")     # intestazione, da ignorare
     for i, n in enumerate(VOCI):
-        f.write("%s\tFMA%d\t%s\n" % (ids[n], 60000 + i, n))
-print("finto_parts_list.txt  %d righe" % len(VOCI))
+        f.write("FMA%d\t%s\t%s\t%d\n" % (60000 + i, n, ids[n], i % 7))
+print("finto_parts_list.txt  %d righe, colonna del modello: la terza" % len(VOCI))
 
 with zipfile.ZipFile("finto_bp3d.zip") as sorgente:
     # Solo i modelli con geometria: i file di contorno sono vuoti, e usarli

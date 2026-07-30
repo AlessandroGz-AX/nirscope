@@ -160,7 +160,7 @@
 
   // Serve a capire, da una schermata, se il browser stia mostrando questa
   // pagina o una copia vecchia rimasta in cache.
-  const VERSIONE = "2026-07-30 · nomi 2";
+  const VERSIONE = "2026-07-30 · colonne";
   $("ver").textContent = VERSIONE;
 
   // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
@@ -531,34 +531,65 @@
   // nome inglese. Caricandola, le strutture si riconoscono per nome invece che
   // per identificativo, e la pagina smette di dipendere da quale pacchetto si
   // e' scaricato.
-  let TABELLA = null;
+  let TABELLA = null;   // mappa risolta
+  let RIGHE = null;     // righe grezze della tabella dei nomi
 
   /** Parser tollerante: non si sa quante colonne abbia il file ne' in quale
    *  ordine, quindi si prende come identificativo ogni campo fatto di poche
    *  lettere e qualche cifra, e come nome il campo piu' lungo che sembri
    *  scritto in lingua. */
   function analizzaTabella(testo) {
-    const voci = [];
+    const out = [];
     for (const riga of testo.split(/\r?\n/)) {
       if (!riga.trim()) continue;
-      const campi = riga.includes("\t") ? riga.split("\t") : riga.split(/ {2,}|,(?=\S)/);
-      const ids = [], parole = [];
-      for (const c of campi) {
-        const t = c.trim();
-        if (/^[A-Za-z]{0,5}[0-9]{3,}$/.test(t)) ids.push(t);
-        else if (/[A-Za-z]{3}/.test(t)) parole.push(t);
-      }
-      if (!ids.length || !parole.length) continue;
-      const nome = parole.reduce((a, b) => (b.length > a.length ? b : a));
-      voci.push({ ids, nome: nome.toLowerCase() });
+      const campi = (riga.includes("\t") ? riga.split("\t") : riga.split(/ {2,}|,(?=\S)/))
+                    .map(c => c.trim());
+      if (campi.length >= 2) out.push(campi);
     }
-    return voci;
+    return out;
+  }
+
+  /** Quale colonna contiene l'identificativo del modello, e quale il nome.
+   *
+   *  Non si indovina: si prova ogni colonna contro i nomi dei file che stanno
+   *  davvero nell'archivio e si tiene quella che ne azzecca piu'. La tabella ha
+   *  piu' colonne di identificativi — quella del concetto anatomico e quella
+   *  della rappresentazione — e sono numeri diversi; sceglierla a occhio e'
+   *  esattamente l'errore che mi ha fatto girare a vuoto tre volte. */
+  function scegliColonne(righe, basi) {
+    const nCol = righe.reduce((m, r) => Math.max(m, r.length), 0);
+    let colId = -1, colpi = 0;
+    for (let c = 0; c < nCol; c++) {
+      let n = 0;
+      for (const r of righe) {
+        const v = (r[c] || "").toLowerCase();
+        if (v && basi.has(v + ".obj")) n++;
+      }
+      if (n > colpi) { colpi = n; colId = c; }
+    }
+    // Il nome sta nella colonna con piu' testo scritto in lingua.
+    let colNome = -1, punti = -1;
+    for (let c = 0; c < nCol; c++) {
+      if (c === colId) continue;
+      let p = 0;
+      for (const r of righe) {
+        const v = r[c] || "";
+        if (/[A-Za-z]{3}/.test(v) && !/^[A-Za-z]{0,5}[0-9]+$/.test(v)) p += v.length;
+      }
+      if (p > punti) { punti = p; colNome = c; }
+    }
+    return { colId, colNome, colpi, nCol };
   }
 
   /** Dai nomi alle strutture: per ognuna, gli identificativi il cui nome
    *  corrisponde. Restituisce una mappa nella stessa forma di quella scritta a
    *  mano, cosi' il resto del programma non cambia. */
-  function risolviPerNome(voci) {
+  function risolviPerNome(righe, colId, colNome) {
+    const voci = [];
+    for (const r of righe) {
+      const id = r[colId], nome = r[colNome];
+      if (id && nome && /[A-Za-z]{3}/.test(nome)) voci.push({ ids: [id], nome: nome.toLowerCase() });
+    }
     const mappa = {}, note = [];
     for (const [base, def] of Object.entries(CERCA)) {
       const lati = def.lat ? [["dx", /\bright\b/], ["sx", /\bleft\b/]] : [["", null]];
@@ -585,15 +616,16 @@
   }
 
   /** Un file di testo non e' un archivio: si prova a leggerlo come tabella dei
-   *  nomi, e se non lo e' se ne mostra l'inizio per capire cos'e'. */
+   *  nomi. Quale colonna sia l'identificativo del modello non si decide qui —
+   *  lo dira' l'archivio — quindi le righe si tengono grezze. */
   async function ispezionaTesto(file) {
-    TABELLA = null;
+    TABELLA = null; RIGHE = null;
     const testo = new TextDecoder().decode(await file.arrayBuffer());
     stampa(`<b>${esc(file.name)}</b> — ${(file.size / 1e3).toFixed(0)} kB, tabella dei nomi`);
-    const voci = analizzaTabella(testo);
-    stampa(`righe leggibili: ${voci.length}`);
+    const rr = analizzaTabella(testo);
+    stampa(`righe leggibili: ${rr.length}, colonne: ${rr.reduce((m, r) => Math.max(m, r.length), 0)}`);
 
-    if (voci.length < 20) {
+    if (rr.length < 20) {
       stampa("\n<span class='no'>Non sembra la tabella dei nomi. Prime righe:</span>");
       for (const r of testo.split(/\r?\n/).slice(0, 10)) stampa("  " + esc(r.slice(0, 150)));
       stato("Non riesco a leggerla come tabella. Mandami questa schermata.", "err");
@@ -601,38 +633,49 @@
       return null;
     }
 
-    const { mappa, note } = risolviPerNome(voci);
-    const chiavi = Object.keys(mappa);
-    const nFile = Object.values(mappa).reduce((a, v) => a + v.length, 0);
+    RIGHE = rr;
+    try { localStorage.setItem("nirscope-righe", testo); } catch { /* memoria piena */ }
+    avanza(1);
+    if (zipInSospeso) {
+      const z = zipInSospeso; zipInSospeso = null;
+      stato("Tabella letta. Riprendo l'archivio…", "good");
+      stampa("\nriprendo <b>" + esc(z.name) + "</b> con questa tabella");
+      await pausa();
+      await elabora(z, true);
+      return rr;
+    }
+    stato(`Tabella letta: ${rr.length} righe. Adesso scegli l'archivio .zip.`, "good");
+    return rr;
+  }
+
+  /** Costruisce la mappa incrociando la tabella con i nomi dei file che stanno
+   *  davvero nell'archivio. */
+  function daTabella(voci) {
+    const basi = new Set(voci.keys());
+    const { colId, colNome, colpi, nCol } = scegliColonne(RIGHE, basi);
+    if (colId < 0) {
+      stampa("\n<span class='no'>Nessuna colonna della tabella corrisponde ai file "
+           + "dell'archivio.</span> Prime righe della tabella:");
+      for (const r of RIGHE.slice(0, 8)) stampa("  " + esc(r.join(" | ").slice(0, 150)));
+      return null;
+    }
+    stampa(`tabella: colonna ${colId + 1} di ${nCol} e' l'identificativo `
+         + `(${colpi} nomi su ${RIGHE.length} sono nell'archivio), colonna ${colNome + 1} il nome`);
+    const { mappa, note } = risolviPerNome(RIGHE, colId, colNome);
     for (const n of note) stampa("  " + esc(n), "no");
     const attese = [];
     for (const [base, def] of Object.entries(CERCA)) {
       for (const suff of def.lat ? ["_dx", "_sx"] : [""]) attese.push(base + suff);
     }
     const mancanti = attese.filter(k => !mappa[k]);
-    stampa(`\n<b>${chiavi.length} strutture riconosciute</b> su ${attese.length}, ${nFile} modelli`);
-    if (mancanti.length) {
-      stampa(`\n<span class="no">non trovate nella tabella:</span> ${esc(mancanti.join(", "))}`, );
-    }
-    if (!chiavi.length) {
-      stato("Tabella letta ma nessun nome riconosciuto. Mandami questa schermata.", "err");
+    const n = Object.keys(mappa).length;
+    stampa(`<b>${n} strutture riconosciute</b> su ${attese.length}`);
+    if (mancanti.length) stampa(`non trovate: ${esc(mancanti.join(", "))}`, "no");
+    if (!n) {
       stampa("\nprimi nomi nella tabella:");
-      for (const v of voci.slice(0, 12)) stampa(`  ${esc(v.ids.join("/"))}  ${esc(v.nome)}`);
-      avanza(1);
+      for (const r of RIGHE.slice(0, 12)) stampa(`  ${esc(r[colId])}  ${esc(r[colNome])}`);
       return null;
     }
-    TABELLA = mappa;
-    try { localStorage.setItem("nirscope-tabella", JSON.stringify(mappa)); } catch { /* niente */ }
-    avanza(1);
-    if (zipInSospeso) {
-      const z = zipInSospeso; zipInSospeso = null;
-      stato("Tabella pronta. Riprendo l'archivio…", "good");
-      stampa("\nriprendo <b>" + esc(z.name) + "</b> con i nomi appena letti");
-      await pausa();
-      await elabora(z, true);
-      return mappa;
-    }
-    stato(`Tabella pronta: ${chiavi.length} strutture. Adesso scegli l'archivio .zip.`, "good");
     return mappa;
   }
 
@@ -676,13 +719,10 @@
           if (!/(parts?[_-]?list|element[_-]?parts)/i.test(base) || /\.obj$/i.test(base)) continue;
           try {
             const t = new TextDecoder().decode(await estrai(file, v));
-            const vv = analizzaTabella(t);
-            if (vv.length < 20) continue;
-            const { mappa } = risolviPerNome(vv);
-            if (Object.keys(mappa).length < 10) continue;
-            TABELLA = mappa;
+            const rr = analizzaTabella(t);
+            if (rr.length < 20) continue;
+            RIGHE = rr;
             stampa(`tabella dei nomi trovata dentro l'archivio: ${esc(v.nome)}`, "ok");
-            stampa(`  ${Object.keys(mappa).length} strutture riconosciute per nome`);
             break;
           } catch { /* non era leggibile, si prosegue */ }
         }
@@ -691,6 +731,10 @@
 
       // Se e' stata caricata la tabella dei nomi si usa quella: e' risolta
       // sull'archivio vero invece che su un'ipotesi.
+      // Ora che si conoscono i nomi dei file, la tabella si puo' incrociare:
+      // e' l'archivio a dire quale colonna sia l'identificativo del modello.
+      if (RIGHE && !TABELLA) TABELLA = daTabella(voci);
+
       // Forma unica: ogni struttura e' un elenco di parti, e ogni parte un
       // elenco di identificativi alternativi fra cui basta che uno esista.
       const USA = TABELLA || Object.fromEntries(
@@ -772,14 +816,14 @@
   // La tabella si conserva fra una visita e l'altra: e' piccola, e ripescarla
   // dall'app File ogni volta e' la parte piu' scomoda di tutto il giro.
   try {
-    const salvata = localStorage.getItem("nirscope-tabella");
-    if (salvata) {
-      const m = JSON.parse(salvata);
-      if (m && Object.keys(m).length >= 10) {
-        TABELLA = m;
-        stampa(`tabella dei nomi gia' in memoria: ${Object.keys(m).length} strutture`, "ok");
+    const salvato = localStorage.getItem("nirscope-righe");
+    if (salvato) {
+      const rr = analizzaTabella(salvato);
+      if (rr.length >= 20) {
+        RIGHE = rr;
+        stampa(`tabella dei nomi gia' in memoria: ${rr.length} righe`, "ok");
         stampa("scegli l'archivio, oppure ricarica la tabella per sostituirla.");
-        stato(`Tabella gia' pronta (${Object.keys(m).length} strutture). Scegli l'archivio.`, "good");
+        stato(`Tabella gia' in memoria (${rr.length} righe). Scegli l'archivio.`, "good");
       }
     }
   } catch { /* memoria non disponibile: si ricarica a mano */ }
