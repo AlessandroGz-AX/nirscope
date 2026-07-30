@@ -307,21 +307,58 @@ check("lati non scambiati", skR.scambiaLati === false);
 const gR = preparaLegami(reale, skR);
 check("tutte e 60 agganciate", gR.pronte.length === 60,
       `${gR.pronte.length}, fuori: ${gR.fuori.join(", ") || "nessuna"}`);
-// Le articolazioni vanno ritrovate dove le ho messe costruendo il modello.
-const VERI_G = { anca_dx:[-9,0,95], ginocchio_dx:[-9.5,0,51], caviglia_dx:[-9.5,0,8],
-                 spalla_dx:[-19,0,143], gomito_dx:[-21,0,113], polso_dx:[-22,0,85],
-                 anca_sx:[9,0,95], ginocchio_sx:[9.5,0,51], caviglia_sx:[9.5,0,8],
-                 spalla_sx:[19,0,143], gomito_sx:[21,0,113], polso_sx:[22,0,85] };
-let peggioR = 0, qualeR = "";
-for (const [k, v] of Object.entries(VERI_G)) {
-  const d = dist(skR.ancore[k], v);
-  if (d > peggioR) { peggioR = d; qualeR = k; }
+// Le verifiche sul modello pubblicato non possono essere in centimetri: puo'
+// essere il mio, in centimetri, o quello di BodyParts3D, in millimetri. Si
+// controllano le proporzioni e i rapporti anatomici, che valgono in qualunque
+// unita' — ed e' anche una prova piu' seria, perche' un modello sbagliato di
+// scala passerebbe lo stesso mentre uno sbagliato di forma no.
+const pt = (n) => { const s = reale.find(x => x.nome === n); const c = s.pos.length/3;
+  let a=[0,0,0]; for (let i=0;i<c;i++) for (let k=0;k<3;k++) a[k]+=s.pos[i*3+k];
+  return a.map(v=>v/c); };
+const proiez = (n, dir) => pt(n)[0]*dir[0] + pt(n)[1]*dir[1] + pt(n)[2]*dir[2];
+const dd = (a, b) => dist(skR.ancore[a], skR.ancore[b]);
+const statura = dd("caviglia_dx", "anca_dx") + dd("anca_dx", "midSpalle")
+              + dist(skR.ancore.midSpalle, skR.ancore.testa);
+const rapporto = (a, b) => dd(a, b) / statura;
+// Proporzioni umane, larghe: il femore e' circa un terzo della catena in piedi,
+// l'omero poco piu' di un quinto.
+for (const [nome, a, b, min, max] of [
+  ["femore",      "anca_dx", "ginocchio_dx",    0.22, 0.36],
+  ["tibia",       "ginocchio_dx", "caviglia_dx", 0.18, 0.32],
+  ["omero",       "spalla_dx", "gomito_dx",     0.14, 0.28],
+  ["avambraccio", "gomito_dx", "polso_dx",      0.11, 0.24],
+  ["tronco",      "midAnche", "midSpalle",      0.25, 0.45],
+]) {
+  const r = rapporto(a, b);
+  check(`${nome}: proporzione plausibile`, r > min && r < max, `${(r*100).toFixed(0)}% della statura`);
 }
-check("le 12 articolazioni ritrovate entro 3 cm su 175 di statura", peggioR < 3,
-      `peggiore ${qualeR}: ${peggioR.toFixed(1)} cm`);
+check("i due femori sono simmetrici entro il 5%",
+      Math.abs(dd("anca_dx","ginocchio_dx") - dd("anca_sx","ginocchio_sx"))
+        / dd("anca_dx","ginocchio_dx") < 0.05);
+check("le anche sono larghe fra il 5% e il 20% della statura",
+      dd("anca_dx","anca_sx")/statura > 0.05 && dd("anca_dx","anca_sx")/statura < 0.20,
+      `${(dd("anca_dx","anca_sx")/statura*100).toFixed(0)}%`);
+
+// Rapporti anatomici lungo gli assi dedotti: valgono per qualunque modello
+// corretto, e un modello specchiato o storto li sbaglia.
+for (const [nome, dietro, davanti] of [
+  ["lo sterno sta davanti alla colonna", "colonna", "sterno"],
+  ["la rotula davanti al femore",        "femore_dx", "rotula_dx"],
+  ["il gluteo dietro al femore",         "gluteo_dx", "femore_dx"],
+  ["il bicipite davanti al tricipite",   "tricipite_dx", "bicipite_dx"],
+  ["il tibiale anteriore davanti al gastrocnemio", "gastrocnemio_dx", "tibiale_ant_dx"],
+  ["il pettorale davanti al trapezio",   "trapezio_dx", "pettorale_dx"],
+]) check(nome, proiez(davanti, skR.avanti) > proiez(dietro, skR.avanti),
+         `${(proiez(davanti, skR.avanti) - proiez(dietro, skR.avanti)).toFixed(0)}`);
+check("le strutture destre stanno a destra del soggetto",
+      proiez("femore_dx", skR.laterale) < proiez("femore_sx", skR.laterale) &&
+      proiez("omero_dx", skR.laterale) < proiez("omero_sx", skR.laterale));
+check("il cranio sta sopra il bacino",
+      proiez("cranio", skR.su) > proiez("sacro", skR.su));
+
 const triR = reale.reduce((a, s) => a + s.idx.length / 3, 0);
-check("sotto i 120 mila triangoli", triR < 120000, `${triR.toLocaleString("it")}`);
-check("sotto i 2 MB", b.byteLength < 2e6, `${(b.byteLength/1e6).toFixed(2)} MB`);
+check("sotto i 400 mila triangoli", triR < 400000, `${triR.toLocaleString("it")}`);
+check("sotto gli 8 MB", b.byteLength < 8e6, `${(b.byteLength/1e6).toFixed(2)} MB`);
 
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);
 process.exit(ko ? 1 : 0);

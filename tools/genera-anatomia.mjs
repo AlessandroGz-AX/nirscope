@@ -360,10 +360,16 @@ const base = (k) => k.endsWith("_dx") || k.endsWith("_sx") ? k.slice(0, -3) : k;
 
 export function costruisci() {
   const strutture = Object.entries(S).map(([nome, m]) => {
+    // La y qui sopra e' comoda da scrivere come "avanti", ma nel file va
+    // rovesciata: laterale, su e avanti devono formare una terna con la stessa
+    // mano dello spazio vivo, dove sono x, y, z. Col segno diretto il modello
+    // uscirebbe specchiato — e uno scheletro riflesso non si nota a occhio.
     const pos = new Float32Array(m.V.length * 3);
-    m.V.forEach((p, i) => { pos[i*3] = p[0]; pos[i*3+1] = p[1]; pos[i*3+2] = p[2]; });
+    m.V.forEach((p, i) => { pos[i*3] = p[0]; pos[i*3+1] = -p[1]; pos[i*3+2] = p[2]; });
+    // Rovesciando un asse si rovescia anche il verso delle facce: senza
+    // riordinarle le normali punterebbero dentro e la luce le annerirebbe.
     const idx = new Uint32Array(m.F.length * 3);
-    m.F.forEach((f, i) => { idx[i*3] = f[0]; idx[i*3+1] = f[1]; idx[i*3+2] = f[2]; });
+    m.F.forEach((f, i) => { idx[i*3] = f[0]; idx[i*3+1] = f[2]; idx[i*3+2] = f[1]; });
     return { nome, osso: OSSA.has(base(nome)), pos, idx };
   });
   const enc = new TextEncoder();

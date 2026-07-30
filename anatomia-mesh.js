@@ -142,7 +142,14 @@ export function derivaScheletro(mappa) {
 
   // Ora il laterale si ricava dalla terna anatomica, e i femori diventano la
   // controprova. Se non concordano, la mappa ha destra e sinistra scambiate.
-  const lateraleAnat = norm(cross(avanti, su));            // verso la sua sinistra
+  //
+  // L'ordine del prodotto vettore non e' indifferente: cross(su, avanti) da' la
+  // sinistra del soggetto con la stessa mano dello spazio vivo, dove laterale,
+  // su e avanti sono x, y, z. Scritto al contrario da' la destra, e sui dati
+  // veri di BodyParts3D faceva scattare un allarme di lati scambiati che non
+  // c'era — le prove non lo vedevano perche' il modello sintetico era
+  // specchiato quanto la formula.
+  const lateraleAnat = norm(cross(su, avanti));            // verso la sua sinistra
   const scambiaLati = dot(lateraleAnat, laterale) < 0;
   if (scambiaLati) {
     avvisi.push("le etichette destra/sinistra della mappa risultano scambiate rispetto "

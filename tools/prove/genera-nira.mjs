@@ -18,11 +18,14 @@ const ORIGINE = [37.5, -12.25, 190.0];    // e non e' centrato sull'origine
 /** Da coordinate anatomiche comode (x=verso la sua sinistra, y=avanti,
  *  z=in su, in cm) al sistema storto del finto archivio. */
 function verso(p) {
-  const x = p[0] * c - p[1] * s, y = p[0] * s + p[1] * c;
+  // La y anatomica (avanti) va all'indietro nel sistema del modello: con lo
+  // stesso segno la terna verrebbe specchiata rispetto allo spazio vivo, dove
+  // laterale, su e avanti sono x, y, z, e il modello uscirebbe riflesso.
+  const x = p[0] * c + p[1] * s, y = p[0] * s - p[1] * c;
   return [x + ORIGINE[0], y + ORIGINE[1], p[2] + ORIGINE[2]];
 }
 export const VERI = {
-  su: [0, 0, 1], laterale: [c, s, 0], avanti: [-s, c, 0], scala: SCALA, origine: ORIGINE,
+  su: [0, 0, 1], laterale: [c, s, 0], avanti: [s, -c, 0], scala: SCALA, origine: ORIGINE,
 };
 
 function ellissoide(centro, raggi, suddiv = 2) {
