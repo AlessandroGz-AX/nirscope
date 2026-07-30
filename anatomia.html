@@ -171,7 +171,10 @@
       <strong>OpenCap</strong> di Stanford: due video da smartphone, modello OpenSim, gratuito e
       open source, ma non in tempo reale.
     </p>
-    <p>Le immagini non lasciano il dispositivo: questa pagina non fa richieste di rete.</p>
+    <p>
+      Le immagini non lasciano il dispositivo: l'unica richiesta di rete che questa pagina fa e'
+      per le proprie mesh anatomiche, e nulla di quel che riprendi viene mai inviato.
+    </p>
   </footer>
 </div>
 
@@ -311,7 +314,7 @@ function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
       // Il ventre conserva il volume: accorciandosi si ingrossa.
       ingrosso = e < 0 ? 1 + k * 0.28 : 1 - k * 0.12;
     }
-    const M = matricePosa(v.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso);
+    const M = matricePosa(v.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso, !!seg.rigido);
     if (!M) { v.mesh.visible = false; continue; }
     v.mesh.visible = true;
     v.mesh.matrix.copy(M4.fromArray(M));
@@ -420,7 +423,21 @@ $("btn-scorda").addEventListener("click", () => {
   scorda();
   renderer.render(scene, camera);
 });
-ripesca().then(buf => { if (buf && !legami) usaMesh(buf, true); });
+// All'avvio le mesh ci sono gia': stanno accanto alla pagina. Chi ne ha di
+// proprie le carica sopra, ma nessuno deve procurarsi niente per vedere il
+// modello anatomico.
+(async () => {
+  const salvate = await ripesca();
+  if (salvate && !legami) { usaMesh(salvate, true); return; }
+  if (legami) return;
+  try {
+    const r = await fetch("./anatomia.nira");
+    if (!r.ok) throw new Error("non disponibili");
+    if (!legami) usaMesh(await r.arrayBuffer(), false);
+  } catch {
+    $("status").textContent = "Modello schematico. Puoi caricare le tue mesh col pulsante qui sopra.";
+  }
+})();
 
 function toVec(p) {
   // MediaPipe: metri, origine fra le anche, y verso il basso, z profondita'.

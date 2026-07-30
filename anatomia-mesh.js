@@ -239,7 +239,10 @@ export const LEGAMI = {
 // I landmark sono gli indici di MediaPipe Pose.
 export const SEGMENTI = {
   tronco:          { ancore: ["midAnche", "midSpalle"], lm: ["midAnche", "midSpalle"] },
-  testa:           { ancore: ["midSpalle", "testa"],    lm: ["midSpalle", "naso"] },
+  // Il cranio e' rigido: la sua dimensione segue la corporatura, non la
+  // distanza naso-spalle, che cambia solo perche' si inclina la testa. Senza
+  // questo la testa si allunga fino a sembrare un uovo.
+  testa:           { ancore: ["midSpalle", "testa"],    lm: ["midSpalle", "naso"], rigido: true },
   omero_dx:        { ancore: ["spalla_dx", "gomito_dx"],   lm: [12, 14] },
   omero_sx:        { ancore: ["spalla_sx", "gomito_sx"],   lm: [11, 13] },
   avambraccio_dx:  { ancore: ["gomito_dx", "polso_dx"],    lm: [14, 16] },
@@ -302,7 +305,7 @@ export function preparaLegami(strutture, sk) {
  *
  *  `ingrosso` moltiplica le sole direzioni trasversali: serve ai ventri
  *  muscolari, che si gonfiano accorciandosi. */
-export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 1) {
+export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 1, rigido = false) {
   const L1 = len(sub(b1, a1));
   if (!(L1 > 1e-9)) return null;
   const F1 = frameSegmento(a1, b1, rifSu, rifAvanti);
@@ -311,7 +314,8 @@ export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 
   // La scala lungo l'asse segue la lunghezza vera del segmento, ma con un
   // limite: i landmark tremolano e un arto quasi puntato verso l'obiettivo
   // viene stimato corto, il che senza freno stirerebbe l'osso a fisarmonica.
-  const kA = Math.max(scalaCorpo * 0.7, Math.min(scalaCorpo * 1.4, L1 / l.lunghezzaRiposo));
+  const kA = rigido ? scalaCorpo
+    : Math.max(scalaCorpo * 0.7, Math.min(scalaCorpo * 1.4, L1 / l.lunghezzaRiposo));
   const kL = scalaCorpo * ingrosso;
   const S = [kL, kA, kL];
 

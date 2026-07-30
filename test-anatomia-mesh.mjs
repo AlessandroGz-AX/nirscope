@@ -289,5 +289,39 @@ catch (e) { errCranio = e.message; }
 check("senza bacino e cranio lo dice invece di produrre spazzatura",
       /bacino e cranio/.test(errCranio), errCranio);
 
+// ── 9. Il modello che viene davvero pubblicato ─────────────────────
+// Le prove sopra girano su forme sintetiche. Questo e' il file che finisce
+// online e che la pagina carica da sola: deve reggere le stesse verifiche.
+console.log("\n\x1b[1m9. anatomia.nira, il modello pubblicato\x1b[0m");
+const { readFileSync } = await import("node:fs");
+const b = readFileSync(new URL("./anatomia.nira", import.meta.url));
+const reale = leggiNira(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
+check("60 strutture", reale.length === 60, `${reale.length}`);
+check("26 ossa e 34 muscoli", reale.filter(s => s.osso).length === 26,
+      `${reale.filter(s => s.osso).length} ossa`);
+check("indici tutti dentro i vertici", reale.every(s => s.idx.every(i => i < s.pos.length / 3)));
+check("nessuna coordinata non finita", reale.every(s => s.pos.every(Number.isFinite)));
+const skR = derivaScheletro(new Map(reale.map(s => [s.nome, s])));
+check("nessun avviso sull'orientamento", skR.avvisi.length === 0, skR.avvisi.join("; "));
+check("lati non scambiati", skR.scambiaLati === false);
+const gR = preparaLegami(reale, skR);
+check("tutte e 60 agganciate", gR.pronte.length === 60,
+      `${gR.pronte.length}, fuori: ${gR.fuori.join(", ") || "nessuna"}`);
+// Le articolazioni vanno ritrovate dove le ho messe costruendo il modello.
+const VERI_G = { anca_dx:[-9,0,95], ginocchio_dx:[-9.5,0,51], caviglia_dx:[-9.5,0,8],
+                 spalla_dx:[-19,0,143], gomito_dx:[-21,0,113], polso_dx:[-22,0,85],
+                 anca_sx:[9,0,95], ginocchio_sx:[9.5,0,51], caviglia_sx:[9.5,0,8],
+                 spalla_sx:[19,0,143], gomito_sx:[21,0,113], polso_sx:[22,0,85] };
+let peggioR = 0, qualeR = "";
+for (const [k, v] of Object.entries(VERI_G)) {
+  const d = dist(skR.ancore[k], v);
+  if (d > peggioR) { peggioR = d; qualeR = k; }
+}
+check("le 12 articolazioni ritrovate entro 3 cm su 175 di statura", peggioR < 3,
+      `peggiore ${qualeR}: ${peggioR.toFixed(1)} cm`);
+const triR = reale.reduce((a, s) => a + s.idx.length / 3, 0);
+check("sotto i 120 mila triangoli", triR < 120000, `${triR.toLocaleString("it")}`);
+check("sotto i 2 MB", b.byteLength < 2e6, `${(b.byteLength/1e6).toFixed(2)} MB`);
+
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);
 process.exit(ko ? 1 : 0);
