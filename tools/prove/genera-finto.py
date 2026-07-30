@@ -113,3 +113,17 @@ scrivi_zip("finto_bp3d.zip")
 scrivi_zip("finto_buchi.zip",
            salta={"BP8920", "BP5566", "BP5562", "BP5550", "BP5564"},
            stored={"BP9042", "BP8816"})
+
+# Un archivio con un'altra convenzione di nomi: e' il caso capitato davvero,
+# l'archivio giusto ma con identificativi che la mappa non conosce.
+def scrivi_nomi_diversi():
+    import zipfile as zf
+    z = zf.ZipFile("finto_bp3d.zip")
+    nomi = [n for n in z.namelist() if n.endswith(".obj")][:200]
+    with zf.ZipFile("finto_nomi_diversi.zip", "w", zf.ZIP_DEFLATED, compresslevel=1) as o:
+        for i, n in enumerate(nomi):
+            o.writestr("BP3D_4.0_obj_99/FJ%d.obj" % (3000 + i), z.read(n)[:4000])
+    print("%-22s %8.2f MB" % ("finto_nomi_diversi.zip", os.path.getsize("finto_nomi_diversi.zip") / 1e6))
+
+import os
+scrivi_nomi_diversi()

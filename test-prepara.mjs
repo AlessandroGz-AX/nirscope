@@ -80,12 +80,12 @@ const esegui = async (zip) => {
   await page.goto(url, { waitUntil: "load" });
   await page.setInputFiles("#zip", `${PROVE}/${zip}`);
   await page.waitForFunction(
-    () => /^(Pronto:|Errore:|Nessuna)/.test(document.getElementById("stato").textContent),
+    () => /^(Pronto:|Errore:|Nessuna|Nomi diversi|File di testo)/.test(document.getElementById("stato").textContent),
     null, { timeout: 300000 });
   return {
     stato: await page.textContent("#stato"),
     log: await page.textContent("#log"),
-    dati: await ANALIZZA(),
+    dati: await ANALIZZA(),   // null quando non si e' prodotto nulla
   };
 };
 
@@ -203,16 +203,42 @@ check("femore_sx non compresso letto correttamente",
 check("bicipite_sx (un capo non compresso) letto correttamente",
       r3.dati.strutture.find(s=>s.nome==="bicipite_sx")?.nt > 0);
 
-// ── 8. Archivio sbagliato ──────────────────────────────────────────
-console.log("\n\x1b[1m8. Archivio sbagliato\x1b[0m");
+// ── 8. File che non sono l'archivio giusto ─────────────────────────
+console.log("\n\x1b[1m8. File che non sono l'archivio giusto\x1b[0m");
 await page.goto(url, { waitUntil: "load" });
-const esito = await page.evaluate(async () => {
-  const f = new File([new Uint8Array([1,2,3,4,5,6,7,8,9,10])], "roba.zip");
-  await window.__prep.elabora(f);
+const binario = await page.evaluate(async () => {
+  const b = new Uint8Array(600); for (let i = 0; i < b.length; i++) b[i] = i % 251;
+  await window.__prep.elabora(new File([b], "roba.zip"));
   return document.getElementById("stato").textContent;
 });
-check("un file non-ZIP da un messaggio comprensibile, non un crash",
-      /Non sembra un archivio ZIP/.test(esito), esito);
+check("un file binario qualsiasi: messaggio chiaro, non un crash",
+      /Non sembra un archivio ZIP/.test(binario), binario);
+
+// Le tabelle di corrispondenza di BodyParts3D sono file di testo: invece di
+// rifiutarle se ne mostra l'inizio, perche' sono l'unico posto dove sta scritto
+// come i modelli si chiamano davvero.
+const testo = await page.evaluate(async () => {
+  const t = "FMA7207\tBP8920\tfemur\nFMA9611\tBP5558\tbiceps brachii\n";
+  await window.__prep.elabora(new File([t], "partof_parts_list_e.txt"));
+  return { stato: document.getElementById("stato").textContent,
+           log: document.getElementById("log").textContent };
+});
+check("una tabella di testo viene mostrata invece che rifiutata",
+      /File di testo/.test(testo.stato), testo.stato);
+check("se ne vedono le righe e il separatore",
+      /tabulazione/.test(testo.log) && /biceps brachii/.test(testo.log));
+
+// ── 9. Archivio con nomi diversi da quelli attesi ──────────────────
+// E' il caso che si e' presentato davvero: l'archivio c'e' ma usa un'altra
+// convenzione di nomi. Senza diagnostica l'unica informazione sarebbe "non
+// trovato", che non basta a capire cosa fare.
+console.log("\n\x1b[1m9. Archivio con nomi diversi\x1b[0m");
+const r4 = await esegui("finto_nomi_diversi.zip");
+check("lo dice invece di fallire in silenzio", /Nomi diversi/.test(r4.stato), r4.stato);
+check("mostra cartelle, estensioni e forma dei nomi", /forma nomi/.test(r4.log));
+check("mostra i primi nomi veri", /FJ3000\.obj/.test(r4.log));
+check("dice se i numeri cercati compaiono altrove", /numeri cercati/.test(r4.log),
+      (r4.log.match(/numeri cercati.*/) || [""])[0]);
 
 await browser.close();
 server.close();

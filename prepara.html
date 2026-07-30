@@ -106,7 +106,7 @@
     <div class="card-head"><h2>Archivio</h2><span class="eyebrow" id="info">nessun file</span></div>
     <div class="card-body">
       <label class="file" for="zip" id="drop">Scegli l'archivio BodyParts3D (.zip)</label>
-      <input type="file" id="zip" accept=".zip,application/zip">
+      <input type="file" id="zip">
       <div class="barra"><i id="prog"></i></div>
       <div class="log" id="log">In attesa dell'archivio.</div>
       <button type="button" id="btn-scarica" class="primary" style="margin-top:14px" disabled>
@@ -414,6 +414,72 @@
     return buf;
   }
 
+  // ── Quando i nomi non corrispondono ────────────────────────────────
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  /** Cerca una voce provando le forme in cui l'identificativo puo' comparire.
+   *  BodyParts3D distingue l'identificativo di concetto da quello di
+   *  rappresentazione, e a seconda del pacchetto i file portano l'uno o
+   *  l'altro: tanto vale provarle tutte invece di scommettere. */
+  function cercaVoce(voci, id) {
+    const n = id.replace(/^[A-Za-z]+/, "");
+    for (const forma of [id, "BP" + n, "FMA" + n, "FJ" + n, n]) {
+      const v = voci.get(forma.toLowerCase() + ".obj");
+      if (v) return v;
+    }
+    return null;
+  }
+
+  /** Racconta cosa c'e' dentro l'archivio quando non si trova quel che serve.
+   *  Senza questo l'unica informazione sarebbe "non trovato", che non basta a
+   *  capire se sia l'archivio sbagliato o solo un'altra convenzione di nomi. */
+  function diagnostica(voci) {
+    const nomi = [...voci.values()].map(v => v.nome);
+    const est = new Map(), dir = new Map(), forma = new Map();
+    const conta = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+    for (const n of nomi) {
+      const b = n.split("/").pop();
+      conta(est, b.includes(".") ? b.slice(b.lastIndexOf(".")).toLowerCase() : "(senza estensione)");
+      conta(dir, n.includes("/") ? n.slice(0, n.lastIndexOf("/") + 1) : "(radice)");
+      // Lettere e cifre ridotte ad A e 9: mostra la forma del nome, non i nomi.
+      conta(forma, b.replace(/\.[^.]*$/, "").replace(/[A-Za-z]+/g, "A").replace(/[0-9]+/g, "9"));
+    }
+    const primi = (m, k) => [...m].sort((a, b) => b[1] - a[1]).slice(0, k);
+
+    stampa("\n<b>Cosa c'e' davvero nell'archivio</b>");
+    stampa("cartelle:   " + primi(dir, 3).map(([k, v]) => `${esc(k)} (${v})`).join("   "));
+    stampa("estensioni: " + primi(est, 4).map(([k, v]) => `${esc(k)} ${v}`).join("   "));
+    stampa("forma nomi: " + primi(forma, 4).map(([k, v]) => `${esc(k)} (${v})`).join("   "));
+    stampa("\nprimi venti nomi:");
+    for (const n of nomi.slice(0, 20)) stampa("  " + esc(n));
+
+    // Se i numeri fossero gli stessi con un prefisso diverso, qui si vedrebbe.
+    const numeri = [...new Set(Object.values(MAPPA).flat().map(s => s.replace(/^\D+/, "")))];
+    const trovati = [];
+    for (const n of nomi) {
+      if (numeri.some(num => n.includes(num))) trovati.push(n);
+      if (trovati.length >= 8) break;
+    }
+    stampa(`\nnomi che contengono uno dei numeri cercati: ${trovati.length ? trovati.length + "+" : "nessuno"}`);
+    for (const n of trovati) stampa("  " + esc(n));
+  }
+
+  /** Un file di testo non si elabora: se ne mostra l'inizio. Serve a leggere le
+   *  tabelle di corrispondenza di BodyParts3D, che sono l'unico posto dove sta
+   *  scritto come i modelli si chiamano davvero. */
+  async function ispezionaTesto(file) {
+    const testo = new TextDecoder().decode(await file.slice(0, 6000).arrayBuffer());
+    const rr = testo.split(/\r?\n/);
+    stampa(`<b>${esc(file.name)}</b> — ${(file.size / 1e3).toFixed(0)} kB, testo`);
+    const sep = testo.includes("\t") ? "tabulazione" :
+                testo.includes(";") ? "punto e virgola" :
+                testo.includes(",") ? "virgola" : "spazi";
+    stampa(`separatore: ${sep}\n\nprime righe:`);
+    for (const r of rr.slice(0, 12)) stampa("  " + esc(r.slice(0, 150)));
+    stato("File di testo: qui sopra le prime righe. Mandami questa schermata.", "good");
+    avanza(1);
+  }
+
   // ── Elaborazione ───────────────────────────────────────────────────
   let risultato = null;
 
@@ -426,6 +492,18 @@
     }
     const avvio = performance.now();
     try {
+      // Un archivio comincia sempre con PK. Se non c'e', puo' essere una delle
+      // tabelle di corrispondenza — e allora se ne mostra l'inizio — oppure un
+      // file qualsiasi, e allora tanto vale dirlo. Si distinguono guardando se
+      // i byte sono leggibili: un file di testo non contiene zeri.
+      const testa = new Uint8Array(await file.slice(0, 2048).arrayBuffer());
+      if (testa[0] !== 0x50 || testa[1] !== 0x4b) {
+        let stampabili = 0;
+        for (const b of testa) if (b === 9 || b === 10 || b === 13 || (b >= 32 && b !== 127)) stampabili++;
+        if (testa.length && stampabili / testa.length > 0.9) return await ispezionaTesto(file);
+        throw new Error("Non sembra un archivio ZIP: non comincia con la firma giusta.");
+      }
+
       stato("Leggo l'indice dell'archivio…"); avanza(0.02);
       stampa(`<b>${file.name}</b> — ${(file.size/1e6).toFixed(1)} MB`);
       const { voci, zip64 } = await indice(file);
@@ -440,7 +518,7 @@
         const k = chiavi[i];
         const pezzi = [], persi = [];
         for (const bp of MAPPA[k]) {
-          const v = voci.get(bp.toLowerCase() + ".obj");
+          const v = cercaVoce(voci, bp);
           if (!v) { persi.push(bp); continue; }
           const m = leggiObj(await estrai(file, v));
           if (m.F.length) { pezzi.push(m); letti++; } else persi.push(bp);
@@ -467,10 +545,16 @@
       }
 
       if (!fatte.length) {
-        stato("Nessuna struttura trovata: probabilmente e' l'archivio sbagliato, serve quello dei modelli OBJ.", "err");
-        stampa("\nNessuno dei 126 file cercati e' nell'archivio.", "no");
+        stampa(`\n<span class="no">Nessuno dei 126 file cercati e' in questo archivio.</span>`);
+        diagnostica(voci);
+        avanza(1);
+        stato("Nomi diversi da quelli attesi. Qui sopra c'e' come sono fatti davvero: "
+            + "mandami questa schermata e adatto la mappa.", "err");
         return null;
       }
+      // Anche una corrispondenza parziale merita di sapere com'e' fatto il
+      // resto: spesso il pacchetto e' quello sbagliato dei due disponibili.
+      if (letti < 40) diagnostica(voci);
 
       const buf = serializza(fatte);
       risultato = new Blob([buf], { type: "application/octet-stream" });
