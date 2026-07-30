@@ -1,0 +1,3264 @@
+concept id	name	element file id
+FMA52741	lacrimal bone	FJ3371
+FMA61775	physical anatomical entity	FJ1395
+FMA55671	cavitated organ	FJ3346
+FMA61775	physical anatomical entity	FJ1510
+FMA22763	arteria radialis indicis	FJ2342
+FMA61775	physical anatomical entity	FJ3340
+FMA37347	muscle of pectoral girdle	FJ1459
+FMA9622	muscle of lower limb	FJ1437
+FMA8707	apical segmental artery	FJ2917
+FMA8012	left second rib	FJ3229
+FMA61775	physical anatomical entity	FJ2331
+FMA7596	atypical rib	FJ3334
+FMA67135	anatomical structure	FJ3156
+FMA55665	nonparenchymatous organ	FJ2809
+FMA55268	organ zone	FJ1464
+FMA62955	anatomical entity	FJ3157
+FMA256237	segment of neuraxis	FJ1746
+FMA67135	anatomical structure	FJ1452
+FMA67165	material anatomical entity	FJ3170
+FMA37369	muscle of foot	FJ1387
+FMA62955	anatomical entity	FJ3330
+FMA55673	organ with cavitated organ parts	FJ3228
+FMA66464	systemic artery	FJ3091
+FMA67165	material anatomical entity	FJ3631
+FMA67619	organ region	FJ2660
+FMA67165	material anatomical entity	FJ2543
+FMA67135	anatomical structure	FJ1437M
+FMA67135	anatomical structure	FJ1596
+FMA67498	organ	FJ1551
+FMA34679	spinal part of deltoid	FJ1513M
+FMA55670	solid organ	FJ3218
+FMA7474	long bone	FJ3226
+FMA67619	organ region	FJ2354
+FMA67619	organ region	FJ1442M
+FMA5018	bone organ	FJ3381
+FMA61775	physical anatomical entity	FJ3366
+FMA61775	physical anatomical entity	FJ3541
+FMA55665	nonparenchymatous organ	FJ2800
+FMA32556	transverse part of trapezius	FJ1554M
+FMA67619	organ region	FJ1661
+FMA83143	cell part cluster of neuraxis	FJ1824
+FMA67165	material anatomical entity	FJ3380
+FMA67165	material anatomical entity	FJ1452
+FMA61775	physical anatomical entity	FJ2081
+FMA61775	physical anatomical entity	FJ1459M
+FMA61775	physical anatomical entity	FJ1437
+FMA77884	subdivision of subclavian vein	FJ2222
+FMA67165	material anatomical entity	FJ2964
+FMA9921	lumbar vertebra	FJ3162
+FMA5018	bone organ	FJ3362
+FMA55673	organ with cavitated organ parts	FJ3371
+FMA5018	bone organ	FJ3391
+FMA67165	material anatomical entity	FJ1478
+FMA61775	physical anatomical entity	FJ1477
+FMA5018	bone organ	FJ3226
+FMA52789	left parietal bone	FJ3274
+FMA14065	organ component	FJ3137
+FMA50720	artery	FJ3494
+FMA7474	long bone	FJ3282
+FMA5022	muscle organ	FJ1436
+FMA24476	tibia	FJ3282
+FMA62955	anatomical entity	FJ1452M
+FMA67498	organ	FJ1536M
+FMA9597	salivary gland	FJ2766
+FMA5018	bone organ	FJ3235
+FMA66464	systemic artery	FJ1657M
+FMA55673	organ with cavitated organ parts	FJ3348
+FMA9611	femur	FJ3365
+FMA9311	subsegmental pulmonary artery	FJ2994
+FMA67135	anatomical structure	FJ3394
+FMA86140	organ segment	FJ3447
+FMA62955	anatomical entity	FJ3173
+FMA67619	organ region	FJ2394
+FMA62955	anatomical entity	FJ3240
+FMA37371	muscle of forearm	FJ1487
+FMA8283	right eighth rib	FJ3347
+FMA67165	material anatomical entity	FJ3236
+FMA50720	artery	FJ1657
+FMA61775	physical anatomical entity	FJ3275
+FMA55671	cavitated organ	FJ3392
+FMA62955	anatomical entity	FJ2459
+FMA45729	head of organ	FJ1512M
+FMA67135	anatomical structure	FJ1520M
+FMA62955	anatomical entity	FJ1444
+FMA61775	physical anatomical entity	FJ1259
+FMA10446	intervertebral disk	FJ3203
+FMA7477	irregular bone	FJ3163
+FMA67498	organ	FJ3226
+FMA61775	physical anatomical entity	FJ1443M
+FMA55107	cartilage organ	FJ3216
+FMA55107	cartilage organ	FJ3215
+FMA5018	bone organ	FJ3371
+FMA34685	spinal part of left deltoid	FJ1513M
+FMA82472	cardinal organ part	FJ1478
+FMA9613	parietal bone	FJ3380
+FMA67165	material anatomical entity	FJ3385
+FMA22693	branch of brachial artery	FJ2267
+FMA67165	material anatomical entity	FJ3381
+FMA55671	cavitated organ	FJ3282
+FMA50723	vein	FJ2949
+FMA67498	organ	FJ3349
+FMA8066	right fifth rib	FJ3342
+FMA67619	organ region	FJ1395
+FMA8668	superior lingular vein	FJ2937
+FMA55670	solid organ	FJ3204
+FMA5018	bone organ	FJ3349
+FMA67619	organ region	FJ3439
+FMA55268	organ zone	FJ1464M
+FMA67135	anatomical structure	FJ3115
+FMA265400	region of vascular layer of eyeball	FJ1337
+FMA55665	nonparenchymatous organ	FJ3222
+FMA55665	nonparenchymatous organ	FJ1541M
+FMA67135	anatomical structure	FJ1441
+FMA34678	acromial part of deltoid	FJ1467M
+FMA38615	humeral head of flexor carpi ulnaris	FJ1473M
+FMA55671	cavitated organ	FJ3227
+FMA22471	muscle of leg	FJ1439M
+FMA9914	vertebra	FJ3157
+FMA67135	anatomical structure	FJ1403
+FMA10455	intervertebral disk of thoracic vertebra	FJ3222
+FMA61775	physical anatomical entity	FJ1738
+FMA38484	left flexor pollicis longus	FJ1498M
+FMA45729	head of organ	FJ1394M
+FMA52892	right zygomatic bone	FJ3392
+FMA7597	first rib	FJ3228
+FMA86187	segment of arterial tree organ	FJ3593
+FMA55670	solid organ	FJ1439
+FMA37687	long head of left biceps brachii	FJ1478M
+FMA7474	long bone	FJ3368
+FMA67135	anatomical structure	FJ3565
+FMA50722	region of vascular tree organ	FJ2079
+FMA62955	anatomical entity	FJ2590
+FMA7474	long bone	FJ3338
+FMA55268	organ zone	FJ1479
+FMA10446	intervertebral disk	FJ3209
+FMA9248	fourth thoracic vertebra	FJ3166
+FMA7474	long bone	FJ3229
+FMA62955	anatomical entity	FJ3394
+FMA67165	material anatomical entity	FJ2487
+FMA7574	rib	FJ3231
+FMA68683	anterior branch of right anterior segmental artery	FJ2977
+FMA67135	anatomical structure	FJ3368
+FMA67165	material anatomical entity	FJ1554M
+FMA61775	physical anatomical entity	FJ3368
+FMA67498	organ	FJ3338
+FMA67165	material anatomical entity	FJ1443
+FMA67498	organ	FJ3393
+FMA12524	sixth cervical vertebra	FJ3170
+FMA55673	organ with cavitated organ parts	FJ3157
+FMA67498	organ	FJ3395
+FMA5018	bone organ	FJ3180
+FMA62955	anatomical entity	FJ3342
+FMA67619	organ region	FJ2687
+FMA67135	anatomical structure	FJ1381
+FMA77177	iliocostalis	FJ1528M
+FMA67619	organ region	FJ1468
+FMA22429	zone of quadriceps femoris	FJ1443M
+FMA55673	organ with cavitated organ parts	FJ3233
+FMA61775	physical anatomical entity	FJ2246
+FMA55671	cavitated organ	FJ3164
+FMA67165	material anatomical entity	FJ3209
+FMA55268	organ zone	FJ1481M
+FMA55671	cavitated organ	FJ3226
+FMA13894	intervertebral disk of lumbar vertebra	FJ3212
+FMA62955	anatomical entity	FJ3169
+FMA67165	material anatomical entity	FJ2055
+FMA8472	left tenth rib	FJ3225
+FMA50722	region of vascular tree organ	FJ2416
+FMA9914	vertebra	FJ3167
+FMA67498	organ	FJ3279
+FMA23920	proximal phalanx of middle finger	FJ3325
+FMA46590	left thyro-arytenoid	FJ2785
+FMA5018	bone organ	FJ3164
+FMA67135	anatomical structure	FJ3234
+FMA50670	right thalamogeniculate artery	FJ1675
+FMA78049	subdivision of inferior vena caval tree	FJ2201
+FMA52737	temporal bone	FJ3386
+FMA46578	left posterior crico-arytenoid	FJ2782
+FMA37683	long head of biceps brachii	FJ1478M
+FMA61775	physical anatomical entity	FJ1444M
+FMA22917	tributary of venous anastomosis	FJ2359
+FMA67619	organ region	FJ1700
+FMA67165	material anatomical entity	FJ2895
+FMA8175	right sixth rib	FJ3344
+FMA67135	anatomical structure	FJ1397M
+FMA67165	material anatomical entity	FJ3375
+FMA62955	anatomical entity	FJ1729M
+FMA7474	long bone	FJ3225
+FMA55671	cavitated organ	FJ3229
+FMA65046	intrinsic muscle of plantar part of foot	FJ1388
+FMA22471	muscle of leg	FJ1439
+FMA61775	physical anatomical entity	FJ3080
+FMA55673	organ with cavitated organ parts	FJ3289
+FMA52677	left anterior ethmoidal nerve	FJ1283
+FMA67165	material anatomical entity	FJ3156
+FMA7593	typical rib	FJ3340
+FMA55268	organ zone	FJ1446
+FMA55673	organ with cavitated organ parts	FJ3199
+FMA7475	short bone	FJ3381
+FMA7594	false rib	FJ3235
+FMA62955	anatomical entity	FJ3260
+FMA58274	muscle of trunk	FJ1452
+FMA32555	ascending part of trapezius	FJ1520M
+FMA10037	tenth thoracic vertebra	FJ3154
+FMA61775	physical anatomical entity	FJ1572
+FMA67498	organ	FJ2784
+FMA4786	left musculophrenic vein	FJ1988
+FMA55670	solid organ	FJ1418
+FMA65004	superficial muscle of posterior compartment of leg	FJ1437
+FMA67165	material anatomical entity	FJ1439M
+FMA13895	intervertebral disk of cervical vertebra	FJ3218
+FMA22443	adductor magnus	FJ1403
+FMA50720	artery	FJ2970
+FMA55665	nonparenchymatous organ	FJ2743
+FMA67165	material anatomical entity	FJ1785
+FMA61775	physical anatomical entity	FJ1439M
+FMA67165	material anatomical entity	FJ1591
+FMA71859	segment of right hepatic biliary tree	FJ3072
+FMA67165	material anatomical entity	FJ1447M
+FMA13344	thyrohyoid	FJ1599
+FMA10458	intervertebral disk of first thoracic vertebra	FJ3222
+FMA34699	abdominal part of pectoralis major	FJ1446
+FMA61775	physical anatomical entity	FJ3215
+FMA9991	eighth thoracic vertebra	FJ3174
+FMA10446	intervertebral disk	FJ3219
+FMA67135	anatomical structure	FJ3379
+FMA86187	segment of arterial tree organ	FJ1728
+FMA62955	anatomical entity	FJ3606
+FMA7210	testis	FJ3142
+FMA24485	patella	FJ3381
+FMA67135	anatomical structure	FJ2623
+FMA5865	cranial nerve	FJ1330
+FMA61775	physical anatomical entity	FJ2554
+FMA67135	anatomical structure	FJ3219
+FMA67135	anatomical structure	FJ1472
+FMA67498	organ	FJ1470
+FMA55671	cavitated organ	FJ3365
+FMA67135	anatomical structure	FJ1555
+FMA82472	cardinal organ part	FJ3127
+FMA62514	basal ganglion of telencephalon	FJ1829
+FMA61775	physical anatomical entity	FJ3380
+FMA67498	organ	FJ3176
+FMA67135	anatomical structure	FJ1533M
+FMA67619	organ region	FJ2073
+FMA32630	distal phalanx of fourth toe	FJ3181
+FMA55670	solid organ	FJ1437M
+FMA12521	third cervical vertebra	FJ3161
+FMA34696	sternocostal part of pectoralis major	FJ1464
+FMA67135	anatomical structure	FJ1703M
+FMA70439	subdivision of right hepatic artery	FJ3075
+FMA44489	plantar venous arch of foot	FJ2129
+FMA67135	anatomical structure	FJ1464
+FMA82472	cardinal organ part	FJ2715
+FMA7595	floating rib	FJ3226
+FMA7477	irregular bone	FJ3166
+FMA70442	anterior superior segmental hepatic artery	FJ3076
+FMA67165	material anatomical entity	FJ1520M
+FMA9621	muscle of upper limb	FJ1507
+FMA7574	rib	FJ3338
+FMA67135	anatomical structure	FJ3641
+FMA33584	transverse part of right trapezius	FJ1554
+FMA70504	subdivision of common carotid artery	FJ1667
+FMA67165	material anatomical entity	FJ1436
+FMA38488	muscle of posterior compartment of forearm	FJ1487M
+FMA7594	false rib	FJ3225
+FMA3815	first anterior ventricular branch of right coronary artery	FJ2673
+FMA7795	fifth costal cartilage	FJ3251
+FMA22850	lateral lumbar intertransversarius	FJ1547
+FMA62955	anatomical entity	FJ3175
+FMA37368	muscle of free lower limb	FJ1439
+FMA34683	acromial part of left deltoid	FJ1467M
+FMA52741	lacrimal bone	FJ3265
+FMA50720	artery	FJ1728M
+FMA55671	cavitated organ	FJ3237
+FMA50586	branch of posterior cerebral artery	FJ1661
+FMA67619	organ region	FJ1397M
+FMA62955	anatomical entity	FJ3177
+FMA70345	subdivision of subclavian artery	FJ2266
+FMA22472	muscle of anterior compartment of leg	FJ1439
+FMA5018	bone organ	FJ3336
+FMA66643	pulmonary vein	FJ3033
+FMA67498	organ	FJ3169
+FMA55671	cavitated organ	FJ3232
+FMA50722	region of vascular tree organ	FJ3024
+FMA7593	typical rib	FJ3346
+FMA55671	cavitated organ	FJ3152
+FMA50723	vein	FJ3024
+FMA10474	zone of muscle organ	FJ1513
+FMA55671	cavitated organ	FJ3040
+FMA67135	anatomical structure	FJ1439
+FMA82472	cardinal organ part	FJ2257
+FMA50720	artery	FJ2715
+FMA55268	organ zone	FJ1467
+FMA7574	rib	FJ3331
+FMA7593	typical rib	FJ3230
+FMA55673	organ with cavitated organ parts	FJ3384
+FMA67165	material anatomical entity	FJ3176
+FMA82472	cardinal organ part	FJ1480
+FMA49913	left inferior pulmonary vein	FJ2955
+FMA82472	cardinal organ part	FJ1467M
+FMA22358	right semitendinosus	FJ1436
+FMA55652	anatomical set	FJ2100
+FMA85453	head of muscle organ	FJ1394M
+FMA5018	bone organ	FJ3231
+FMA7477	irregular bone	FJ3273
+FMA22443	adductor magnus	FJ1403M
+FMA7251	cusp of aortic valve	FJ2431
+FMA9622	muscle of lower limb	FJ1403M
+FMA62955	anatomical entity	FJ1426
+FMA37692	long head of triceps brachii	FJ1479M
+FMA38481	flexor pollicis longus	FJ1498
+FMA9922	fifth thoracic vertebra	FJ3169
+FMA86140	organ segment	FJ2256
+FMA61775	physical anatomical entity	FJ3230
+FMA16980	zone of jejunum	FJ2616
+FMA9311	subsegmental pulmonary artery	FJ3003
+FMA5018	bone organ	FJ3200
+FMA67498	organ	FJ1459M
+FMA67165	material anatomical entity	FJ1478M
+FMA12522	fourth cervical vertebra	FJ3164
+FMA55670	solid organ	FJ1329
+FMA45881	head of biceps femoris	FJ1444
+FMA67165	material anatomical entity	FJ1316
+FMA67165	material anatomical entity	FJ3377
+FMA62955	anatomical entity	FJ3232
+FMA10455	intervertebral disk of thoracic vertebra	FJ3203
+FMA61775	physical anatomical entity	FJ1478M
+FMA67135	anatomical structure	FJ2132
+FMA67498	organ	FJ1437
+FMA83115	cell part cluster	FJ1780
+FMA7477	irregular bone	FJ3375
+FMA50720	artery	FJ1679
+FMA34676	zone of deltoid	FJ1513
+FMA55673	organ with cavitated organ parts	FJ3378
+FMA67165	material anatomical entity	FJ3034
+FMA7477	irregular bone	FJ3386
+FMA242789	region of ventricular system of neuraxis	FJ1730
+FMA70779	set of organs	FJ1550
+FMA67135	anatomical structure	FJ1418
+FMA67619	organ region	FJ3482
+FMA66464	systemic artery	FJ2232
+FMA45729	head of organ	FJ1395M
+FMA55665	nonparenchymatous organ	FJ1437M
+FMA61775	physical anatomical entity	FJ3348
+FMA67135	anatomical structure	FJ2495
+FMA55671	cavitated organ	FJ3334
+FMA67135	anatomical structure	FJ3218
+FMA82472	cardinal organ part	FJ3039
+FMA67498	organ	FJ3159
+FMA37699	long head of right triceps brachii	FJ1479
+FMA66644	systemic vein	FJ3616
+FMA50720	artery	FJ1696M
+FMA22842	branch of arterial anastomosis	FJ2336
+FMA67498	organ	FJ1500
+FMA10446	intervertebral disk	FJ3215
+FMA85453	head of muscle organ	FJ1479M
+FMA55671	cavitated organ	FJ3287
+FMA67498	organ	FJ3152
+FMA55671	cavitated organ	FJ3174
+FMA5018	bone organ	FJ3163
+FMA86140	organ segment	FJ3572
+FMA67498	organ	FJ3365
+FMA45957	medial head of right gastrocnemius	FJ1397
+FMA61775	physical anatomical entity	FJ2564
+FMA9411	segmental pulmonary vein	FJ2938
+FMA55670	solid organ	FJ3223
+FMA82472	cardinal organ part	FJ2430
+FMA62955	anatomical entity	FJ1554
+FMA13921	branch of anterior interventricular branch of left coronary artery	FJ2734
+FMA62955	anatomical entity	FJ3362
+FMA67135	anatomical structure	FJ3365
+FMA55673	organ with cavitated organ parts	FJ3172
+FMA68222	left anterior segmental bronchial tree	FJ2474
+FMA61775	physical anatomical entity	FJ3362
+FMA37367	muscle of pelvic girdle	FJ1416
+FMA82472	cardinal organ part	FJ1521
+FMA55665	nonparenchymatous organ	FJ3213
+FMA82472	cardinal organ part	FJ3178
+FMA55268	organ zone	FJ1433M
+FMA50723	vein	FJ3440
+FMA62955	anatomical entity	FJ2460
+FMA6964	ciliary ganglion	FJ1288
+FMA55671	cavitated organ	FJ3332
+FMA22432	vastus medialis	FJ1443
+FMA67498	organ	FJ3262
+FMA45734	body of organ	FJ3178
+FMA67135	anatomical structure	FJ2893
+FMA67165	material anatomical entity	FJ1985
+FMA61775	physical anatomical entity	FJ3342
+FMA22474	muscle of posterior compartment of leg	FJ1437M
+FMA50722	region of vascular tree organ	FJ2922
+FMA55671	cavitated organ	FJ3171
+FMA67165	material anatomical entity	FJ3177
+FMA67619	organ region	FJ2218
+FMA61775	physical anatomical entity	FJ3122
+FMA55673	organ with cavitated organ parts	FJ3171
+FMA68667	subsegmental part of apical segmental artery	FJ2978
+FMA77155	popliteal artery	FJ2086
+FMA55670	solid organ	FJ1403M
+FMA67165	material anatomical entity	FJ2741
+FMA67135	anatomical structure	FJ3155
+FMA55268	organ zone	FJ1513M
+FMA22542	soleus	FJ1437M
+FMA67135	anatomical structure	FJ2751
+FMA62955	anatomical entity	FJ3224
+FMA50722	region of vascular tree organ	FJ1977
+FMA61775	physical anatomical entity	FJ3234
+FMA7476	flat bone	FJ3272
+FMA62955	anatomical entity	FJ1397M
+FMA34686	zone of pectoralis major	FJ1464
+FMA67498	organ	FJ3277
+FMA66643	pulmonary vein	FJ3052
+FMA30314	venous trunk	FJ3122
+FMA67165	material anatomical entity	FJ1432
+FMA82472	cardinal organ part	FJ2718
+FMA61775	physical anatomical entity	FJ1418M
+FMA82472	cardinal organ part	FJ2272
+FMA67619	organ region	FJ3645
+FMA55671	cavitated organ	FJ3259
+FMA24475	left femur	FJ3259
+FMA67165	material anatomical entity	FJ3173
+FMA7593	typical rib	FJ3231
+FMA7474	long bone	FJ3237
+FMA67112	immaterial anatomical entity	FJ2744
+FMA55107	cartilage organ	FJ3207
+FMA5018	bone organ	FJ3384
+FMA67135	anatomical structure	FJ1660
+FMA62955	anatomical entity	FJ3395
+FMA67498	organ	FJ3163
+FMA55665	nonparenchymatous organ	FJ1418M
+FMA7638	third rib	FJ3338
+FMA7594	false rib	FJ3347
+FMA5018	bone organ	FJ3331
+FMA55665	nonparenchymatous organ	FJ1437
+FMA13921	branch of anterior interventricular branch of left coronary artery	FJ2632
+FMA86187	segment of arterial tree organ	FJ1718M
+FMA82472	cardinal organ part	FJ1433M
+FMA14341	right testicular vein	FJ3618
+FMA8499	eleventh rib	FJ3226
+FMA5022	muscle organ	FJ1439M
+FMA67135	anatomical structure	FJ3152
+FMA67165	material anatomical entity	FJ1395
+FMA7909	right third rib	FJ3338
+FMA61820	segment of cerebral hemisphere	FJ1834
+FMA7477	irregular bone	FJ3160
+FMA67165	material anatomical entity	FJ3340
+FMA67498	organ	FJ3218
+FMA7592	true rib	FJ3340
+FMA7592	true rib	FJ3336
+FMA68235	anterior segmental bronchial tree	FJ2467
+FMA55673	organ with cavitated organ parts	FJ3344
+FMA34677	clavicular part of deltoid	FJ1468
+FMA67619	organ region	FJ2897
+FMA55268	organ zone	FJ1442M
+FMA62955	anatomical entity	FJ2108
+FMA55671	cavitated organ	FJ3338
+FMA32518	deep extrinsic muscle of shoulder	FJ1459
+FMA67165	material anatomical entity	FJ2928
+FMA68213	right posterior segmental bronchial tree	FJ2515
+FMA50720	artery	FJ2996
+FMA50722	region of vascular tree organ	FJ2674
+FMA50028	anterior cerebral artery	FJ1654
+FMA86187	segment of arterial tree organ	FJ1654
+FMA67396	articular disk of symphysis	FJ3205
+FMA66464	systemic artery	FJ2158
+FMA9921	lumbar vertebra	FJ3157
+FMA9921	lumbar vertebra	FJ3165
+FMA49443	anatomical cluster	FJ2281
+FMA85453	head of muscle organ	FJ1477M
+FMA5018	bone organ	FJ3173
+FMA55676	segment of brain	FJ1842
+FMA67165	material anatomical entity	FJ1442M
+FMA62955	anatomical entity	FJ3202
+FMA67165	material anatomical entity	FJ3272
+FMA67135	anatomical structure	FJ3166
+FMA8337	ninth rib	FJ3236
+FMA67165	material anatomical entity	FJ3074
+FMA7592	true rib	FJ3234
+FMA67135	anatomical structure	FJ1395
+FMA70429	subdivision of celiac artery	FJ3409
+FMA5022	muscle organ	FJ2800
+FMA55268	organ zone	FJ1397M
+FMA62955	anatomical entity	FJ1447
+FMA62955	anatomical entity	FJ3309
+FMA7477	irregular bone	FJ3371
+FMA5018	bone organ	FJ3346
+FMA86140	organ segment	FJ2258
+FMA32631	distal phalanx of little toe	FJ3185
+FMA8663	right posterior segmental vein	FJ3070
+FMA67165	material anatomical entity	FJ1437
+FMA86140	organ segment	FJ2368
+FMA37348	muscle of free upper limb	FJ1487
+FMA67135	anatomical structure	FJ3334
+FMA67498	organ	FJ1389M
+FMA37371	muscle of forearm	FJ1487M
+FMA67498	organ	FJ3230
+FMA55673	organ with cavitated organ parts	FJ3332
+FMA67165	material anatomical entity	FJ1477
+FMA5018	bone organ	FJ3165
+FMA62955	anatomical entity	FJ2630
+FMA67135	anatomical structure	FJ3221
+FMA62955	anatomical entity	FJ1447M
+FMA55671	cavitated organ	FJ3380
+FMA22691	right brachial artery	FJ2271
+FMA55671	cavitated organ	FJ3230
+FMA50720	artery	FJ3018
+FMA53655	right palatine bone	FJ3379
+FMA50720	artery	FJ2038
+FMA62955	anatomical entity	FJ3365
+FMA7776	fifth rib	FJ3342
+FMA38486	right brachioradialis	FJ1487
+FMA62955	anatomical entity	FJ3192
+FMA9914	vertebra	FJ3159
+FMA67498	organ	FJ3224
+FMA67165	material anatomical entity	FJ3273
+FMA46664	stylopharyngeus	FJ2758
+FMA45950	head of gastrocnemius	FJ1394M
+FMA67135	anatomical structure	FJ1447
+FMA67619	organ region	FJ1447M
+FMA67165	material anatomical entity	FJ1661
+FMA8093	left fifth rib	FJ3232
+FMA67498	organ	FJ3340
+FMA61775	physical anatomical entity	FJ1442
+FMA61775	physical anatomical entity	FJ3652
+FMA61775	physical anatomical entity	FJ1395M
+FMA55665	nonparenchymatous organ	FJ1461M
+FMA62955	anatomical entity	FJ1700M
+FMA7574	rib	FJ3340
+FMA82472	cardinal organ part	FJ1371
+FMA67165	material anatomical entity	FJ3221
+FMA16585	hip bone	FJ3152
+FMA82472	cardinal organ part	FJ1782
+FMA5018	bone organ	FJ3344
+FMA22328	right gluteus maximus	FJ1418
+FMA55107	cartilage organ	FJ3202
+FMA67165	material anatomical entity	FJ3647
+FMA67135	anatomical structure	FJ1436M
+FMA7474	long bone	FJ3260
+FMA86187	segment of arterial tree organ	FJ2283
+FMA67396	articular disk of symphysis	FJ3213
+FMA67165	material anatomical entity	FJ3483
+FMA67135	anatomical structure	FJ3439
+FMA256237	segment of neuraxis	FJ1817
+FMA37698	lateral head of left triceps brachii	FJ1477M
+FMA67135	anatomical structure	FJ1512
+FMA5018	bone organ	FJ3380
+FMA67498	organ	FJ1402
+FMA61775	physical anatomical entity	FJ3168
+FMA45729	head of organ	FJ1478
+FMA61775	physical anatomical entity	FJ3309
+FMA76269	branch of basilar artery	FJ1720M
+FMA62955	anatomical entity	FJ3225
+FMA61775	physical anatomical entity	FJ3218
+FMA62955	anatomical entity	FJ3219
+FMA70504	subdivision of common carotid artery	FJ1717M
+FMA8337	ninth rib	FJ3348
+FMA61775	physical anatomical entity	FJ1403
+FMA52698	right infratrochlear nerve	FJ1347
+FMA7477	irregular bone	FJ3176
+FMA14319	suprascapular vein	FJ2302
+FMA55673	organ with cavitated organ parts	FJ3259
+FMA67619	organ region	FJ2476
+FMA67165	material anatomical entity	FJ3081
+FMA67619	organ region	FJ3527
+FMA67165	material anatomical entity	FJ3165
+FMA45890	short head of biceps femoris	FJ1444M
+FMA67619	organ region	FJ1467M
+FMA67135	anatomical structure	FJ1513M
+FMA7620	second rib	FJ3336
+FMA9411	segmental pulmonary vein	FJ3026
+FMA62955	anatomical entity	FJ3262
+FMA61775	physical anatomical entity	FJ3287
+FMA7749	fourth rib	FJ3340
+FMA55665	nonparenchymatous organ	FJ3202
+FMA67498	organ	FJ3165
+FMA67619	organ region	FJ1433M
+FMA62955	anatomical entity	FJ1295
+FMA67135	anatomical structure	FJ3212
+FMA67498	organ	FJ2779
+FMA10446	intervertebral disk	FJ3213
+FMA5018	bone organ	FJ3282
+FMA22930	tributary of subclavian vein	FJ2272
+FMA86140	organ segment	FJ2948
+FMA67135	anatomical structure	FJ3173
+FMA67165	material anatomical entity	FJ1418M
+FMA67135	anatomical structure	FJ3208
+FMA62955	anatomical entity	FJ3210
+FMA61775	physical anatomical entity	FJ2491
+FMA62955	anatomical entity	FJ3230
+FMA38491	superficial muscle of posterior compartment of forearm	FJ1487M
+FMA67135	anatomical structure	FJ3169
+FMA70429	subdivision of celiac artery	FJ3078
+FMA55107	cartilage organ	FJ3212
+FMA50722	region of vascular tree organ	FJ3590
+FMA82472	cardinal organ part	FJ3640
+FMA62955	anatomical entity	FJ1515
+FMA67135	anatomical structure	FJ3626
+FMA55673	organ with cavitated organ parts	FJ3177
+FMA5022	muscle organ	FJ1487M
+FMA62955	anatomical entity	FJ2776
+FMA10446	intervertebral disk	FJ3210
+FMA67135	anatomical structure	FJ2714
+FMA22439	muscle of medial compartment of thigh	FJ1403M
+FMA61775	physical anatomical entity	FJ1751
+FMA55670	solid organ	FJ3205
+FMA52747	zygomatic bone	FJ3392
+FMA7574	rib	FJ3227
+FMA67135	anatomical structure	FJ3562
+FMA45950	head of gastrocnemius	FJ1394
+FMA7776	fifth rib	FJ3232
+FMA61775	physical anatomical entity	FJ1521M
+FMA86188	segment of venous tree organ	FJ3027
+FMA13397	serratus anterior	FJ1459M
+FMA37481	third lumbrical of foot	FJ1387
+FMA66464	systemic artery	FJ2079
+FMA9413	subsegmental pulmonary vein	FJ3035
+FMA67135	anatomical structure	FJ3615
+FMA7474	long bone	FJ3230
+FMA22470	muscle of thigh	FJ1436
+FMA61775	physical anatomical entity	FJ3260
+FMA67165	material anatomical entity	FJ1451
+FMA22594	muscle of vertebral column	FJ1588
+FMA7593	typical rib	FJ3344
+FMA62955	anatomical entity	FJ3203
+FMA5018	bone organ	FJ3259
+FMA62955	anatomical entity	FJ3176
+FMA66464	systemic artery	FJ1661
+FMA61775	physical anatomical entity	FJ1280
+FMA62955	anatomical entity	FJ3160
+FMA61775	physical anatomical entity	FJ3172
+FMA7232	cusp of cardiac valve	FJ2435
+FMA31739	segment of bronchial tree	FJ2505
+FMA62955	anatomical entity	FJ3072
+FMA55665	nonparenchymatous organ	FJ1409M
+FMA10446	intervertebral disk	FJ3224
+FMA16035	intervertebral disk of third lumbar vertebra	FJ3215
+FMA62955	anatomical entity	FJ1446M
+FMA82472	cardinal organ part	FJ1520M
+FMA66644	systemic vein	FJ2683
+FMA13914	anterior branch of anterior interventricular branch of left coronary artery	FJ2641
+FMA86140	organ segment	FJ2238
+FMA55671	cavitated organ	FJ3177
+FMA61775	physical anatomical entity	FJ3167
+FMA9139	thoracic vertebra	FJ3166
+FMA55673	organ with cavitated organ parts	FJ3162
+FMA24479	fibula	FJ3366
+FMA12520	axis	FJ3177
+FMA34686	zone of pectoralis major	FJ1446M
+FMA50723	vein	FJ2683
+FMA55673	organ with cavitated organ parts	FJ3347
+FMA38559	ulnar head of pronator teres	FJ1516
+FMA9621	muscle of upper limb	FJ1483
+FMA62955	anatomical entity	FJ1477
+FMA5018	bone organ	FJ3175
+FMA24476	tibia	FJ3387
+FMA86140	organ segment	FJ2653
+FMA8202	left sixth rib	FJ3233
+FMA62955	anatomical entity	FJ3259
+FMA82472	cardinal organ part	FJ1795
+FMA67135	anatomical structure	FJ1663M
+FMA61775	physical anatomical entity	FJ1441
+FMA38930	right vastus lateralis	FJ1442
+FMA13503	intervertebral disk of sixth thoracic vertebra	FJ3205
+FMA5022	muscle organ	FJ1452
+FMA55673	organ with cavitated organ parts	FJ3173
+FMA7574	rib	FJ3336
+FMA22799	branch of ulnar artery	FJ2223
+FMA55673	organ with cavitated organ parts	FJ3169
+FMA67619	organ region	FJ2232
+FMA67165	material anatomical entity	FJ3224
+FMA67165	material anatomical entity	FJ2567
+FMA82472	cardinal organ part	FJ1792
+FMA67498	organ	FJ1418
+FMA61775	physical anatomical entity	FJ3155
+FMA55652	anatomical set	FJ2120
+FMA67619	organ region	FJ1477M
+FMA10474	zone of muscle organ	FJ1554
+FMA67135	anatomical structure	FJ2805
+FMA55665	nonparenchymatous organ	FJ2740
+FMA67135	anatomical structure	FJ3229
+FMA62955	anatomical entity	FJ3274
+FMA67135	anatomical structure	FJ1478
+FMA10446	intervertebral disk	FJ3207
+FMA67135	anatomical structure	FJ3558
+FMA86140	organ segment	FJ2058
+FMA55268	organ zone	FJ1512M
+FMA61775	physical anatomical entity	FJ3112
+FMA55672	organ with organ cavity	FJ1274
+FMA53645	right lacrimal bone	FJ3371
+FMA37695	medial head of right triceps brachii	FJ1480
+FMA67619	organ region	FJ3656
+FMA86140	organ segment	FJ3071
+FMA10474	zone of muscle organ	FJ1468
+FMA10474	zone of muscle organ	FJ1433M
+FMA62955	anatomical entity	FJ1764
+FMA9914	vertebra	FJ3169
+FMA67619	organ region	FJ1834
+FMA55671	cavitated organ	FJ3391
+FMA64922	gluteal muscle	FJ1418
+FMA67165	material anatomical entity	FJ1536M
+FMA55673	organ with cavitated organ parts	FJ3273
+FMA67165	material anatomical entity	FJ3259
+FMA67498	organ	FJ3231
+FMA67135	anatomical structure	FJ3265
+FMA55671	cavitated organ	FJ3347
+FMA61775	physical anatomical entity	FJ3386
+FMA67498	organ	FJ1452M
+FMA5018	bone organ	FJ3338
+FMA5018	bone organ	FJ3265
+FMA9915	cervical vertebra	FJ3161
+FMA9915	cervical vertebra	FJ3164
+FMA67135	anatomical structure	FJ3362
+FMA67498	organ	FJ3387
+FMA67498	organ	FJ3265
+FMA22507	right descending genicular artery	FJ2137
+FMA66328	branch of left coronary artery	FJ2641
+FMA67165	material anatomical entity	FJ2541
+FMA55268	organ zone	FJ1468
+FMA10446	intervertebral disk	FJ3221
+FMA66644	systemic vein	FJ3523
+FMA67135	anatomical structure	FJ3223
+FMA66644	systemic vein	FJ2663
+FMA66464	systemic artery	FJ2668
+FMA67165	material anatomical entity	FJ1446M
+FMA55671	cavitated organ	FJ3393
+FMA67498	organ	FJ3391
+FMA55671	cavitated organ	FJ3366
+FMA55665	nonparenchymatous organ	FJ2795
+FMA67165	material anatomical entity	FJ1464
+FMA61775	physical anatomical entity	FJ3177
+FMA67135	anatomical structure	FJ3269
+FMA7574	rib	FJ3233
+FMA86140	organ segment	FJ2691
+FMA5018	bone organ	FJ3289
+FMA67165	material anatomical entity	FJ3515
+FMA67165	material anatomical entity	FJ3393
+FMA31739	segment of bronchial tree	FJ2506
+FMA22459	right adductor magnus	FJ1403
+FMA50723	vein	FJ3485
+FMA55673	organ with cavitated organ parts	FJ3161
+FMA61775	physical anatomical entity	FJ3208
+FMA66644	systemic vein	FJ2702
+FMA67619	organ region	FJ3076
+FMA67498	organ	FJ3220
+FMA67165	material anatomical entity	FJ3274
+FMA7477	irregular bone	FJ3156
+FMA55673	organ with cavitated organ parts	FJ3379
+FMA86140	organ segment	FJ2649
+FMA55676	segment of brain	FJ1739
+FMA50720	artery	FJ2337
+FMA61775	physical anatomical entity	FJ1452
+FMA37348	muscle of free upper limb	FJ1487M
+FMA23465	left radius	FJ3277
+FMA67165	material anatomical entity	FJ1459M
+FMA55673	organ with cavitated organ parts	FJ3235
+FMA9915	cervical vertebra	FJ3167
+FMA67165	material anatomical entity	FJ3365
+FMA52624	branch of ophthalmic nerve	FJ1366
+FMA67135	anatomical structure	FJ1521
+FMA20278	muscle of anterior abdominal wall	FJ1452M
+FMA67619	organ region	FJ1480M
+FMA61775	physical anatomical entity	FJ1444
+FMA86188	segment of venous tree organ	FJ2218
+FMA22430	rectus femoris	FJ1433
+FMA45950	head of gastrocnemius	FJ1397M
+FMA62955	anatomical entity	FJ1266
+FMA34676	zone of deltoid	FJ1468
+FMA61775	physical anatomical entity	FJ2432
+FMA67619	organ region	FJ2590
+FMA8499	eleventh rib	FJ3331
+FMA67135	anatomical structure	FJ1521M
+FMA55673	organ with cavitated organ parts	FJ3200
+FMA32557	descending part of trapezius	FJ1521M
+FMA61775	physical anatomical entity	FJ3225
+FMA55673	organ with cavitated organ parts	FJ3160
+FMA55671	cavitated organ	FJ3228
+FMA67498	organ	FJ3269
+FMA55226	intrinsic muscle of larynx	FJ2784
+FMA86140	organ segment	FJ1675
+FMA67498	organ	FJ3213
+FMA67498	organ	FJ3362
+FMA37684	short head of right biceps brachii	FJ1512
+FMA50720	artery	FJ2983
+FMA61775	physical anatomical entity	FJ3226
+FMA22439	muscle of medial compartment of thigh	FJ1403
+FMA55665	nonparenchymatous organ	FJ3214
+FMA5018	bone organ	FJ3379
+FMA61775	physical anatomical entity	FJ3160
+FMA7595	floating rib	FJ3227
+FMA13500	intervertebral disk of third thoracic vertebra	FJ3224
+FMA67135	anatomical structure	FJ3203
+FMA32529	zone of trapezius	FJ1554M
+FMA55268	organ zone	FJ1444
+FMA55673	organ with cavitated organ parts	FJ3365
+FMA55107	cartilage organ	FJ3223
+FMA62955	anatomical entity	FJ3206
+FMA5022	muscle organ	FJ1437M
+FMA55665	nonparenchymatous organ	FJ1459M
+FMA67498	organ	FJ1436
+FMA62955	anatomical entity	FJ1520
+FMA67619	organ region	FJ3409
+FMA67619	organ region	FJ2642
+FMA34686	zone of pectoralis major	FJ1464M
+FMA67135	anatomical structure	FJ2214
+FMA85453	head of muscle organ	FJ1395M
+FMA82472	cardinal organ part	FJ1447
+FMA67619	organ region	FJ1468M
+FMA67498	organ	FJ3330
+FMA5022	muscle organ	FJ1428M
+FMA67135	anatomical structure	FJ1479
+FMA9621	muscle of upper limb	FJ1487
+FMA62955	anatomical entity	FJ1467M
+FMA68708	superior branch of superior segmental artery	FJ2998
+FMA62955	anatomical entity	FJ1487
+FMA62955	anatomical entity	FJ3162
+FMA72925	left fornix of forebrain	FJ1756
+FMA67135	anatomical structure	FJ3340
+FMA86140	organ segment	FJ2079
+FMA70440	subdivision of left hepatic artery	FJ3077
+FMA8755	segmental pulmonary artery	FJ2920
+FMA55670	solid organ	FJ3221
+FMA24511	right third metatarsal bone	FJ3355
+FMA55671	cavitated organ	FJ3336
+FMA67135	anatomical structure	FJ3207
+FMA82472	cardinal organ part	FJ1513
+FMA67498	organ	FJ3342
+FMA62955	anatomical entity	FJ1513
+FMA52745	nasal bone	FJ3272
+FMA82472	cardinal organ part	FJ1395M
+FMA5018	bone organ	FJ3375
+FMA7596	atypical rib	FJ3229
+FMA5022	muscle organ	FJ1418M
+FMA13894	intervertebral disk of lumbar vertebra	FJ3215
+FMA62955	anatomical entity	FJ3235
+FMA55665	nonparenchymatous organ	FJ1459
+FMA8256	left seventh rib	FJ3234
+FMA10663	suprascapular artery	FJ2303
+FMA61775	physical anatomical entity	FJ1487
+FMA9921	lumbar vertebra	FJ3159
+FMA67498	organ	FJ1487M
+FMA10455	intervertebral disk of thoracic vertebra	FJ3223
+FMA67498	organ	FJ1403
+FMA50723	vein	FJ2963
+FMA16587	left hip bone	FJ3288
+FMA7474	long bone	FJ3349
+FMA61775	physical anatomical entity	FJ1418
+FMA67135	anatomical structure	FJ1393
+FMA61775	physical anatomical entity	FJ2350
+FMA67165	material anatomical entity	FJ3228
+FMA22969	left median antebrachial vein	FJ2234
+FMA61775	physical anatomical entity	FJ1658M
+FMA7597	first rib	FJ3334
+FMA45888	long head of right biceps femoris	FJ1395
+FMA66464	systemic artery	FJ1722
+FMA67135	anatomical structure	FJ1682M
+FMA55671	cavitated organ	FJ3330
+FMA55268	organ zone	FJ2574
+FMA67135	anatomical structure	FJ3387
+FMA62955	anatomical entity	FJ3156
+FMA67619	organ region	FJ1394M
+FMA61775	physical anatomical entity	FJ1442M
+FMA86140	organ segment	FJ2359
+FMA61775	physical anatomical entity	FJ3391
+FMA67165	material anatomical entity	FJ3207
+FMA67396	articular disk of symphysis	FJ3219
+FMA7574	rib	FJ3229
+FMA61775	physical anatomical entity	FJ2822
+FMA86140	organ segment	FJ2355
+FMA55670	solid organ	FJ3209
+FMA67135	anatomical structure	FJ3366
+FMA67498	organ	FJ1329
+FMA67135	anatomical structure	FJ1444M
+FMA70345	subdivision of subclavian artery	FJ2331
+FMA67498	organ	FJ3200
+FMA62955	anatomical entity	FJ1463M
+FMA62955	anatomical entity	FJ3015
+FMA62955	anatomical entity	FJ3366
+FMA55671	cavitated organ	FJ3175
+FMA62955	anatomical entity	FJ1916
+FMA13074	third lumbar vertebra	FJ3162
+FMA55671	cavitated organ	FJ3166
+FMA67498	organ	FJ3207
+FMA67135	anatomical structure	FJ2675
+FMA66644	systemic vein	FJ3097
+FMA44660	dorsal digital artery of foot	FJ2141
+FMA62955	anatomical entity	FJ2966
+FMA67165	material anatomical entity	FJ3225
+FMA61775	physical anatomical entity	FJ1680M
+FMA64989	heterogeneous cluster	FJ2770
+FMA5018	bone organ	FJ3157
+FMA67498	organ	FJ3281
+FMA45959	lateral head of gastrocnemius	FJ1394M
+FMA62955	anatomical entity	FJ3393
+FMA67135	anatomical structure	FJ3200
+FMA62955	anatomical entity	FJ3165
+FMA67135	anatomical structure	FJ3281
+FMA9621	muscle of upper limb	FJ1475M
+FMA9915	cervical vertebra	FJ3170
+FMA67498	organ	FJ3233
+FMA67619	organ region	FJ1724M
+FMA54839	interosseous membrane	FJ1392M
+FMA5018	bone organ	FJ3395
+FMA5018	bone organ	FJ3281
+FMA7474	long bone	FJ3286
+FMA66644	systemic vein	FJ3635
+FMA7477	irregular bone	FJ3161
+FMA82472	cardinal organ part	FJ1397
+FMA52747	zygomatic bone	FJ3287
+FMA5018	bone organ	FJ3230
+FMA50720	artery	FJ1705
+FMA61775	physical anatomical entity	FJ1468
+FMA67498	organ	FJ1537
+FMA67498	organ	FJ3177
+FMA50723	vein	FJ3486
+FMA67498	organ	FJ3237
+FMA62955	anatomical entity	FJ2601
+FMA55665	nonparenchymatous organ	FJ3208
+FMA67498	organ	FJ3179
+FMA61775	physical anatomical entity	FJ3346
+FMA61775	physical anatomical entity	FJ1693
+FMA67165	material anatomical entity	FJ1545
+FMA10474	zone of muscle organ	FJ1443
+FMA67498	organ	FJ3155
+FMA67135	anatomical structure	FJ3386
+FMA70485	anterior division of renal artery	FJ3560
+FMA55665	nonparenchymatous organ	FJ1499M
+FMA67165	material anatomical entity	FJ3093
+FMA86188	segment of venous tree organ	FJ1996
+FMA82472	cardinal organ part	FJ1512M
+FMA67135	anatomical structure	FJ1815
+FMA67165	material anatomical entity	FJ3349
+FMA61775	physical anatomical entity	FJ1397
+FMA10455	intervertebral disk of thoracic vertebra	FJ3210
+FMA55673	organ with cavitated organ parts	FJ3226
+FMA45961	lateral head of left gastrocnemius	FJ1394M
+FMA69515	left deep plantar artery	FJ2068
+FMA55671	cavitated organ	FJ3165
+FMA61775	physical anatomical entity	FJ3259
+FMA62955	anatomical entity	FJ3164
+FMA67165	material anatomical entity	FJ1442
+FMA67135	anatomical structure	FJ3237
+FMA7474	long bone	FJ3340
+FMA9914	vertebra	FJ3170
+FMA67165	material anatomical entity	FJ2673
+FMA86140	organ segment	FJ2920
+FMA61775	physical anatomical entity	FJ1348
+FMA67165	material anatomical entity	FJ3161
+FMA55652	anatomical set	FJ1553M
+FMA86140	organ segment	FJ1973
+FMA22433	vastus intermedius	FJ1441M
+FMA67498	organ	FJ1452
+FMA50478	left prefrontal artery	FJ1724M
+FMA86140	organ segment	FJ2663
+FMA61775	physical anatomical entity	FJ1725
+FMA50723	vein	FJ3082
+FMA62955	anatomical entity	FJ1478M
+FMA55665	nonparenchymatous organ	FJ1503M
+FMA76269	branch of basilar artery	FJ1675M
+FMA62955	anatomical entity	FJ3221
+FMA67135	anatomical structure	FJ1467M
+FMA67165	material anatomical entity	FJ3229
+FMA22470	muscle of thigh	FJ1436M
+FMA67498	organ	FJ3268
+FMA62955	anatomical entity	FJ1445
+FMA55671	cavitated organ	FJ3155
+FMA8515	twelfth rib	FJ3332
+FMA67135	anatomical structure	FJ2312
+FMA55665	nonparenchymatous organ	FJ3215
+FMA55673	organ with cavitated organ parts	FJ3232
+FMA55665	nonparenchymatous organ	FJ1452M
+FMA82472	cardinal organ part	FJ1477M
+FMA86140	organ segment	FJ1363
+FMA61775	physical anatomical entity	FJ3173
+FMA67619	organ region	FJ3497
+FMA46290	suprahyoid muscle	FJ1579
+FMA67165	material anatomical entity	FJ1253
+FMA62955	anatomical entity	FJ1521
+FMA67619	organ region	FJ1447
+FMA67165	material anatomical entity	FJ3227
+FMA20570	peritoneal mesentery	FJ3396
+FMA34677	clavicular part of deltoid	FJ1468M
+FMA86188	segment of venous tree organ	FJ2213
+FMA7474	long bone	FJ3344
+FMA55665	nonparenchymatous organ	FJ1587
+FMA55665	nonparenchymatous organ	FJ1461
+FMA7474	long bone	FJ3233
+FMA55268	organ zone	FJ1554
+FMA67135	anatomical structure	FJ2317
+FMA62955	anatomical entity	FJ3387
+FMA67135	anatomical structure	FJ3272
+FMA67498	organ	FJ3221
+FMA7474	long bone	FJ3347
+FMA7474	long bone	FJ3231
+FMA55671	cavitated organ	FJ3234
+FMA71708	right lobe branch of right hepatic artery	FJ1924
+FMA15406	middle colic vein	FJ3543
+FMA62955	anatomical entity	FJ1477M
+FMA67498	organ	FJ3212
+FMA86140	organ segment	FJ2682
+FMA67498	organ	FJ1487
+FMA67498	organ	FJ3206
+FMA67165	material anatomical entity	FJ3342
+FMA33531	muscle of shoulder	FJ1459
+FMA67165	material anatomical entity	FJ3659
+FMA62955	anatomical entity	FJ1436M
+FMA70506	subdivision of internal carotid artery	FJ1670
+FMA61775	physical anatomical entity	FJ1464M
+FMA62955	anatomical entity	FJ2326
+FMA67165	material anatomical entity	FJ3333
+FMA61775	physical anatomical entity	FJ2414
+FMA67135	anatomical structure	FJ1397
+FMA7596	atypical rib	FJ3228
+FMA67498	organ	FJ3228
+FMA55107	cartilage organ	FJ3205
+FMA67498	organ	FJ3223
+FMA79979	sternocostal part of right pectoralis major	FJ1464
+FMA8147	sixth rib	FJ3233
+FMA7478	pneumatized bone	FJ3375
+FMA5018	bone organ	FJ3342
+FMA9914	vertebra	FJ3156
+FMA37372	muscle of hand	FJ1482M
+FMA67135	anatomical structure	FJ3001
+FMA7212	left testis	FJ3138
+FMA62955	anatomical entity	FJ1699M
+FMA9914	vertebra	FJ3174
+FMA61775	physical anatomical entity	FJ3235
+FMA82472	cardinal organ part	FJ3103
+FMA55673	organ with cavitated organ parts	FJ3234
+FMA61775	physical anatomical entity	FJ3204
+FMA67165	material anatomical entity	FJ3286
+FMA22470	muscle of thigh	FJ1403M
+FMA50722	region of vascular tree organ	FJ1675M
+FMA55268	organ zone	FJ1442
+FMA23463	radius	FJ3277
+FMA67498	organ	FJ1402M
+FMA78049	subdivision of inferior vena caval tree	FJ2181
+FMA67165	material anatomical entity	FJ3386
+FMA82472	cardinal organ part	FJ1441M
+FMA13410	subclavius	FJ1460
+FMA50474	temporo-occipital branch of left middle cerebral artery	FJ1729M
+FMA64916	thenar muscle	FJ1483
+FMA67165	material anatomical entity	FJ3200
+FMA67135	anatomical structure	FJ1914
+FMA37458	plantar interosseous of foot	FJ1386M
+FMA38933	left vastus medialis	FJ1443M
+FMA12523	fifth cervical vertebra	FJ3167
+FMA22532	tibialis anterior	FJ1439
+FMA66403	anterior interventricular vein	FJ2664
+FMA4176	posterior intercostal artery	FJ1950
+FMA86187	segment of arterial tree organ	FJ2715
+FMA50722	region of vascular tree organ	FJ2712
+FMA82472	cardinal organ part	FJ1699
+FMA12224	segment of tracheobronchial tree	FJ2503
+FMA7477	irregular bone	FJ3171
+FMA55671	cavitated organ	FJ3375
+FMA55670	solid organ	FJ3217
+FMA67135	anatomical structure	FJ1688M
+FMA86187	segment of arterial tree organ	FJ2633
+FMA22930	tributary of subclavian vein	FJ2265
+FMA50720	artery	FJ3007
+FMA62955	anatomical entity	FJ3222
+FMA20278	muscle of anterior abdominal wall	FJ1452
+FMA85453	head of muscle organ	FJ1512
+FMA67135	anatomical structure	FJ1442
+FMA52748	mandible	FJ3289
+FMA61775	physical anatomical entity	FJ3365
+FMA67498	organ	FJ3210
+FMA50331	branch of callosomarginal artery	FJ1697M
+FMA16036	intervertebral disk of fourth lumbar vertebra	FJ3216
+FMA67165	material anatomical entity	FJ2152
+FMA67135	anatomical structure	FJ3170
+FMA67135	anatomical structure	FJ1598
+FMA62955	anatomical entity	FJ2453
+FMA68208	pulmonary segment of bronchial tree	FJ2501
+FMA61775	physical anatomical entity	FJ3279
+FMA55671	cavitated organ	FJ3176
+FMA61775	physical anatomical entity	FJ3159
+FMA5018	bone organ	FJ3273
+FMA55671	cavitated organ	FJ3260
+FMA50720	artery	FJ2973
+FMA61775	physical anatomical entity	FJ1436M
+FMA10474	zone of muscle organ	FJ1441
+FMA67135	anatomical structure	FJ1512M
+FMA67619	organ region	FJ2320
+FMA61775	physical anatomical entity	FJ3146
+FMA22357	semitendinosus	FJ1436M
+FMA55673	organ with cavitated organ parts	FJ3174
+FMA37683	long head of biceps brachii	FJ1478
+FMA67165	material anatomical entity	FJ3178
+FMA61775	physical anatomical entity	FJ1403M
+FMA67165	material anatomical entity	FJ3347
+FMA67165	material anatomical entity	FJ2122
+FMA55268	organ zone	FJ1513
+FMA22967	median antebrachial vein	FJ2286
+FMA5018	bone organ	FJ3170
+FMA55665	nonparenchymatous organ	FJ1436M
+FMA82472	cardinal organ part	FJ1442M
+FMA10474	zone of muscle organ	FJ1446
+FMA7594	false rib	FJ3348
+FMA62955	anatomical entity	FJ3392
+FMA55670	solid organ	FJ1574
+FMA10483	zone of bone organ	FJ3290
+FMA5018	bone organ	FJ3234
+FMA67165	material anatomical entity	FJ3233
+FMA82472	cardinal organ part	FJ1395
+FMA61775	physical anatomical entity	FJ1691M
+FMA23464	right radius	FJ3349
+FMA50722	region of vascular tree organ	FJ2643
+FMA55673	organ with cavitated organ parts	FJ3175
+FMA43882	gracilis	FJ1421
+FMA83929	white matter of neuraxis	FJ1809
+FMA61775	physical anatomical entity	FJ3571
+FMA82472	cardinal organ part	FJ2515
+FMA66464	systemic artery	FJ2309
+FMA67498	organ	FJ3160
+FMA5022	muscle organ	FJ1399
+FMA22471	muscle of leg	FJ1437
+FMA61775	physical anatomical entity	FJ3228
+FMA55671	cavitated organ	FJ3156
+FMA67135	anatomical structure	FJ3157
+FMA9187	second thoracic vertebra	FJ3160
+FMA8229	right seventh rib	FJ3346
+FMA67135	anatomical structure	FJ1443
+FMA22845	branch of superficial palmar arterial arch	FJ2345
+FMA55665	nonparenchymatous organ	FJ3212
+FMA67165	material anatomical entity	FJ1452M
+FMA85453	head of muscle organ	FJ1447M
+FMA67135	anatomical structure	FJ3332
+FMA9622	muscle of lower limb	FJ1419M
+FMA67165	material anatomical entity	FJ3212
+FMA71903	subdivision of hepatic portal vein	FJ3111
+FMA23463	radius	FJ3349
+FMA37367	muscle of pelvic girdle	FJ1418M
+FMA55670	solid organ	FJ1460
+FMA86140	organ segment	FJ3580
+FMA67135	anatomical structure	FJ3371
+FMA50723	vein	FJ1986
+FMA55673	organ with cavitated organ parts	FJ3262
+FMA7857	right first rib	FJ3334
+FMA67135	anatomical structure	FJ1376
+FMA67165	material anatomical entity	FJ3204
+FMA7594	false rib	FJ3236
+FMA61775	physical anatomical entity	FJ1287
+FMA55665	nonparenchymatous organ	FJ1436
+FMA67165	material anatomical entity	FJ3378
+FMA55665	nonparenchymatous organ	FJ3207
+FMA5022	muscle organ	FJ1495
+FMA34681	clavicular part of left deltoid	FJ1468M
+FMA67498	organ	FJ3392
+FMA55673	organ with cavitated organ parts	FJ3265
+FMA67165	material anatomical entity	FJ3595
+FMA67165	material anatomical entity	FJ3366
+FMA55673	organ with cavitated organ parts	FJ3309
+FMA62955	anatomical entity	FJ3233
+FMA67165	material anatomical entity	FJ3525
+FMA86188	segment of venous tree organ	FJ1893
+FMA22471	muscle of leg	FJ1429M
+FMA61775	physical anatomical entity	FJ2143
+FMA67135	anatomical structure	FJ1569
+FMA67165	material anatomical entity	FJ3234
+FMA61775	physical anatomical entity	FJ3262
+FMA86140	organ segment	FJ1784
+FMA62955	anatomical entity	FJ1439M
+FMA31739	segment of bronchial tree	FJ2475
+FMA83143	cell part cluster of neuraxis	FJ1734
+FMA70399	subdivision of costocervical artery	FJ1935
+FMA5022	muscle organ	FJ1487
+FMA8418	tenth rib	FJ3225
+FMA50720	artery	FJ1933
+FMA9914	vertebra	FJ3172
+FMA55673	organ with cavitated organ parts	FJ3159
+FMA3845	septal branch of right posterior interventricular artery	FJ2735
+FMA61775	physical anatomical entity	FJ2628
+FMA67498	organ	FJ1436M
+FMA67619	organ region	FJ3499
+FMA52734	frontal bone	FJ3200
+FMA10446	intervertebral disk	FJ3208
+FMA67165	material anatomical entity	FJ3368
+FMA61775	physical anatomical entity	FJ2668
+FMA61775	physical anatomical entity	FJ1521
+FMA61775	physical anatomical entity	FJ3274
+FMA55671	cavitated organ	FJ3340
+FMA22429	zone of quadriceps femoris	FJ1433
+FMA61775	physical anatomical entity	FJ1693M
+FMA38488	muscle of posterior compartment of forearm	FJ1487
+FMA7574	rib	FJ3225
+FMA61775	physical anatomical entity	FJ1554
+FMA55670	solid organ	FJ3203
+FMA61775	physical anatomical entity	FJ3166
+FMA70345	subdivision of subclavian artery	FJ2277
+FMA67165	material anatomical entity	FJ1459
+FMA55673	organ with cavitated organ parts	FJ3394
+FMA67135	anatomical structure	FJ1394
+FMA52740	ethmoid	FJ3199
+FMA67396	articular disk of symphysis	FJ3204
+FMA67498	organ	FJ3215
+FMA5022	muscle organ	FJ1439
+FMA34679	spinal part of deltoid	FJ1513
+FMA23130	right humerus	FJ3368
+FMA13895	intervertebral disk of cervical vertebra	FJ3219
+FMA11195	segment of neural tree organ	FJ1364
+FMA61997	segment of midbrain	FJ1779
+FMA86256	segment of arterial trunk	FJ3413
+FMA61775	physical anatomical entity	FJ2784
+FMA32559	superficial postvertebral muscle	FJ1543M
+FMA67165	material anatomical entity	FJ2196
+FMA62955	anatomical entity	FJ3338
+FMA10446	intervertebral disk	FJ3205
+FMA3818	marginal branch of right coronary artery	FJ2674
+FMA9621	muscle of upper limb	FJ1485M
+FMA55673	organ with cavitated organ parts	FJ3336
+FMA62955	anatomical entity	FJ3391
+FMA61775	physical anatomical entity	FJ3330
+FMA9711	maxilla	FJ3375
+FMA85453	head of muscle organ	FJ1478
+FMA61775	physical anatomical entity	FJ3331
+FMA67165	material anatomical entity	FJ3269
+FMA8755	segmental pulmonary artery	FJ2898
+FMA32515	postvertebral muscle	FJ1526
+FMA61775	physical anatomical entity	FJ3379
+FMA86187	segment of arterial tree organ	FJ1671
+FMA67498	organ	FJ3289
+FMA7474	long bone	FJ3348
+FMA55671	cavitated organ	FJ3293
+FMA7574	rib	FJ3226
+FMA67135	anatomical structure	FJ1459M
+FMA25624	skeletal ligament	FJ1405
+FMA67619	organ region	FJ1467
+FMA67135	anatomical structure	FJ3331
+FMA34676	zone of deltoid	FJ1467M
+FMA61775	physical anatomical entity	FJ1452M
+FMA55671	cavitated organ	FJ3235
+FMA7596	atypical rib	FJ3336
+FMA7477	irregular bone	FJ3393
+FMA13072	first lumbar vertebra	FJ3157
+FMA61775	physical anatomical entity	FJ3102
+FMA62955	anatomical entity	FJ1459M
+FMA38932	right vastus medialis	FJ1443
+FMA7477	irregular bone	FJ3172
+FMA67165	material anatomical entity	FJ3387
+FMA67498	organ	FJ3154
+FMA67498	organ	FJ3214
+FMA55706	right lower second secondary molar tooth	FJ1270
+FMA67165	material anatomical entity	FJ3063
+FMA70345	subdivision of subclavian artery	FJ2275
+FMA62955	anatomical entity	FJ3384
+FMA9622	muscle of lower limb	FJ1439
+FMA82472	cardinal organ part	FJ2511
+FMA9914	vertebra	FJ3155
+FMA67165	material anatomical entity	FJ3448
+FMA13894	intervertebral disk of lumbar vertebra	FJ3216
+FMA67165	material anatomical entity	FJ2963
+FMA7592	true rib	FJ3230
+FMA62434	cingulate gyrus	FJ1739
+FMA7476	flat bone	FJ3380
+FMA67135	anatomical structure	FJ1444
+FMA67165	material anatomical entity	FJ3275
+FMA5022	muscle organ	FJ1437
+FMA86140	organ segment	FJ3603
+FMA32532	right rectus capitis posterior minor	FJ1590
+FMA34686	zone of pectoralis major	FJ1446
+FMA61775	physical anatomical entity	FJ1504M
+FMA67165	material anatomical entity	FJ3379
+FMA50722	region of vascular tree organ	FJ1686M
+FMA61775	physical anatomical entity	FJ3525
+FMA67619	organ region	FJ2294
+FMA62955	anatomical entity	FJ1520M
+FMA62955	anatomical entity	FJ3379
+FMA9621	muscle of upper limb	FJ1517
+FMA67135	anatomical structure	FJ3167
+FMA82472	cardinal organ part	FJ1397M
+FMA8531	right eleventh rib	FJ3331
+FMA67498	organ	FJ1417
+FMA67165	material anatomical entity	FJ3391
+FMA67619	organ region	FJ1554
+FMA86187	segment of arterial tree organ	FJ1673
+FMA50722	region of vascular tree organ	FJ3005
+FMA33585	transverse part of left trapezius	FJ1554M
+FMA67165	material anatomical entity	FJ1446
+FMA67165	material anatomical entity	FJ3154
+FMA67135	anatomical structure	FJ2060
+FMA62955	anatomical entity	FJ3208
+FMA62955	anatomical entity	FJ1487M
+FMA7474	long bone	FJ3391
+FMA55671	cavitated organ	FJ3277
+FMA62955	anatomical entity	FJ1804
+FMA82472	cardinal organ part	FJ1447M
+FMA13899	intervertebral disk of sixth cervical vertebra	FJ3220
+FMA7477	irregular bone	FJ3167
+FMA67498	organ	FJ3381
+FMA16980	zone of jejunum	FJ2615
+FMA44489	plantar venous arch of foot	FJ2128
+FMA53648	left nasal bone	FJ3272
+FMA62955	anatomical entity	FJ3331
+FMA67165	material anatomical entity	FJ3208
+FMA37686	long head of right biceps brachii	FJ1478
+FMA55671	cavitated organ	FJ3381
+FMA61775	physical anatomical entity	FJ2348
+FMA61775	physical anatomical entity	FJ3213
+FMA82472	cardinal organ part	FJ1513M
+FMA61775	physical anatomical entity	FJ1282
+FMA67165	material anatomical entity	FJ3314
+FMA5018	bone organ	FJ3279
+FMA82472	cardinal organ part	FJ1478M
+FMA67498	organ	FJ3157
+FMA62955	anatomical entity	FJ1418M
+FMA55673	organ with cavitated organ parts	FJ3247
+FMA62955	anatomical entity	FJ3163
+FMA7592	true rib	FJ3233
+FMA67498	organ	FJ3275
+FMA9914	vertebra	FJ3160
+FMA55672	organ with organ cavity	FJ1258
+FMA62955	anatomical entity	FJ2137
+FMA7574	rib	FJ3330
+FMA50563	branch of pontine artery	FJ1689M
+FMA82472	cardinal organ part	FJ3592
+FMA67396	articular disk of symphysis	FJ3206
+FMA5018	bone organ	FJ3162
+FMA67498	organ	FJ3348
+FMA82472	cardinal organ part	FJ1446
+FMA61775	physical anatomical entity	FJ1597
+FMA52788	right parietal bone	FJ3380
+FMA61775	physical anatomical entity	FJ3344
+FMA55107	cartilage organ	FJ3218
+FMA55673	organ with cavitated organ parts	FJ3281
+FMA67619	organ region	FJ2614
+FMA55671	cavitated organ	FJ3288
+FMA5018	bone organ	FJ3393
+FMA223151	internal gray matter component	FJ1823
+FMA55673	organ with cavitated organ parts	FJ3328
+FMA61775	physical anatomical entity	FJ3223
+FMA67165	material anatomical entity	FJ3290
+FMA86140	organ segment	FJ2976
+FMA50722	region of vascular tree organ	FJ2939
+FMA24479	fibula	FJ3260
+FMA82472	cardinal organ part	FJ1692
+FMA62374	segment of telencephalon	FJ1798
+FMA67498	organ	FJ3286
+FMA67165	material anatomical entity	FJ1512M
+FMA67135	anatomical structure	FJ1477M
+FMA55673	organ with cavitated organ parts	FJ3155
+FMA228667	set of organ parts	FJ2228
+FMA67165	material anatomical entity	FJ1441
+FMA22837	left superficial palmar arterial arch	FJ2248
+FMA9611	femur	FJ3259
+FMA55671	cavitated organ	FJ3344
+FMA67165	material anatomical entity	FJ3171
+FMA62955	anatomical entity	FJ3428
+FMA55671	cavitated organ	FJ3158
+FMA13335	external oblique	FJ1452
+FMA7478	pneumatized bone	FJ3386
+FMA32556	transverse part of trapezius	FJ1554
+FMA82472	cardinal organ part	FJ1657
+FMA22427	muscle of posterior compartment of thigh	FJ1436M
+FMA86187	segment of arterial tree organ	FJ3473
+FMA86140	organ segment	FJ1772
+FMA67165	material anatomical entity	FJ1395M
+FMA70504	subdivision of common carotid artery	FJ1695M
+FMA22930	tributary of subclavian vein	FJ2234
+FMA61775	physical anatomical entity	FJ2931
+FMA49443	anatomical cluster	FJ1816M
+FMA61775	physical anatomical entity	FJ3281
+FMA7477	irregular bone	FJ3159
+FMA67135	anatomical structure	FJ1853
+FMA53656	left palatine bone	FJ3273
+FMA67135	anatomical structure	FJ3220
+FMA67165	material anatomical entity	FJ3520
+FMA9413	subsegmental pulmonary vein	FJ3053
+FMA61775	physical anatomical entity	FJ1480M
+FMA67165	material anatomical entity	FJ1447
+FMA55670	solid organ	FJ1459
+FMA67165	material anatomical entity	FJ1480
+FMA61775	physical anatomical entity	FJ3222
+FMA55665	nonparenchymatous organ	FJ1403
+FMA67498	organ	FJ3147
+FMA61775	physical anatomical entity	FJ1675M
+FMA55673	organ with cavitated organ parts	FJ3176
+FMA82472	cardinal organ part	FJ2349
+FMA13507	intervertebral disk of tenth thoracic vertebra	FJ3209
+FMA5018	bone organ	FJ3158
+FMA32515	postvertebral muscle	FJ1522
+FMA67135	anatomical structure	FJ3199
+FMA62955	anatomical entity	FJ1403M
+FMA8532	left eleventh rib	FJ3226
+FMA8148	left fourth rib	FJ3231
+FMA55670	solid organ	FJ1796
+FMA67135	anatomical structure	FJ1679
+FMA67498	organ	FJ3219
+FMA82472	cardinal organ part	FJ2920
+FMA67165	material anatomical entity	FJ2068
+FMA67498	organ	FJ1439
+FMA55673	organ with cavitated organ parts	FJ3274
+FMA10474	zone of muscle organ	FJ1554M
+FMA67165	material anatomical entity	FJ1421
+FMA13895	intervertebral disk of cervical vertebra	FJ3221
+FMA62955	anatomical entity	FJ2910
+FMA67165	material anatomical entity	FJ1480M
+FMA55673	organ with cavitated organ parts	FJ3340
+FMA67135	anatomical structure	FJ3468
+FMA7476	flat bone	FJ3200
+FMA62955	anatomical entity	FJ2784
+FMA7474	long bone	FJ3351
+FMA7477	irregular bone	FJ3287
+FMA67165	material anatomical entity	FJ1410
+FMA62955	anatomical entity	FJ3213
+FMA55671	cavitated organ	FJ3379
+FMA10474	zone of muscle organ	FJ1441M
+FMA67498	organ	FJ3174
+FMA7477	irregular bone	FJ3168
+FMA22314	gluteus maximus	FJ1418M
+FMA49893	coronary artery	FJ2735
+FMA9139	thoracic vertebra	FJ3156
+FMA50720	artery	FJ1722
+FMA62955	anatomical entity	FJ1261
+FMA67135	anatomical structure	FJ3248
+FMA86140	organ segment	FJ2353
+FMA67135	anatomical structure	FJ3259
+FMA37367	muscle of pelvic girdle	FJ1418
+FMA67135	anatomical structure	FJ3202
+FMA67498	organ	FJ3368
+FMA10446	intervertebral disk	FJ3222
+FMA70488	posterior division of renal artery	FJ3473
+FMA61775	physical anatomical entity	FJ1439
+FMA9139	thoracic vertebra	FJ3158
+FMA38935	left vastus intermedius	FJ1441M
+FMA67498	organ	FJ3346
+FMA5022	muscle organ	FJ1459M
+FMA55107	cartilage organ	FJ3209
+FMA55665	nonparenchymatous organ	FJ1487
+FMA5018	bone organ	FJ3166
+FMA55676	segment of brain	FJ1748
+FMA67135	anatomical structure	FJ3056
+FMA66644	systemic vein	FJ3580
+FMA67165	material anatomical entity	FJ3330
+FMA78562	set of organ regions	FJ2205
+FMA5018	bone organ	FJ3288
+FMA7593	typical rib	FJ3234
+FMA22359	left semitendinosus	FJ1436M
+FMA9914	vertebra	FJ3166
+FMA67135	anatomical structure	FJ3277
+FMA86140	organ segment	FJ2443
+FMA5041	right second posterior intercostal artery	FJ1950
+FMA45889	long head of left biceps femoris	FJ1395M
+FMA55661	parenchymatous organ	FJ1299
+FMA9621	muscle of upper limb	FJ1466
+FMA61775	physical anatomical entity	FJ3161
+FMA82472	cardinal organ part	FJ2566
+FMA86140	organ segment	FJ1728
+FMA7574	rib	FJ3344
+FMA67135	anatomical structure	FJ1403M
+FMA82472	cardinal organ part	FJ2930
+FMA55671	cavitated organ	FJ3169
+FMA65539	subdivision of parasympathetic nervous system	FJ1370
+FMA55671	cavitated organ	FJ3236
+FMA37694	lateral head of triceps brachii	FJ1477
+FMA61775	physical anatomical entity	FJ3289
+FMA37368	muscle of free lower limb	FJ1437
+FMA13495	intervertebral disk of second thoracic vertebra	FJ3223
+FMA9914	vertebra	FJ3158
+FMA5018	bone organ	FJ3334
+FMA67165	material anatomical entity	FJ2620
+FMA7477	irregular bone	FJ3155
+FMA67135	anatomical structure	FJ2766
+FMA67619	organ region	FJ1479
+FMA55665	nonparenchymatous organ	FJ1439M
+FMA67135	anatomical structure	FJ3279
+FMA62955	anatomical entity	FJ3493
+FMA86140	organ segment	FJ2354
+FMA55107	cartilage organ	FJ3213
+FMA61775	physical anatomical entity	FJ3273
+FMA67135	anatomical structure	FJ2426
+FMA55268	organ zone	FJ1512
+FMA55671	cavitated organ	FJ3233
+FMA67165	material anatomical entity	FJ1436M
+FMA7486	manubrium	FJ3290
+FMA62955	anatomical entity	FJ2606
+FMA55673	organ with cavitated organ parts	FJ3346
+FMA62955	anatomical entity	FJ3170
+FMA13073	second lumbar vertebra	FJ3159
+FMA9165	first thoracic vertebra	FJ3158
+FMA61775	physical anatomical entity	FJ3282
+FMA32558	musculature	FJ1463
+FMA67498	organ	FJ3232
+FMA86140	organ segment	FJ2701
+FMA66327	branch of right coronary artery	FJ2736
+FMA62080	stria medullaris of thalamus	FJ1777
+FMA61775	physical anatomical entity	FJ3094
+FMA13341	sternohyoid	FJ1596
+FMA9622	muscle of lower limb	FJ1413
+FMA67619	organ region	FJ3603
+FMA7477	irregular bone	FJ3281
+FMA32518	deep extrinsic muscle of shoulder	FJ1459M
+FMA5018	bone organ	FJ3277
+FMA55665	nonparenchymatous organ	FJ3209
+FMA61775	physical anatomical entity	FJ1467M
+FMA10474	zone of muscle organ	FJ1433
+FMA62955	anatomical entity	FJ3346
+FMA34691	clavicular part of left pectoralis major	FJ1447M
+FMA61775	physical anatomical entity	FJ1459
+FMA61775	physical anatomical entity	FJ2613
+FMA86140	organ segment	FJ3654
+FMA7574	rib	FJ3342
+FMA67498	organ	FJ3334
+FMA7574	rib	FJ3348
+FMA55670	solid organ	FJ3219
+FMA5018	bone organ	FJ3286
+FMA61775	physical anatomical entity	FJ3387
+FMA62955	anatomical entity	FJ3311
+FMA9139	thoracic vertebra	FJ3174
+FMA9710	vomer	FJ3395
+FMA82472	cardinal organ part	FJ1423
+FMA7474	long bone	FJ3387
+FMA59541	right lacrimal lake	FJ1352
+FMA5022	muscle organ	FJ1389
+FMA33531	muscle of shoulder	FJ1459M
+FMA82472	cardinal organ part	FJ2224
+FMA13323	left clavicle	FJ3237
+FMA7474	long bone	FJ3330
+FMA67165	material anatomical entity	FJ2464
+FMA67165	material anatomical entity	FJ3206
+FMA67242	gray matter of neuraxis	FJ1753
+FMA22561	left plantaris	FJ1429M
+FMA62955	anatomical entity	FJ1478
+FMA67135	anatomical structure	FJ3226
+FMA13399	left serratus anterior	FJ1459M
+FMA67396	articular disk of symphysis	FJ3218
+FMA8533	right twelfth rib	FJ3332
+FMA62955	anatomical entity	FJ3166
+FMA73414	left stria medullaris of thalamus	FJ1777
+FMA55671	cavitated organ	FJ3362
+FMA7476	flat bone	FJ3274
+FMA63103	pancreatic duct tree	FJ2630
+FMA67165	material anatomical entity	FJ3336
+FMA67498	organ	FJ3282
+FMA67165	material anatomical entity	FJ3282
+FMA55670	solid organ	FJ3210
+FMA9914	vertebra	FJ3173
+FMA61775	physical anatomical entity	FJ2013
+FMA62955	anatomical entity	FJ3557
+FMA67165	material anatomical entity	FJ3164
+FMA67135	anatomical structure	FJ1443M
+FMA67498	organ	FJ3234
+FMA7474	long bone	FJ3365
+FMA62955	anatomical entity	FJ3380
+FMA67135	anatomical structure	FJ1414
+FMA61775	physical anatomical entity	FJ2227
+FMA86140	organ segment	FJ1704M
+FMA61775	physical anatomical entity	FJ1755
+FMA37479	first lumbrical of foot	FJ1383M
+FMA86188	segment of venous tree organ	FJ2165
+FMA67165	material anatomical entity	FJ3058
+FMA12224	segment of tracheobronchial tree	FJ2497
+FMA67135	anatomical structure	FJ1528M
+FMA78048	subdivision of superior vena caval tree	FJ2220
+FMA55671	cavitated organ	FJ3161
+FMA55673	organ with cavitated organ parts	FJ3170
+FMA55268	organ zone	FJ1433
+FMA9622	muscle of lower limb	FJ1418M
+FMA7477	irregular bone	FJ3175
+FMA55673	organ with cavitated organ parts	FJ3380
+FMA9622	muscle of lower limb	FJ1436
+FMA71866	segmental tributary of left hepatic biliary tree	FJ3090
+FMA10446	intervertebral disk	FJ3214
+FMA67165	material anatomical entity	FJ3174
+FMA62955	anatomical entity	FJ1419
+FMA12525	seventh cervical vertebra	FJ3172
+FMA62955	anatomical entity	FJ1395
+FMA82472	cardinal organ part	FJ1664M
+FMA82472	cardinal organ part	FJ3533
+FMA50722	region of vascular tree organ	FJ3482
+FMA67135	anatomical structure	FJ1578
+FMA67165	material anatomical entity	FJ1554
+FMA5022	muscle organ	FJ1452M
+FMA8755	segmental pulmonary artery	FJ2915
+FMA82472	cardinal organ part	FJ2499
+FMA82472	cardinal organ part	FJ2966
+FMA62955	anatomical entity	FJ3229
+FMA67396	articular disk of symphysis	FJ3207
+FMA13897	intervertebral disk of fourth cervical vertebra	FJ3218
+FMA62955	anatomical entity	FJ3620
+FMA50720	artery	FJ2716
+FMA67165	material anatomical entity	FJ1513
+FMA45729	head of organ	FJ1447
+FMA61775	physical anatomical entity	FJ1394M
+FMA62514	basal ganglion of telencephalon	FJ1753
+FMA61775	physical anatomical entity	FJ1671
+FMA7474	long bone	FJ3366
+FMA61775	physical anatomical entity	FJ1433
+FMA22430	rectus femoris	FJ1433M
+FMA7592	true rib	FJ3338
+FMA67165	material anatomical entity	FJ1487
+FMA83860	peduncle of neuraxis	FJ1774
+FMA55670	solid organ	FJ1452
+FMA16585	hip bone	FJ3288
+FMA62955	anatomical entity	FJ1288
+FMA16981	proximal part of jejunum	FJ2625
+FMA67135	anatomical structure	FJ2605
+FMA55671	cavitated organ	FJ3200
+FMA67165	material anatomical entity	FJ3309
+FMA55268	organ zone	FJ1447
+FMA61775	physical anatomical entity	FJ3209
+FMA62955	anatomical entity	FJ1444M
+FMA67165	material anatomical entity	FJ3232
+FMA33581	ascending part of right trapezius	FJ1520
+FMA55268	organ zone	FJ1520M
+FMA34687	clavicular part of pectoralis major	FJ1447
+FMA55107	cartilage organ	FJ3224
+FMA67619	organ region	FJ3110
+FMA7592	true rib	FJ3342
+FMA55670	solid organ	FJ1403
+FMA55665	nonparenchymatous organ	FJ1487M
+FMA61775	physical anatomical entity	FJ1468M
+FMA7474	long bone	FJ3277
+FMA55671	cavitated organ	FJ3371
+FMA62955	anatomical entity	FJ3214
+FMA61775	physical anatomical entity	FJ1513M
+FMA5018	bone organ	FJ3177
+FMA45875	abdominal part of left pectoralis major	FJ1446M
+FMA67165	material anatomical entity	FJ1512
+FMA82472	cardinal organ part	FJ1554M
+FMA67498	organ	FJ3183
+FMA67135	anatomical structure	FJ3217
+FMA83115	cell part cluster	FJ1743
+FMA67135	anatomical structure	FJ3225
+FMA67165	material anatomical entity	FJ3213
+FMA86140	organ segment	FJ2730
+FMA85453	head of muscle organ	FJ1444
+FMA13505	intervertebral disk of eighth thoracic vertebra	FJ3207
+FMA83143	cell part cluster of neuraxis	FJ1751
+FMA67619	organ region	FJ2193
+FMA55107	cartilage organ	FJ3210
+FMA62955	anatomical entity	FJ3215
+FMA67135	anatomical structure	FJ3206
+FMA67135	anatomical structure	FJ3236
+FMA82472	cardinal organ part	FJ3625
+FMA9711	maxilla	FJ3269
+FMA22357	semitendinosus	FJ1436
+FMA67165	material anatomical entity	FJ3397
+FMA55673	organ with cavitated organ parts	FJ3338
+FMA67135	anatomical structure	FJ3161
+FMA7594	false rib	FJ3331
+FMA85453	head of muscle organ	FJ1394
+FMA61775	physical anatomical entity	FJ3381
+FMA34684	spinal part of right deltoid	FJ1513
+FMA67498	organ	FJ3171
+FMA76264	intracranial branch of vertebral artery	FJ1705M
+FMA71868	anterior inferior tributary of right hepatic biliary tree	FJ3072
+FMA86187	segment of arterial tree organ	FJ1916
+FMA67135	anatomical structure	FJ3392
+FMA5018	bone organ	FJ3340
+FMA55268	organ zone	FJ1554M
+FMA67165	material anatomical entity	FJ3337
+FMA62955	anatomical entity	FJ3161
+FMA5018	bone organ	FJ3237
+FMA61775	physical anatomical entity	FJ3158
+FMA61775	physical anatomical entity	FJ1396M
+FMA7592	true rib	FJ3229
+FMA82472	cardinal organ part	FJ3515
+FMA7593	typical rib	FJ3232
+FMA67135	anatomical structure	FJ3178
+FMA67498	organ	FJ3288
+FMA22937	tributary of brachial vein	FJ2296
+FMA62955	anatomical entity	FJ2790
+FMA22429	zone of quadriceps femoris	FJ1443
+FMA61775	physical anatomical entity	FJ3217
+FMA52746	palatine bone	FJ3379
+FMA86187	segment of arterial tree organ	FJ2162
+FMA86140	organ segment	FJ2709
+FMA10474	zone of muscle organ	FJ1446M
+FMA67135	anatomical structure	FJ1442M
+FMA82472	cardinal organ part	FJ1668
+FMA85453	head of muscle organ	FJ1479
+FMA62955	anatomical entity	FJ1554M
+FMA55268	organ zone	FJ1443M
+FMA31739	segment of bronchial tree	FJ2449
+FMA66643	pulmonary vein	FJ3062
+FMA55670	solid organ	FJ1426
+FMA7591	costal cartilage	FJ3345
+FMA86187	segment of arterial tree organ	FJ1662M
+FMA9622	muscle of lower limb	FJ1390M
+FMA67165	material anatomical entity	FJ1403
+FMA67619	organ region	FJ1479M
+FMA67498	organ	FJ3347
+FMA37368	muscle of free lower limb	FJ1403M
+FMA23468	left ulna	FJ3286
+FMA86187	segment of arterial tree organ	FJ1709M
+FMA67498	organ	FJ3216
+FMA45729	head of organ	FJ1394
+FMA67165	material anatomical entity	FJ2471
+FMA49893	coronary artery	FJ2642
+FMA55670	solid organ	FJ1436M
+FMA67135	anatomical structure	FJ3274
+FMA61775	physical anatomical entity	FJ1479
+FMA61775	physical anatomical entity	FJ3559
+FMA7474	long bone	FJ3198
+FMA55077	pharyngeal raphe	FJ2749
+FMA82472	cardinal organ part	FJ1554
+FMA62955	anatomical entity	FJ3349
+FMA61775	physical anatomical entity	FJ2714
+FMA50518	posterior inferior cerebellar artery	FJ1710M
+FMA67135	anatomical structure	FJ1748
+FMA4083	left superior epigastric artery	FJ1971
+FMA67165	material anatomical entity	FJ3157
+FMA50722	region of vascular tree organ	FJ2883
+FMA62955	anatomical entity	FJ2443
+FMA62955	anatomical entity	FJ3171
+FMA61775	physical anatomical entity	FJ3372
+FMA82472	cardinal organ part	FJ1520
+FMA62955	anatomical entity	FJ1853
+FMA44340	right superficial epigastric vein	FJ2178
+FMA53646	left lacrimal bone	FJ3265
+FMA10455	intervertebral disk of thoracic vertebra	FJ3204
+FMA7477	irregular bone	FJ3379
+FMA55268	organ zone	FJ1394
+FMA61775	physical anatomical entity	FJ3162
+FMA50578	lateral branch of right superior cerebellar artery	FJ1683
+FMA55107	cartilage organ	FJ3203
+FMA22314	gluteus maximus	FJ1418
+FMA67165	material anatomical entity	FJ3172
+FMA67619	organ region	FJ1394
+FMA67165	material anatomical entity	FJ3160
+FMA86375	ligament organ component	FJ2787
+FMA66464	systemic artery	FJ3467
+FMA50723	vein	FJ2729
+FMA67165	material anatomical entity	FJ1521M
+FMA82472	cardinal organ part	FJ1433
+FMA55673	organ with cavitated organ parts	FJ3349
+FMA62955	anatomical entity	FJ3055
+FMA55671	cavitated organ	FJ3274
+FMA77883	subdivision of brachiocephalic vein	FJ1996
+FMA7882	right second rib	FJ3336
+FMA67619	organ region	FJ1721M
+FMA37347	muscle of pectoral girdle	FJ1504M
+FMA55671	cavitated organ	FJ3349
+FMA24456	middle phalanx of right middle finger	FJ3306
+FMA67498	organ	FJ1493
+FMA62955	anatomical entity	FJ1659M
+FMA65020	intrinsic muscle of foot	FJ1390
+FMA67135	anatomical structure	FJ1520
+FMA67498	organ	FJ3161
+FMA13303	humerus	FJ3262
+FMA67135	anatomical structure	FJ2339
+FMA61775	physical anatomical entity	FJ3349
+FMA24477	right tibia	FJ3387
+FMA82472	cardinal organ part	FJ3603
+FMA62955	anatomical entity	FJ3332
+FMA8663	right posterior segmental vein	FJ3026
+FMA83143	cell part cluster of neuraxis	FJ1816M
+FMA23901	third metacarpal bone	FJ3246
+FMA61775	physical anatomical entity	FJ3493
+FMA13337	left external oblique	FJ1452M
+FMA61775	physical anatomical entity	FJ1792
+FMA45881	head of biceps femoris	FJ1444M
+FMA50722	region of vascular tree organ	FJ3500
+FMA62955	anatomical entity	FJ3340
+FMA67619	organ region	FJ1480
+FMA5022	muscle organ	FJ2742
+FMA50875	right optic nerve	FJ1364
+FMA50722	region of vascular tree organ	FJ3608
+FMA45729	head of organ	FJ1447M
+FMA67396	articular disk of symphysis	FJ3202
+FMA55815	lower second secondary molar tooth	FJ1270
+FMA22909	right basilic vein	FJ2270
+FMA52737	temporal bone	FJ3281
+FMA74866	zone of diencephalon	FJ1743
+FMA50720	artery	FJ2221
+FMA55670	solid organ	FJ1418M
+FMA67165	material anatomical entity	FJ3218
+FMA7477	irregular bone	FJ3157
+FMA70494	segmental renal artery	FJ2054
+FMA16033	intervertebral disk of first lumbar vertebra	FJ3212
+FMA67135	anatomical structure	FJ3216
+FMA55665	nonparenchymatous organ	FJ3204
+FMA67165	material anatomical entity	FJ1387M
+FMA55268	organ zone	FJ1441M
+FMA5022	muscle organ	FJ1403M
+FMA70523	subdivision of cerebral part of internal carotid artery	FJ1713M
+FMA67165	material anatomical entity	FJ3278
+FMA7478	pneumatized bone	FJ3269
+FMA15387	tributary of splenic vein	FJ3429
+FMA67165	material anatomical entity	FJ1418
+FMA9914	vertebra	FJ3168
+FMA5018	bone organ	FJ3169
+FMA50723	vein	FJ2108
+FMA45959	lateral head of gastrocnemius	FJ1394
+FMA34676	zone of deltoid	FJ1468M
+FMA55665	nonparenchymatous organ	FJ1452
+FMA22432	vastus medialis	FJ1443M
+FMA7477	irregular bone	FJ3164
+FMA67498	organ	FJ3344
+FMA67135	anatomical structure	FJ3273
+FMA67619	organ region	FJ1464
+FMA50722	region of vascular tree organ	FJ3004
+FMA5018	bone organ	FJ3272
+FMA61775	physical anatomical entity	FJ1676
+FMA16980	zone of jejunum	FJ2614
+FMA55671	cavitated organ	FJ3199
+FMA14092	zone of small intestine	FJ2591
+FMA55268	organ zone	FJ1477M
+FMA11195	segment of neural tree organ	FJ1290
+FMA61775	physical anatomical entity	FJ1540M
+FMA67135	anatomical structure	FJ1601
+FMA55671	cavitated organ	FJ3159
+FMA8418	tenth rib	FJ3330
+FMA52893	left zygomatic bone	FJ3287
+FMA61775	physical anatomical entity	FJ3175
+FMA82472	cardinal organ part	FJ1394M
+FMA52607	branch of trigeminal nerve	FJ1318
+FMA55670	solid organ	FJ1323
+FMA67165	material anatomical entity	FJ2282
+FMA67135	anatomical structure	FJ2440
+FMA13900	intervertebral disk of seventh cervical vertebra	FJ3221
+FMA62955	anatomical entity	FJ3137
+FMA86140	organ segment	FJ2214
+FMA50720	artery	FJ3075
+FMA8120	eighth rib	FJ3347
+FMA67498	organ	FJ3202
+FMA50720	artery	FJ1726
+FMA13303	humerus	FJ3368
+FMA66643	pulmonary vein	FJ3048
+FMA67135	anatomical structure	FJ3177
+FMA62955	anatomical entity	FJ3060
+FMA7474	long bone	FJ3334
+FMA55673	organ with cavitated organ parts	FJ3395
+FMA62955	anatomical entity	FJ1443
+FMA55673	organ with cavitated organ parts	FJ3227
+FMA67135	anatomical structure	FJ1394M
+FMA62955	anatomical entity	FJ2665
+FMA82472	cardinal organ part	FJ1671M
+FMA82472	cardinal organ part	FJ1738
+FMA61775	physical anatomical entity	FJ3178
+FMA67498	organ	FJ3378
+FMA67165	material anatomical entity	FJ3231
+FMA67165	material anatomical entity	FJ3297
+FMA7477	irregular bone	FJ3394
+FMA37682	short head of biceps brachii	FJ1512M
+FMA9139	thoracic vertebra	FJ3169
+FMA55671	cavitated organ	FJ3273
+FMA62955	anatomical entity	FJ1346
+FMA9914	vertebra	FJ3165
+FMA5018	bone organ	FJ3167
+FMA67165	material anatomical entity	FJ1717
+FMA67619	organ region	FJ2171
+FMA7476	flat bone	FJ3309
+FMA82472	cardinal organ part	FJ1443
+FMA67396	articular disk of symphysis	FJ3203
+FMA62955	anatomical entity	FJ1655
+FMA5018	bone organ	FJ3365
+FMA61775	physical anatomical entity	FJ1447
+FMA10446	intervertebral disk	FJ3217
+FMA7474	long bone	FJ3342
+FMA62955	anatomical entity	FJ1806
+FMA38934	right vastus intermedius	FJ1441
+FMA55671	cavitated organ	FJ3281
+FMA55673	organ with cavitated organ parts	FJ3277
+FMA22594	muscle of vertebral column	FJ1522
+FMA61775	physical anatomical entity	FJ3595
+FMA55673	organ with cavitated organ parts	FJ3156
+FMA67619	organ region	FJ2567
+FMA61775	physical anatomical entity	FJ3207
+FMA67619	organ region	FJ2683
+FMA67498	organ	FJ3227
+FMA9914	vertebra	FJ3164
+FMA69805	subdivision of internal pudendal artery	FJ3497
+FMA61775	physical anatomical entity	FJ3136
+FMA37347	muscle of pectoral girdle	FJ1459M
+FMA61775	physical anatomical entity	FJ1264
+FMA15396	tributary of superior mesenteric vein	FJ3591
+FMA61775	physical anatomical entity	FJ1565
+FMA5022	muscle organ	FJ1418
+FMA61775	physical anatomical entity	FJ2471
+FMA55671	cavitated organ	FJ3378
+FMA49443	anatomical cluster	FJ2300
+FMA67619	organ region	FJ3428
+FMA37368	muscle of free lower limb	FJ1439M
+FMA5018	bone organ	FJ3155
+FMA7574	rib	FJ3230
+FMA62955	anatomical entity	FJ3212
+FMA67498	organ	FJ1435M
+FMA67165	material anatomical entity	FJ1467M
+FMA9968	seventh thoracic vertebra	FJ3173
+FMA68211	right apical segmental bronchial tree	FJ2524
+FMA52736	sphenoid bone	FJ3394
+FMA24480	right fibula	FJ3366
+FMA61775	physical anatomical entity	FJ2615
+FMA61775	physical anatomical entity	FJ1520
+FMA78048	subdivision of superior vena caval tree	FJ2290
+FMA55671	cavitated organ	FJ3160
+FMA13501	intervertebral disk of fourth thoracic vertebra	FJ3203
+FMA62955	anatomical entity	FJ1395M
+FMA67165	material anatomical entity	FJ2622
+FMA9914	vertebra	FJ3163
+FMA5018	bone organ	FJ3154
+FMA22429	zone of quadriceps femoris	FJ1441M
+FMA65020	intrinsic muscle of foot	FJ1389
+FMA67498	organ	FJ3172
+FMA61775	physical anatomical entity	FJ1479M
+FMA7638	third rib	FJ3230
+FMA67135	anatomical structure	FJ1418M
+FMA32515	postvertebral muscle	FJ1547
+FMA67135	anatomical structure	FJ2665
+FMA10446	intervertebral disk	FJ3218
+FMA9620	muscle of abdomen	FJ1452
+FMA67135	anatomical structure	FJ1395M
+FMA67619	organ region	FJ2979
+FMA50722	region of vascular tree organ	FJ2125
+FMA67135	anatomical structure	FJ3149
+FMA9411	segmental pulmonary vein	FJ3059
+FMA67165	material anatomical entity	FJ1468
+FMA7476	flat bone	FJ3279
+FMA66464	systemic artery	FJ2653
+FMA22317	gluteus minimus	FJ1420
+FMA62955	anatomical entity	FJ2806
+FMA67165	material anatomical entity	FJ3562
+FMA67135	anatomical structure	FJ3349
+FMA67165	material anatomical entity	FJ3223
+FMA82472	cardinal organ part	FJ1444
+FMA15629	right adrenal gland	FJ3130
+FMA67165	material anatomical entity	FJ3168
+FMA86188	segment of venous tree organ	FJ3648
+FMA55671	cavitated organ	FJ3386
+FMA67135	anatomical structure	FJ3163
+FMA55673	organ with cavitated organ parts	FJ3330
+FMA55673	organ with cavitated organ parts	FJ3386
+FMA67619	organ region	FJ3655
+FMA61775	physical anatomical entity	FJ2652
+FMA61775	physical anatomical entity	FJ3375
+FMA16037	intervertebral disk of fifth lumbar vertebra	FJ3217
+FMA67619	organ region	FJ2455
+FMA11337	zone of continuity	FJ2249
+FMA62955	anatomical entity	FJ3168
+FMA14309	subsegmental part of apical segmental vein	FJ3068
+FMA55671	cavitated organ	FJ3167
+FMA62955	anatomical entity	FJ1464M
+FMA62955	anatomical entity	FJ1513M
+FMA7474	long bone	FJ3232
+FMA67619	organ region	FJ3572
+FMA67165	material anatomical entity	FJ2299
+FMA67135	anatomical structure	FJ1487M
+FMA86187	segment of arterial tree organ	FJ2386
+FMA5018	bone organ	FJ3168
+FMA45729	head of organ	FJ1479
+FMA62955	anatomical entity	FJ1397
+FMA65008	deep muscle of posterior compartment of leg	FJ1414
+FMA62955	anatomical entity	FJ2223
+FMA10474	zone of muscle organ	FJ1464
+FMA67165	material anatomical entity	FJ1520
+FMA55665	nonparenchymatous organ	FJ3220
+FMA55673	organ with cavitated organ parts	FJ3229
+FMA67135	anatomical structure	FJ3002
+FMA55671	cavitated organ	FJ3162
+FMA61775	physical anatomical entity	FJ3227
+FMA33587	descending part of left trapezius	FJ1521M
+FMA22927	proper palmar digital vein of index finger	FJ2355
+FMA55107	cartilage organ	FJ3214
+FMA82472	cardinal organ part	FJ2242
+FMA9914	vertebra	FJ3176
+FMA7476	flat bone	FJ3288
+FMA50723	vein	FJ2191
+FMA5022	muscle organ	FJ1569
+FMA55665	nonparenchymatous organ	FJ1540
+FMA67135	anatomical structure	FJ3286
+FMA22470	muscle of thigh	FJ1401M
+FMA82472	cardinal organ part	FJ1464
+FMA9621	muscle of upper limb	FJ1494M
+FMA86187	segment of arterial tree organ	FJ1705M
+FMA24486	right patella	FJ3381
+FMA34699	abdominal part of pectoralis major	FJ1446M
+FMA67135	anatomical structure	FJ2659
+FMA37348	muscle of free upper limb	FJ1498
+FMA67498	organ	FJ3173
+FMA55673	organ with cavitated organ parts	FJ3282
+FMA67135	anatomical structure	FJ2290
+FMA55107	cartilage organ	FJ3221
+FMA67165	material anatomical entity	FJ1444
+FMA55670	solid organ	FJ1452M
+FMA37696	medial head of left triceps brachii	FJ1480M
+FMA67498	organ	FJ3156
+FMA67165	material anatomical entity	FJ1399
+FMA9620	muscle of abdomen	FJ1452M
+FMA67135	anatomical structure	FJ3214
+FMA13395	right scapula	FJ3384
+FMA7477	irregular bone	FJ3158
+FMA23131	left humerus	FJ3262
+FMA62955	anatomical entity	FJ1433M
+FMA67165	material anatomical entity	FJ3279
+FMA33586	descending part of right trapezius	FJ1521
+FMA67165	material anatomical entity	FJ1433M
+FMA67135	anatomical structure	FJ3136
+FMA82472	cardinal organ part	FJ1720
+FMA82472	cardinal organ part	FJ1467
+FMA13386	scalenus medius	FJ1571
+FMA86187	segment of arterial tree organ	FJ2364
+FMA67165	material anatomical entity	FJ2554
+FMA55268	organ zone	FJ1520
+FMA14767	trunk of branch of coeliac artery	FJ3432
+FMA55673	organ with cavitated organ parts	FJ3279
+FMA82472	cardinal organ part	FJ1468M
+FMA45729	head of organ	FJ1477
+FMA67165	material anatomical entity	FJ3222
+FMA55665	nonparenchymatous organ	FJ2775
+FMA7595	floating rib	FJ3331
+FMA67135	anatomical structure	FJ2530
+FMA61775	physical anatomical entity	FJ3212
+FMA67135	anatomical structure	FJ3205
+FMA10474	zone of muscle organ	FJ1464M
+FMA5018	bone organ	FJ3229
+FMA82472	cardinal organ part	FJ3254
+FMA66644	systemic vein	FJ3486
+FMA55673	organ with cavitated organ parts	FJ3392
+FMA62955	anatomical entity	FJ3375
+FMA86140	organ segment	FJ3023
+FMA50723	vein	FJ3032
+FMA62955	anatomical entity	FJ1837
+FMA67619	organ region	FJ1433
+FMA82472	cardinal organ part	FJ2504
+FMA37368	muscle of free lower limb	FJ1403
+FMA67135	anatomical structure	FJ3230
+FMA68692	subsegmental part of medial segmental artery	FJ2987
+FMA61775	physical anatomical entity	FJ3384
+FMA82472	cardinal organ part	FJ1441
+FMA23914	phalanx of finger	FJ3197
+FMA61775	physical anatomical entity	FJ2663
+FMA50436	superior terminal branch of middle cerebral artery	FJ1666M
+FMA37682	short head of biceps brachii	FJ1512
+FMA86140	organ segment	FJ2124
+FMA67165	material anatomical entity	FJ2706
+FMA67498	organ	FJ3331
+FMA67396	articular disk of symphysis	FJ3224
+FMA55670	solid organ	FJ1330
+FMA7594	false rib	FJ3227
+FMA5018	bone organ	FJ3378
+FMA55670	solid organ	FJ1487M
+FMA67135	anatomical structure	FJ1433M
+FMA62955	anatomical entity	FJ3417
+FMA10455	intervertebral disk of thoracic vertebra	FJ3224
+FMA67165	material anatomical entity	FJ1433
+FMA22440	pectineus	FJ1427M
+FMA37694	lateral head of triceps brachii	FJ1477M
+FMA62955	anatomical entity	FJ3172
+FMA7477	irregular bone	FJ3169
+FMA22559	left soleus	FJ1437M
+FMA7574	rib	FJ3236
+FMA67165	material anatomical entity	FJ3166
+FMA3876	third right anterior branch of anterior interventricular branch of left coronary artery	FJ2647
+FMA7477	irregular bone	FJ3174
+FMA62955	anatomical entity	FJ3199
+FMA9914	vertebra	FJ3171
+FMA10474	zone of muscle organ	FJ1467M
+FMA9209	third thoracic vertebra	FJ3163
+FMA67165	material anatomical entity	FJ3346
+FMA50081	branch of middle cerebral artery	FJ1673M
+FMA5018	bone organ	FJ3233
+FMA67619	organ region	FJ1513
+FMA62955	anatomical entity	FJ3344
+FMA62955	anatomical entity	FJ1950
+FMA85453	head of muscle organ	FJ1478M
+FMA62955	anatomical entity	FJ2473
+FMA67619	organ region	FJ1931
+FMA67135	anatomical structure	FJ3213
+FMA67135	anatomical structure	FJ2973
+FMA5018	bone organ	FJ3332
+FMA67165	material anatomical entity	FJ2645
+FMA68222	left anterior segmental bronchial tree	FJ2469
+FMA5018	bone organ	FJ3171
+FMA67135	anatomical structure	FJ1452M
+FMA9139	thoracic vertebra	FJ3160
+FMA9411	segmental pulmonary vein	FJ3041
+FMA55673	organ with cavitated organ parts	FJ3287
+FMA45729	head of organ	FJ1478M
+FMA45729	head of organ	FJ1444
+FMA67165	material anatomical entity	FJ3299
+FMA55671	cavitated organ	FJ3231
+FMA7591	costal cartilage	FJ3251
+FMA70506	subdivision of internal carotid artery	FJ1729
+FMA8391	left ninth rib	FJ3236
+FMA67165	material anatomical entity	FJ2650
+FMA5018	bone organ	FJ3262
+FMA67498	organ	FJ3164
+FMA82472	cardinal organ part	FJ1480M
+FMA67619	organ region	FJ1443M
+FMA62955	anatomical entity	FJ3167
+FMA14764	common iliac artery	FJ3464
+FMA67135	anatomical structure	FJ1479M
+FMA67165	material anatomical entity	FJ2270
+FMA67165	material anatomical entity	FJ1426M
+FMA67135	anatomical structure	FJ3176
+FMA67498	organ	FJ3225
+FMA55268	organ zone	FJ1441
+FMA61775	physical anatomical entity	FJ1503M
+FMA8275	left seventh costal cartilage	FJ3255
+FMA67619	organ region	FJ1444
+FMA67135	anatomical structure	FJ1554M
+FMA38929	left rectus femoris	FJ1433M
+FMA13506	intervertebral disk of ninth thoracic vertebra	FJ3208
+FMA5018	bone organ	FJ3156
+FMA44245	plantar tarsal ligament	FJ1424M
+FMA13404	left serratus posterior superior	FJ1542M
+FMA67165	material anatomical entity	FJ3384
+FMA7474	long bone	FJ3353
+FMA67619	organ region	FJ1554M
+FMA5018	bone organ	FJ3386
+FMA61775	physical anatomical entity	FJ3200
+FMA62955	anatomical entity	FJ3205
+FMA44323	tributary of femoral vein	FJ3637
+FMA7830	seventh rib	FJ3234
+FMA66464	systemic artery	FJ3575
+FMA13076	fifth lumbar vertebra	FJ3168
+FMA7478	pneumatized bone	FJ3199
+FMA62955	anatomical entity	FJ3159
+FMA78048	subdivision of superior vena caval tree	FJ1996
+FMA38491	superficial muscle of posterior compartment of forearm	FJ1487
+FMA50722	region of vascular tree organ	FJ3610
+FMA62955	anatomical entity	FJ1464
+FMA45729	head of organ	FJ1397M
+FMA19795	dorsal artery of penis	FJ3497
+FMA61775	physical anatomical entity	FJ1914
+FMA13898	intervertebral disk of fifth cervical vertebra	FJ3219
+FMA9758	innermost intercostal muscle	FJ1454
+FMA55671	cavitated organ	FJ3279
+FMA62955	anatomical entity	FJ3286
+FMA67165	material anatomical entity	FJ1397M
+FMA55717	lower secondary premolar tooth	FJ1255
+FMA62955	anatomical entity	FJ1377
+FMA9914	vertebra	FJ3162
+FMA62955	anatomical entity	FJ3348
+FMA61775	physical anatomical entity	FJ3393
+FMA12846	cardiac vein	FJ2724
+FMA67498	organ	FJ3162
+FMA67135	anatomical structure	FJ2319
+FMA61775	physical anatomical entity	FJ3169
+FMA55673	organ with cavitated organ parts	FJ3368
+FMA67135	anatomical structure	FJ3381
+FMA7592	true rib	FJ3232
+FMA55673	organ with cavitated organ parts	FJ3168
+FMA67165	material anatomical entity	FJ3237
+FMA50573	superior cerebellar artery	FJ1726M
+FMA13394	scapula	FJ3279
+FMA67498	organ	FJ1505M
+FMA86140	organ segment	FJ1970
+FMA62955	anatomical entity	FJ3281
+FMA34680	clavicular part of right deltoid	FJ1468
+FMA61775	physical anatomical entity	FJ3199
+FMA50723	vein	FJ2151
+FMA67165	material anatomical entity	FJ1474M
+FMA55673	organ with cavitated organ parts	FJ3165
+FMA8120	eighth rib	FJ3235
+FMA61775	physical anatomical entity	FJ1464
+FMA24485	patella	FJ3275
+FMA55671	cavitated organ	FJ3331
+FMA61775	physical anatomical entity	FJ3232
+FMA67165	material anatomical entity	FJ1823
+FMA67135	anatomical structure	FJ1481
+FMA67165	material anatomical entity	FJ1397
+FMA23935	middle phalanx of ring finger	FJ3292
+FMA55665	nonparenchymatous organ	FJ3223
+FMA61775	physical anatomical entity	FJ3288
+FMA62955	anatomical entity	FJ3200
+FMA9914	vertebra	FJ3175
+FMA55671	cavitated organ	FJ3168
+FMA50720	artery	FJ1662M
+FMA55670	solid organ	FJ3207
+FMA9619	muscle of thorax	FJ1454
+FMA77883	subdivision of brachiocephalic vein	FJ2274
+FMA55268	organ zone	FJ3178
+FMA50722	region of vascular tree organ	FJ3121
+FMA55268	organ zone	FJ1443
+FMA67498	organ	FJ1543M
+FMA13894	intervertebral disk of lumbar vertebra	FJ3214
+FMA67619	organ region	FJ2664
+FMA32559	superficial postvertebral muscle	FJ1543
+FMA21496	ligament organ	FJ1329
+FMA62955	anatomical entity	FJ3269
+FMA78562	set of organ regions	FJ2198
+FMA55673	organ with cavitated organ parts	FJ3225
+FMA61775	physical anatomical entity	FJ3147
+FMA70455	caudate lobe branch of left hepatic artery	FJ3077
+FMA67396	articular disk of symphysis	FJ3217
+FMA55665	nonparenchymatous organ	FJ1489
+FMA82472	cardinal organ part	FJ1521M
+FMA67498	organ	FJ2809
+FMA67165	material anatomical entity	FJ2096
+FMA34687	clavicular part of pectoralis major	FJ1447M
+FMA86140	organ segment	FJ2334
+FMA31739	segment of bronchial tree	FJ2532
+FMA67165	material anatomical entity	FJ3217
+FMA22329	left gluteus maximus	FJ1418M
+FMA61775	physical anatomical entity	FJ3210
+FMA55665	nonparenchymatous organ	FJ3217
+FMA67165	material anatomical entity	FJ1669
+FMA13894	intervertebral disk of lumbar vertebra	FJ3217
+FMA13335	external oblique	FJ1452M
+FMA45969	medial head of flexor hallucis brevis	FJ1396
+FMA58078	anterior chamber of eyeball	FJ1332
+FMA22472	muscle of anterior compartment of leg	FJ1439M
+FMA10081	twelfth thoracic vertebra	FJ3156
+FMA55107	cartilage organ	FJ3219
+FMA5022	muscle organ	FJ1403
+FMA37368	muscle of free lower limb	FJ1436M
+FMA86187	segment of arterial tree organ	FJ1666M
+FMA67135	anatomical structure	FJ3380
+FMA67498	organ	FJ3386
+FMA67165	material anatomical entity	FJ1493M
+FMA50436	superior terminal branch of middle cerebral artery	FJ1670
+FMA85453	head of muscle organ	FJ1480M
+FMA85453	head of muscle organ	FJ1480
+FMA67135	anatomical structure	FJ3210
+FMA67619	organ region	FJ1441M
+FMA62955	anatomical entity	FJ2265
+FMA67165	material anatomical entity	FJ1437M
+FMA86187	segment of arterial tree organ	FJ2907
+FMA67165	material anatomical entity	FJ3158
+FMA7474	long bone	FJ3332
+FMA82472	cardinal organ part	FJ2720
+FMA55671	cavitated organ	FJ3163
+FMA9622	muscle of lower limb	FJ1391M
+FMA55670	solid organ	FJ1459M
+FMA70436	subdivision of gastroduodenal artery	FJ3596
+FMA61775	physical anatomical entity	FJ1436
+FMA50358	paracentral branch of left callosomarginal artery	FJ1698M
+FMA67135	anatomical structure	FJ1464M
+FMA67619	organ region	FJ2896
+FMA66464	systemic artery	FJ2143
+FMA7477	irregular bone	FJ3162
+FMA70487	anterior division of left renal artery	FJ3460
+FMA67135	anatomical structure	FJ3204
+FMA50439	inferior terminal branch of middle cerebral artery	FJ1729
+FMA67165	material anatomical entity	FJ3214
+FMA86187	segment of arterial tree organ	FJ2284
+FMA55673	organ with cavitated organ parts	FJ3230
+FMA67498	organ	FJ3167
+FMA62955	anatomical entity	FJ2912
+FMA45887	long head of biceps femoris	FJ1395
+FMA10446	intervertebral disk	FJ3204
+FMA62955	anatomical entity	FJ1452
+FMA62955	anatomical entity	FJ3011
+FMA67135	anatomical structure	FJ3260
+FMA55671	cavitated organ	FJ3342
+FMA67165	material anatomical entity	FJ1441M
+FMA70247	subdivision of external iliac artery proper	FJ3511
+FMA55671	cavitated organ	FJ3309
+FMA7592	true rib	FJ3346
+FMA62955	anatomical entity	FJ3218
+FMA68706	medial branch of right superior segmental artery	FJ2995
+FMA67619	organ region	FJ1397
+FMA67165	material anatomical entity	FJ3210
+FMA50722	region of vascular tree organ	FJ2663
+FMA12224	segment of tracheobronchial tree	FJ2459
+FMA10446	intervertebral disk	FJ3202
+FMA67135	anatomical structure	FJ1433
+FMA24442	left pisiform	FJ3276
+FMA55673	organ with cavitated organ parts	FJ3236
+FMA67498	organ	FJ3379
+FMA55673	organ with cavitated organ parts	FJ3269
+FMA67619	organ region	FJ1464M
+FMA61775	physical anatomical entity	FJ3338
+FMA62955	anatomical entity	FJ1479M
+FMA7474	long bone	FJ3259
+FMA62955	anatomical entity	FJ3273
+FMA62955	anatomical entity	FJ2364
+FMA86140	organ segment	FJ1677
+FMA67135	anatomical structure	FJ3338
+FMA62955	anatomical entity	FJ3178
+FMA67165	material anatomical entity	FJ3215
+FMA9622	muscle of lower limb	FJ1439M
+FMA85453	head of muscle organ	FJ1397
+FMA67135	anatomical structure	FJ1447M
+FMA62955	anatomical entity	FJ2206
+FMA82472	cardinal organ part	FJ1512
+FMA5018	bone organ	FJ3199
+FMA67135	anatomical structure	FJ3341
+FMA86140	organ segment	FJ2164
+FMA61775	physical anatomical entity	FJ3272
+FMA9621	muscle of upper limb	FJ1459
+FMA37685	short head of left biceps brachii	FJ1512M
+FMA22532	tibialis anterior	FJ1439M
+FMA67135	anatomical structure	FJ1283
+FMA50720	artery	FJ1697M
+FMA67135	anatomical structure	FJ3342
+FMA59791	sublingual gland	FJ2765
+FMA11336	linea alba	FJ1448
+FMA55671	cavitated organ	FJ3275
+FMA55107	cartilage organ	FJ3206
+FMA13075	fourth lumbar vertebra	FJ3165
+FMA7477	irregular bone	FJ3199
+FMA67165	material anatomical entity	FJ1464M
+FMA62955	anatomical entity	FJ1591
+FMA61775	physical anatomical entity	FJ3378
+FMA22431	vastus lateralis	FJ1442
+FMA61775	physical anatomical entity	FJ3334
+FMA61775	physical anatomical entity	FJ3265
+FMA82472	cardinal organ part	FJ1444M
+FMA67498	organ	FJ3371
+FMA61775	physical anatomical entity	FJ3332
+FMA61775	physical anatomical entity	FJ3224
+FMA62955	anatomical entity	FJ3279
+FMA7478	pneumatized bone	FJ3281
+FMA67165	material anatomical entity	FJ2343
+FMA67619	organ region	FJ1446M
+FMA82472	cardinal organ part	FJ1690
+FMA7592	true rib	FJ3344
+FMA5018	bone organ	FJ3172
+FMA67498	organ	FJ3380
+FMA5022	muscle organ	FJ1436M
+FMA67135	anatomical structure	FJ1483M
+FMA5018	bone organ	FJ3387
+FMA67165	material anatomical entity	FJ3162
+FMA55673	organ with cavitated organ parts	FJ3154
+FMA62955	anatomical entity	FJ1796
+FMA7830	seventh rib	FJ3346
+FMA85453	head of muscle organ	FJ1395
+FMA8310	left eighth rib	FJ3235
+FMA13895	intervertebral disk of cervical vertebra	FJ3202
+FMA25625	nonskeletal ligament	FJ2807
+FMA67135	anatomical structure	FJ1505M
+FMA67135	anatomical structure	FJ1480
+FMA50723	vein	FJ2954
+FMA50722	region of vascular tree organ	FJ2166
+FMA62955	anatomical entity	FJ1701
+FMA9311	subsegmental pulmonary artery	FJ2993
+FMA16202	sacrum	FJ3393
+FMA61775	physical anatomical entity	FJ2892
+FMA67165	material anatomical entity	FJ3392
+FMA32555	ascending part of trapezius	FJ1520
+FMA61775	physical anatomical entity	FJ1554M
+FMA10446	intervertebral disk	FJ3212
+FMA21930	external anal sphincter	FJ2548
+FMA85453	head of muscle organ	FJ1397M
+FMA67498	organ	FJ3166
+FMA15431	lateral superior segmental branch of left portal vein	FJ3126
+FMA7594	false rib	FJ3332
+FMA61775	physical anatomical entity	FJ3371
+FMA67165	material anatomical entity	FJ3235
+FMA86256	segment of arterial trunk	FJ2169
+FMA82472	cardinal organ part	FJ3396
+FMA67135	anatomical structure	FJ3222
+FMA55673	organ with cavitated organ parts	FJ3366
+FMA67619	organ region	FJ2706
+FMA55665	nonparenchymatous organ	FJ1504
+FMA67498	organ	FJ3175
+FMA55268	organ zone	FJ1395
+FMA55670	solid organ	FJ3215
+FMA86187	segment of arterial tree organ	FJ2291
+FMA7260	anterior papillary muscle of right ventricle	FJ2419
+FMA3837	first posterior ventricular branch of right coronary artery	FJ2721
+FMA5022	muscle organ	FJ1459
+FMA10014	ninth thoracic vertebra	FJ3175
+FMA61775	physical anatomical entity	FJ3176
+FMA55671	cavitated organ	FJ3368
+FMA50723	vein	FJ2707
+FMA67135	anatomical structure	FJ1507
+FMA86187	segment of arterial tree organ	FJ1709
+FMA62955	anatomical entity	FJ1439
+FMA67135	anatomical structure	FJ3384
+FMA82472	cardinal organ part	FJ3570
+FMA67135	anatomical structure	FJ3347
+FMA67165	material anatomical entity	FJ3169
+FMA12224	segment of tracheobronchial tree	FJ2511
+FMA5022	muscle organ	FJ2547
+FMA55665	nonparenchymatous organ	FJ3219
+FMA67165	material anatomical entity	FJ2579
+FMA5018	bone organ	FJ3176
+FMA62955	anatomical entity	FJ2207
+FMA50722	region of vascular tree organ	FJ2985
+FMA5018	bone organ	FJ3188
+FMA55670	solid organ	FJ3220
+FMA62955	anatomical entity	FJ3152
+FMA67498	organ	FJ1403M
+FMA67165	material anatomical entity	FJ1825
+FMA5018	bone organ	FJ3274
+FMA67135	anatomical structure	FJ3287
+FMA55133	right thyrohyoid membrane	FJ2804
+FMA7477	irregular bone	FJ3269
+FMA37479	first lumbrical of foot	FJ1383
+FMA67135	anatomical structure	FJ1446M
+FMA62955	anatomical entity	FJ3158
+FMA61965	fornix of forebrain	FJ1756
+FMA62955	anatomical entity	FJ3216
+FMA7474	long bone	FJ3346
+FMA5018	bone organ	FJ3225
+FMA49893	coronary artery	FJ2668
+FMA67165	material anatomical entity	FJ3167
+FMA61775	physical anatomical entity	FJ1487M
+FMA8039	left third rib	FJ3230
+FMA5018	bone organ	FJ3161
+FMA67619	organ region	FJ2679
+FMA52676	right anterior ethmoidal nerve	FJ1333
+FMA67396	articular disk of symphysis	FJ3216
+FMA68045	segment of thoracic aorta	FJ3413
+FMA67498	organ	FJ3203
+FMA67135	anatomical structure	FJ3336
+FMA62955	anatomical entity	FJ2295
+FMA9621	muscle of upper limb	FJ1459M
+FMA5018	bone organ	FJ3227
+FMA9921	lumbar vertebra	FJ3168
+FMA22474	muscle of posterior compartment of leg	FJ1437
+FMA9139	thoracic vertebra	FJ3175
+FMA9914	vertebra	FJ3154
+FMA22471	muscle of leg	FJ1437M
+FMA55673	organ with cavitated organ parts	FJ3275
+FMA61775	physical anatomical entity	FJ1399
+FMA62955	anatomical entity	FJ3217
+FMA86187	segment of arterial tree organ	FJ2983
+FMA67165	material anatomical entity	FJ2421
+FMA32672	sesamoid bone	FJ3275
+FMA61775	physical anatomical entity	FJ3171
+FMA67165	material anatomical entity	FJ3262
+FMA71209	tributary of axillary vein	FJ2272
+FMA45856	right puborectalis	FJ2551
+FMA55670	solid organ	FJ1436
+FMA34696	sternocostal part of pectoralis major	FJ1464M
+FMA13398	right serratus anterior	FJ1459
+FMA55268	organ zone	FJ1478
+FMA67135	anatomical structure	FJ1436
+FMA22315	gluteus medius	FJ1419
+FMA61775	physical anatomical entity	FJ2260
+FMA7477	irregular bone	FJ3177
+FMA55673	organ with cavitated organ parts	FJ3237
+FMA67135	anatomical structure	FJ1762
+FMA62955	anatomical entity	FJ2894
+FMA62955	anatomical entity	FJ1528
+FMA8663	right posterior segmental vein	FJ3025
+FMA86187	segment of arterial tree organ	FJ3000
+FMA5018	bone organ	FJ3159
+FMA66644	systemic vein	FJ3609
+FMA38928	right rectus femoris	FJ1433
+FMA7474	long bone	FJ3336
+FMA7477	irregular bone	FJ3392
+FMA34678	acromial part of deltoid	FJ1467
+FMA67135	anatomical structure	FJ3282
+FMA65410	intermediate tendon	FJ1581
+FMA61775	physical anatomical entity	FJ1433M
+FMA67135	anatomical structure	FJ2658
+FMA62955	anatomical entity	FJ3084
+FMA55673	organ with cavitated organ parts	FJ3260
+FMA67165	material anatomical entity	FJ3281
+FMA67165	material anatomical entity	FJ3260
+FMA62955	anatomical entity	FJ3110
+FMA65539	subdivision of parasympathetic nervous system	FJ1319
+FMA67165	material anatomical entity	FJ1667
+FMA67165	material anatomical entity	FJ3265
+FMA67396	articular disk of symphysis	FJ3208
+FMA25625	nonskeletal ligament	FJ2797
+FMA67498	organ	FJ1547M
+FMA61775	physical anatomical entity	FJ1454M
+FMA58274	muscle of trunk	FJ1452M
+FMA82472	cardinal organ part	FJ1443M
+FMA7477	irregular bone	FJ3173
+FMA67619	organ region	FJ3091
+FMA23466	ulna	FJ3286
+FMA62955	anatomical entity	FJ3154
+FMA82472	cardinal organ part	FJ1680M
+FMA62955	anatomical entity	FJ3204
+FMA31739	segment of bronchial tree	FJ2444
+FMA55670	solid organ	FJ3224
+FMA9621	muscle of upper limb	FJ1487M
+FMA22460	left adductor magnus	FJ1403M
+FMA10446	intervertebral disk	FJ3206
+FMA67165	material anatomical entity	FJ3191
+FMA62955	anatomical entity	FJ3272
+FMA62955	anatomical entity	FJ3336
+FMA55673	organ with cavitated organ parts	FJ3272
+FMA62955	anatomical entity	FJ3009
+FMA55670	solid organ	FJ3214
+FMA55268	organ zone	FJ1444M
+FMA43908	left anterior tibial recurrent artery	FJ2066
+FMA55670	solid organ	FJ1563
+FMA55673	organ with cavitated organ parts	FJ3362
+FMA52745	nasal bone	FJ3378
+FMA67135	anatomical structure	FJ1554
+FMA55673	organ with cavitated organ parts	FJ3334
+FMA32529	zone of trapezius	FJ1554
+FMA67165	material anatomical entity	FJ3344
+FMA67135	anatomical structure	FJ3160
+FMA67619	organ region	FJ1395M
+FMA10474	zone of muscle organ	FJ1513M
+FMA55665	nonparenchymatous organ	FJ3205
+FMA31739	segment of bronchial tree	FJ2526
+FMA55673	organ with cavitated organ parts	FJ3288
+FMA55671	cavitated organ	FJ3172
+FMA62955	anatomical entity	FJ1433
+FMA61775	physical anatomical entity	FJ1446M
+FMA67619	organ region	FJ1444M
+FMA66645	portal vein	FJ3111
+FMA86140	organ segment	FJ2167
+FMA67165	material anatomical entity	FJ1394
+FMA62955	anatomical entity	FJ1437M
+FMA82472	cardinal organ part	FJ1717M
+FMA50639	precommunicating part of right posterior cerebral artery	FJ1723
+FMA67135	anatomical structure	FJ3275
+FMA78049	subdivision of inferior vena caval tree	FJ2107
+FMA22937	tributary of brachial vein	FJ2238
+FMA78049	subdivision of inferior vena caval tree	FJ3513
+FMA10446	intervertebral disk	FJ3216
+FMA13502	intervertebral disk of fifth thoracic vertebra	FJ3204
+FMA37697	lateral head of right triceps brachii	FJ1477
+FMA67498	organ	FJ2762
+FMA37693	medial head of triceps brachii	FJ1480M
+FMA55268	organ zone	FJ1467M
+FMA67619	organ region	FJ1477
+FMA61775	physical anatomical entity	FJ1386
+FMA7574	rib	FJ3347
+FMA10474	zone of muscle organ	FJ1442
+FMA67135	anatomical structure	FJ1478M
+FMA55673	organ with cavitated organ parts	FJ3314
+FMA67135	anatomical structure	FJ1830
+FMA67165	material anatomical entity	FJ1479M
+FMA55268	organ zone	FJ1394M
+FMA67498	organ	FJ3273
+FMA67135	anatomical structure	FJ3378
+FMA37368	muscle of free lower limb	FJ1411M
+FMA45729	head of organ	FJ1395
+FMA67619	organ region	FJ1521M
+FMA62955	anatomical entity	FJ1459
+FMA37368	muscle of free lower limb	FJ1437M
+FMA70470	subdivision of splenic artery	FJ3430
+FMA62955	anatomical entity	FJ1512
+FMA10474	zone of muscle organ	FJ1468M
+FMA67135	anatomical structure	FJ3262
+FMA50720	artery	FJ1666
+FMA53647	right nasal bone	FJ3378
+FMA61775	physical anatomical entity	FJ3220
+FMA14769	hepatic artery	FJ3091
+FMA45956	medial head of gastrocnemius	FJ1397
+FMA68045	segment of thoracic aorta	FJ1931
+FMA67135	anatomical structure	FJ3154
+FMA67619	organ region	FJ1443
+FMA67165	material anatomical entity	FJ3219
+FMA62955	anatomical entity	FJ3371
+FMA22917	tributary of venous anastomosis	FJ2355
+FMA23084	lumbar rotator	FJ1522
+FMA5018	bone organ	FJ3269
+FMA61775	physical anatomical entity	FJ3203
+FMA67165	material anatomical entity	FJ1513M
+FMA67135	anatomical structure	FJ3364
+FMA62955	anatomical entity	FJ1455
+FMA83143	cell part cluster of neuraxis	FJ1756
+FMA86140	organ segment	FJ3475
+FMA61775	physical anatomical entity	FJ3286
+FMA50722	region of vascular tree organ	FJ2737
+FMA9411	segmental pulmonary vein	FJ3065
+FMA9915	cervical vertebra	FJ3172
+FMA55268	organ zone	FJ1478M
+FMA62955	anatomical entity	FJ3334
+FMA61775	physical anatomical entity	FJ1924
+FMA7477	irregular bone	FJ3170
+FMA82472	cardinal organ part	FJ1464M
+FMA67135	anatomical structure	FJ3174
+FMA67498	organ	FJ1437M
+FMA67135	anatomical structure	FJ3617
+FMA9411	segmental pulmonary vein	FJ3047
+FMA82472	cardinal organ part	FJ2927
+FMA14773	splenic artery	FJ2562
+FMA32516	extrinsic muscle of shoulder	FJ1459
+FMA86188	segment of venous tree organ	FJ3577
+FMA62955	anatomical entity	FJ3347
+FMA10474	zone of muscle organ	FJ1443M
+FMA62955	anatomical entity	FJ1468M
+FMA14293	tributary of internal thoracic vein	FJ3615
+FMA67135	anatomical structure	FJ3639
+FMA62955	anatomical entity	FJ3226
+FMA67165	material anatomical entity	FJ3203
+FMA13321	clavicle	FJ3362
+FMA45887	long head of biceps femoris	FJ1395M
+FMA22799	branch of ulnar artery	FJ2236
+FMA62955	anatomical entity	FJ3356
+FMA67165	material anatomical entity	FJ1467
+FMA44248	long plantar ligament	FJ1424M
+FMA67619	organ region	FJ1520
+FMA85453	head of muscle organ	FJ1444M
+FMA67135	anatomical structure	FJ3289
+FMA55670	solid organ	FJ3208
+FMA7475	short bone	FJ3385
+FMA67165	material anatomical entity	FJ3205
+FMA67135	anatomical structure	FJ2525
+FMA55673	organ with cavitated organ parts	FJ3393
+FMA45729	head of organ	FJ1512
+FMA67619	organ region	FJ2209
+FMA5018	bone organ	FJ3366
+FMA50722	region of vascular tree organ	FJ2373
+FMA67498	organ	FJ3209
+FMA50723	vein	FJ2265
+FMA9139	thoracic vertebra	FJ3163
+FMA7592	true rib	FJ3231
+FMA67135	anatomical structure	FJ3172
+FMA67165	material anatomical entity	FJ2475
+FMA61775	physical anatomical entity	FJ3277
+FMA67165	material anatomical entity	FJ2486
+FMA45874	abdominal part of right pectoralis major	FJ1446
+FMA7409	bronchus	FJ2450
+FMA67165	material anatomical entity	FJ3226
+FMA55665	nonparenchymatous organ	FJ1431
+FMA67619	organ region	FJ1883
+FMA67135	anatomical structure	FJ3375
+FMA61775	physical anatomical entity	FJ2800
+FMA45729	head of organ	FJ1479M
+FMA62955	anatomical entity	FJ2788
+FMA82472	cardinal organ part	FJ2041
+FMA67135	anatomical structure	FJ1477
+FMA55665	nonparenchymatous organ	FJ3221
+FMA8642	left superior segmental artery	FJ2894
+FMA67619	organ region	FJ1478M
+FMA55671	cavitated organ	FJ3384
+FMA38485	brachioradialis	FJ1487M
+FMA61775	physical anatomical entity	FJ2457
+FMA45729	head of organ	FJ1397
+FMA22779	right spinalis thoracis	FJ1544
+FMA61775	physical anatomical entity	FJ3290
+FMA55670	solid organ	FJ3202
+FMA55665	nonparenchymatous organ	FJ1418
+FMA12519	atlas	FJ3176
+FMA62955	anatomical entity	FJ3231
+FMA7574	rib	FJ3332
+FMA55673	organ with cavitated organ parts	FJ3342
+FMA62955	anatomical entity	FJ3288
+FMA55673	organ with cavitated organ parts	FJ3166
+FMA61775	physical anatomical entity	FJ3156
+FMA45881	head of biceps femoris	FJ1395
+FMA55670	solid organ	FJ3216
+FMA67135	anatomical structure	FJ3290
+FMA67135	anatomical structure	FJ1487
+FMA67165	material anatomical entity	FJ1439
+FMA55671	cavitated organ	FJ3272
+FMA75865	trunk of branch of internal carotid artery	FJ1718
+FMA67135	anatomical structure	FJ3235
+FMA55671	cavitated organ	FJ3394
+FMA24492	metatarsal bone	FJ3241
+FMA62955	anatomical entity	FJ3155
+FMA55268	organ zone	FJ2628
+FMA52746	palatine bone	FJ3273
+FMA62955	anatomical entity	FJ1437
+FMA55665	nonparenchymatous organ	FJ3206
+FMA67135	anatomical structure	FJ3395
+FMA85453	head of muscle organ	FJ1477
+FMA13504	intervertebral disk of seventh thoracic vertebra	FJ3206
+FMA67498	organ	FJ3208
+FMA10455	intervertebral disk of thoracic vertebra	FJ3206
+FMA14343	right suprarenal vein	FJ3580
+FMA55665	nonparenchymatous organ	FJ3224
+FMA82472	cardinal organ part	FJ1468
+FMA55107	cartilage organ	FJ3217
+FMA7474	long bone	FJ3181
+FMA62955	anatomical entity	FJ1394M
+FMA67165	material anatomical entity	FJ3334
+FMA7593	typical rib	FJ3338
+FMA67498	organ	FJ1439M
+FMA55268	organ zone	FJ1479M
+FMA76582	trunk of hepatic artery	FJ3095
+FMA50736	subdivision of pre-hepatic portal vein	FJ3639
+FMA66464	systemic artery	FJ1715M
+FMA61775	physical anatomical entity	FJ1711M
+FMA83115	cell part cluster	FJ1821
+FMA62955	anatomical entity	FJ1399
+FMA67135	anatomical structure	FJ1468
+FMA43885	adductor minimus	FJ1404M
+FMA82472	cardinal organ part	FJ3122
+FMA22431	vastus lateralis	FJ1442M
+FMA49907	pulmonary venous tree organ	FJ2950
+FMA62955	anatomical entity	FJ3265
+FMA61775	physical anatomical entity	FJ3233
+FMA67619	organ region	FJ2041
+FMA61775	physical anatomical entity	FJ2428
+FMA55671	cavitated organ	FJ3157
+FMA82472	cardinal organ part	FJ1705M
+FMA67498	organ	FJ3204
+FMA62955	anatomical entity	FJ3275
+FMA61775	physical anatomical entity	FJ3154
+FMA67135	anatomical structure	FJ3391
+FMA55673	organ with cavitated organ parts	FJ3388
+FMA67498	organ	FJ3332
+FMA55671	cavitated organ	FJ3225
+FMA45891	short head of right biceps femoris	FJ1444
+FMA9622	muscle of lower limb	FJ1437M
+FMA32582	posterior suboccipital muscle	FJ1589
+FMA55671	cavitated organ	FJ3289
+FMA61775	physical anatomical entity	FJ2556
+FMA86140	organ segment	FJ3586
+FMA7474	long bone	FJ3228
+FMA37347	muscle of pectoral girdle	FJ1456
+FMA18902	iliolumbar vein	FJ3603
+FMA7574	rib	FJ3235
+FMA9914	vertebra	FJ3161
+FMA67135	anatomical structure	FJ3346
+FMA67165	material anatomical entity	FJ2638
+FMA55268	organ zone	FJ1468M
+FMA62955	anatomical entity	FJ1479
+FMA55671	cavitated organ	FJ3154
+FMA61775	physical anatomical entity	FJ2701
+FMA22472	muscle of anterior compartment of leg	FJ1406M
+FMA67135	anatomical structure	FJ3051
+FMA62955	anatomical entity	FJ3174
+FMA9915	cervical vertebra	FJ3177
+FMA55671	cavitated organ	FJ3263
+FMA67165	material anatomical entity	FJ3216
+FMA67619	organ region	FJ1446
+FMA62955	anatomical entity	FJ1512M
+FMA5018	bone organ	FJ3236
+FMA7620	second rib	FJ3229
+FMA62955	anatomical entity	FJ1468
+FMA67396	articular disk of symphysis	FJ3212
+FMA67135	anatomical structure	FJ1718
+FMA9622	muscle of lower limb	FJ1403
+FMA61775	physical anatomical entity	FJ3060
+FMA10059	eleventh thoracic vertebra	FJ3155
+FMA61775	physical anatomical entity	FJ3164
+FMA67165	material anatomical entity	FJ3371
+FMA61775	physical anatomical entity	FJ3231
+FMA67165	material anatomical entity	FJ2212
+FMA68238	basal segmental bronchial tree	FJ2494
+FMA50720	artery	FJ2905
+FMA67135	anatomical structure	FJ1799
+FMA67165	material anatomical entity	FJ1801
+FMA82472	cardinal organ part	FJ2893
+FMA55268	organ zone	FJ1480
+FMA67135	anatomical structure	FJ3288
+FMA22558	right soleus	FJ1437
+FMA61775	physical anatomical entity	FJ1441M
+FMA70345	subdivision of subclavian artery	FJ1969
+FMA52735	occipital bone	FJ3309
+FMA86187	segment of arterial tree organ	FJ2721
+FMA67165	material anatomical entity	FJ1675M
+FMA67135	anatomical structure	FJ3228
+FMA62955	anatomical entity	FJ3378
+FMA7474	long bone	FJ3234
+FMA82472	cardinal organ part	FJ2475
+FMA9622	muscle of lower limb	FJ1436M
+FMA67135	anatomical structure	FJ3542
+FMA45729	head of organ	FJ1444M
+FMA13396	left scapula	FJ3279
+FMA53650	left maxilla	FJ3269
+FMA67619	organ region	FJ2492
+FMA67619	organ region	FJ3459
+FMA61775	physical anatomical entity	FJ3347
+FMA22542	soleus	FJ1437
+FMA67498	organ	FJ3394
+FMA55670	solid organ	FJ3222
+FMA67135	anatomical structure	FJ3209
+FMA67135	anatomical structure	FJ1456M
+FMA13508	intervertebral disk of eleventh thoracic vertebra	FJ3210
+FMA30313	arterial trunk	FJ3644
+FMA62955	anatomical entity	FJ3227
+FMA50488	posterior parietal artery	FJ1716
+FMA55665	nonparenchymatous organ	FJ3210
+FMA67135	anatomical structure	FJ1467
+FMA67396	articular disk of symphysis	FJ3223
+FMA9622	muscle of lower limb	FJ1389
+FMA62955	anatomical entity	FJ1418
+FMA62955	anatomical entity	FJ2613
+FMA7474	long bone	FJ3236
+FMA62955	anatomical entity	FJ1778
+FMA55268	organ zone	FJ1397
+FMA62955	anatomical entity	FJ2394
+FMA67135	anatomical structure	FJ1388M
+FMA62955	anatomical entity	FJ1467
+FMA55665	nonparenchymatous organ	FJ1439
+FMA9613	parietal bone	FJ3274
+FMA67165	material anatomical entity	FJ1383
+FMA50722	region of vascular tree organ	FJ2066
+FMA67135	anatomical structure	FJ2256
+FMA67498	organ	FJ3315
+FMA69458	subdivision of external iliac artery	FJ2069
+FMA5018	bone organ	FJ3152
+FMA55670	solid organ	FJ1487
+FMA62955	anatomical entity	FJ1480M
+FMA24487	left patella	FJ3275
+FMA82472	cardinal organ part	FJ1479
+FMA86187	segment of arterial tree organ	FJ2214
+FMA10455	intervertebral disk of thoracic vertebra	FJ3208
+FMA78049	subdivision of inferior vena caval tree	FJ2171
+FMA67135	anatomical structure	FJ3164
+FMA67165	material anatomical entity	FJ3395
+FMA20221	zone of cavernous organ	FJ3132
+FMA50720	artery	FJ2236
+FMA67135	anatomical structure	FJ1405
+FMA67135	anatomical structure	FJ3162
+FMA86187	segment of arterial tree organ	FJ2081
+FMA5018	bone organ	FJ3275
+FMA67135	anatomical structure	FJ1446
+FMA32884	phalanx of big toe	FJ3329
+FMA67135	anatomical structure	FJ3309
+FMA67165	material anatomical entity	FJ3288
+FMA13397	serratus anterior	FJ1459
+FMA82472	cardinal organ part	FJ1477
+FMA62955	anatomical entity	FJ1449M
+FMA7592	true rib	FJ3228
+FMA55665	nonparenchymatous organ	FJ3218
+FMA86140	organ segment	FJ2276
+FMA67135	anatomical structure	FJ1480M
+FMA8445	right tenth rib	FJ3330
+FMA55665	nonparenchymatous organ	FJ3203
+FMA23901	third metacarpal bone	FJ3354
+FMA67135	anatomical structure	FJ3224
+FMA55671	cavitated organ	FJ3269
+FMA7593	typical rib	FJ3233
+FMA61775	physical anatomical entity	FJ3202
+FMA82472	cardinal organ part	FJ1670
+FMA13354	intercostal muscle	FJ1454M
+FMA67165	material anatomical entity	FJ3230
+FMA72688	left inferior temporal gyrus	FJ1746
+FMA7957	right fourth rib	FJ3340
+FMA7574	rib	FJ3234
+FMA67165	material anatomical entity	FJ3545
+FMA67396	articular disk of symphysis	FJ3210
+FMA23083	thoracic rotator	FJ1525
+FMA67165	material anatomical entity	FJ2796
+FMA67165	material anatomical entity	FJ2276
+FMA45729	head of organ	FJ1480
+FMA62955	anatomical entity	FJ2698
+FMA62955	anatomical entity	FJ3207
+FMA67619	organ region	FJ1441
+FMA22427	muscle of posterior compartment of thigh	FJ1436
+FMA67498	organ	FJ3170
+FMA55673	organ with cavitated organ parts	FJ3381
+FMA67165	material anatomical entity	FJ3348
+FMA61775	physical anatomical entity	FJ1513
+FMA55673	organ with cavitated organ parts	FJ3158
+FMA62955	anatomical entity	FJ2351
+FMA62955	anatomical entity	FJ3234
+FMA55670	solid organ	FJ3206
+FMA85453	head of muscle organ	FJ1447
+FMA10951	inferior vena cava	FJ3441
+FMA13895	intervertebral disk of cervical vertebra	FJ3220
+FMA45958	medial head of left gastrocnemius	FJ1397M
+FMA61775	physical anatomical entity	FJ1394
+FMA55688	right upper second secondary premolar tooth	FJ1278
+FMA61775	physical anatomical entity	FJ3163
+FMA62955	anatomical entity	FJ3236
+FMA62955	anatomical entity	FJ3277
+FMA12516	tooth	FJ1267
+FMA67135	anatomical structure	FJ1437
+FMA61775	physical anatomical entity	FJ2710
+FMA62955	anatomical entity	FJ1446
+FMA86188	segment of venous tree organ	FJ3030
+FMA68214	medial segmental bronchial tree	FJ2508
+FMA76269	branch of basilar artery	FJ1691
+FMA5022	muscle organ	FJ1429
+FMA43907	right anterior tibial recurrent artery	FJ2131
+FMA12846	cardiac vein	FJ2705
+FMA61775	physical anatomical entity	FJ1794
+FMA86187	segment of arterial tree organ	FJ3476
+FMA67619	organ region	FJ1660M
+FMA25058	intervertebral disk of axis	FJ3202
+FMA62955	anatomical entity	FJ1521M
+FMA67396	articular disk of symphysis	FJ3209
+FMA66464	systemic artery	FJ3499
+FMA61775	physical anatomical entity	FJ2658
+FMA70484	segment of renal artery	FJ3473
+FMA9914	vertebra	FJ3177
+FMA61775	physical anatomical entity	FJ1443
+FMA76127	trunk of inferior terminal branch of middle cerebral artery	FJ1718
+FMA67135	anatomical structure	FJ3171
+FMA82472	cardinal organ part	FJ2264
+FMA50590	precommunicating part of posterior cerebral artery	FJ1723M
+FMA67165	material anatomical entity	FJ1444M
+FMA13895	intervertebral disk of cervical vertebra	FJ3213
+FMA34690	clavicular part of right pectoralis major	FJ1447
+FMA5018	bone organ	FJ3309
+FMA61775	physical anatomical entity	FJ2896
+FMA13321	clavicle	FJ3237
+FMA50720	artery	FJ2919
+FMA67619	organ region	FJ2414
+FMA82472	cardinal organ part	FJ3518
+FMA7592	true rib	FJ3334
+FMA67165	material anatomical entity	FJ1461M
+FMA7574	rib	FJ3334
+FMA22429	zone of quadriceps femoris	FJ1433M
+FMA55268	organ zone	FJ1477
+FMA55673	organ with cavitated organ parts	FJ3375
+FMA62955	anatomical entity	FJ1442M
+FMA37700	long head of left triceps brachii	FJ1479M
+FMA61775	physical anatomical entity	FJ3269
+FMA45890	short head of biceps femoris	FJ1444
+FMA61775	physical anatomical entity	FJ3221
+FMA86140	organ segment	FJ2316
+FMA55268	organ zone	FJ1447M
+FMA67135	anatomical structure	FJ3233
+FMA67498	organ	FJ3205
+FMA62955	anatomical entity	FJ1481
+FMA3895	circumflex branch of left coronary artery	FJ2650
+FMA67396	articular disk of symphysis	FJ3214
+FMA61775	physical anatomical entity	FJ3336
+FMA8717	anterior basal segmental artery	FJ2886
+FMA67165	material anatomical entity	FJ1415M
+FMA67498	organ	FJ3259
+FMA67165	material anatomical entity	FJ1477M
+FMA30320	duct	FJ1896
+FMA67396	articular disk of symphysis	FJ3215
+FMA22917	tributary of venous anastomosis	FJ2351
+FMA62955	anatomical entity	FJ3287
+FMA5018	bone organ	FJ3394
+FMA67498	organ	FJ3375
+FMA62955	anatomical entity	FJ1403
+FMA23914	phalanx of finger	FJ3297
+FMA10455	intervertebral disk of thoracic vertebra	FJ3207
+FMA67619	organ region	FJ1513M
+FMA23889	carpal bone	FJ3276
+FMA64922	gluteal muscle	FJ1418M
+FMA7595	floating rib	FJ3332
+FMA55671	cavitated organ	FJ3387
+FMA67619	organ region	FJ1442
+FMA23467	right ulna	FJ3391
+FMA67135	anatomical structure	FJ2545
+FMA50722	region of vascular tree organ	FJ1967
+FMA10474	zone of muscle organ	FJ2781
+FMA8534	left twelfth rib	FJ3227
+FMA67135	anatomical structure	FJ2995
+FMA62955	anatomical entity	FJ3386
+FMA67135	anatomical structure	FJ3232
+FMA16586	right hip bone	FJ3152
+FMA61775	physical anatomical entity	FJ3219
+FMA24481	left fibula	FJ3260
+FMA50722	region of vascular tree organ	FJ3653
+FMA22429	zone of quadriceps femoris	FJ1442
+FMA10455	intervertebral disk of thoracic vertebra	FJ3209
+FMA61775	physical anatomical entity	FJ1480
+FMA7474	long bone	FJ3227
+FMA45956	medial head of gastrocnemius	FJ1397M
+FMA67135	anatomical structure	FJ3330
+FMA67165	material anatomical entity	FJ3338
+FMA10474	zone of muscle organ	FJ1442M
+FMA67135	anatomical structure	FJ3227
+FMA86187	segment of arterial tree organ	FJ1717
+FMA82472	cardinal organ part	FJ1711
+FMA34676	zone of deltoid	FJ1467
+FMA70506	subdivision of internal carotid artery	FJ1663M
+FMA7478	pneumatized bone	FJ3394
+FMA32516	extrinsic muscle of shoulder	FJ1459M
+FMA22429	zone of quadriceps femoris	FJ1441
+FMA55665	nonparenchymatous organ	FJ1544M
+FMA53649	right maxilla	FJ3375
+FMA61775	physical anatomical entity	FJ3392
+FMA45729	head of organ	FJ1480M
+FMA50723	vein	FJ2269
+FMA45892	short head of left biceps femoris	FJ1444M
+FMA7574	rib	FJ3346
+FMA67135	anatomical structure	FJ3344
+FMA23466	ulna	FJ3391
+FMA5018	bone organ	FJ3232
+FMA76582	trunk of hepatic artery	FJ3117
+FMA67165	material anatomical entity	FJ1394M
+FMA67165	material anatomical entity	FJ3315
+FMA67498	organ	FJ3361
+FMA82472	cardinal organ part	FJ1787
+FMA45881	head of biceps femoris	FJ1395M
+FMA62955	anatomical entity	FJ2957
+FMA32672	sesamoid bone	FJ3381
+FMA24478	left tibia	FJ3282
+FMA38485	brachioradialis	FJ1487
+FMA67619	organ region	FJ3178
+FMA55671	cavitated organ	FJ3262
+FMA45729	head of organ	FJ1477M
+FMA7477	irregular bone	FJ3395
+FMA7538	cartilage organ component	FJ3239
+FMA55670	solid organ	FJ1472M
+FMA61775	physical anatomical entity	FJ3174
+FMA55673	organ with cavitated organ parts	FJ3391
+FMA67498	organ	FJ3229
+FMA67619	organ region	FJ1478
+FMA14293	tributary of internal thoracic vein	FJ1988
+FMA62955	anatomical entity	FJ1577
+FMA7987	left first rib	FJ3228
+FMA66464	systemic artery	FJ3584
+FMA61775	physical anatomical entity	FJ1512M
+FMA5018	bone organ	FJ3174
+FMA76259	branch of vertebral artery	FJ1709M
+FMA13896	intervertebral disk of third cervical vertebra	FJ3213
+FMA67165	material anatomical entity	FJ3295
+FMA13322	right clavicle	FJ3362
+FMA67165	material anatomical entity	FJ1549M
+FMA67135	anatomical structure	FJ2582
+FMA9139	thoracic vertebra	FJ3173
+FMA55268	organ zone	FJ1446M
+FMA55671	cavitated organ	FJ3170
+FMA82472	cardinal organ part	FJ1479M
+FMA9139	thoracic vertebra	FJ3171
+FMA67165	material anatomical entity	FJ3159
+FMA55673	organ with cavitated organ parts	FJ3164
+FMA67165	material anatomical entity	FJ3175
+FMA9617	muscle of neck	FJ2742
+FMA7476	flat bone	FJ3152
+FMA61775	physical anatomical entity	FJ1512
+FMA59088	tarsal plate of lower eyelid	FJ1379
+FMA67135	anatomical structure	FJ3348
+FMA50391	musculature of subdivision of free upper limb	FJ1511
+FMA62955	anatomical entity	FJ1443M
+FMA62955	anatomical entity	FJ1442
+FMA7477	irregular bone	FJ3154
+FMA50720	artery	FJ2308
+FMA61775	physical anatomical entity	FJ1397M
+FMA7487	body of sternum	FJ3178
+FMA62955	anatomical entity	FJ1441
+FMA67135	anatomical structure	FJ3393
+FMA67135	anatomical structure	FJ3231
+FMA55665	nonparenchymatous organ	FJ1569
+FMA45950	head of gastrocnemius	FJ1397
+FMA62955	anatomical entity	FJ3289
+FMA61775	physical anatomical entity	FJ3394
+FMA55107	cartilage organ	FJ3222
+FMA67498	organ	FJ1459
+FMA83115	cell part cluster	FJ1756
+FMA67619	organ region	FJ3290
+FMA55665	nonparenchymatous organ	FJ2742
+FMA7474	long bone	FJ3362
+FMA67135	anatomical structure	FJ3159
+FMA8515	twelfth rib	FJ3227
+FMA15794	tributary of left hepatic vein	FJ3099
+FMA67165	material anatomical entity	FJ3362
+FMA10446	intervertebral disk	FJ3223
+FMA55673	organ with cavitated organ parts	FJ3387
+FMA67165	material anatomical entity	FJ2621
+FMA61775	physical anatomical entity	FJ1478
+FMA16034	intervertebral disk of second lumbar vertebra	FJ3214
+FMA82472	cardinal organ part	FJ1394
+FMA13336	right external oblique	FJ1452
+FMA35193	interosseous membrane of left leg	FJ1392M
+FMA55670	solid organ	FJ1355
+FMA67135	anatomical structure	FJ3094
+FMA62955	anatomical entity	FJ1441M
+FMA7474	long bone	FJ3331
+FMA61775	physical anatomical entity	FJ1437M
+FMA62955	anatomical entity	FJ1528M
+FMA72801	anterior part of left superior temporal gyrus	FJ1837
+FMA67498	organ	FJ3217
+FMA55671	cavitated organ	FJ3173
+FMA86188	segment of venous tree organ	FJ2662
+FMA67165	material anatomical entity	FJ3152
+FMA61775	physical anatomical entity	FJ3494
+FMA67165	material anatomical entity	FJ2812
+FMA22545	left tibialis anterior	FJ1439M
+FMA62955	anatomical entity	FJ1436
+FMA9411	segmental pulmonary vein	FJ2953
+FMA34682	acromial part of right deltoid	FJ1467
+FMA67619	organ region	FJ2969
+FMA61775	physical anatomical entity	FJ1520M
+FMA67498	organ	FJ3168
+FMA55673	organ with cavitated organ parts	FJ3231
+FMA61775	physical anatomical entity	FJ1467
+FMA67498	organ	FJ3199
+FMA67396	articular disk of symphysis	FJ3222
+FMA62955	anatomical entity	FJ3381
+FMA67165	material anatomical entity	FJ1479
+FMA10446	intervertebral disk	FJ3220
+FMA67165	material anatomical entity	FJ1742
+FMA22544	right tibialis anterior	FJ1439
+FMA67135	anatomical structure	FJ2167
+FMA8364	right ninth rib	FJ3348
+FMA45960	lateral head of right gastrocnemius	FJ1394
+FMA61775	physical anatomical entity	FJ3214
+FMA38931	left vastus lateralis	FJ1442M
+FMA86140	organ segment	FJ3470
+FMA22703	iliocostalis thoracis	FJ1528
+FMA67135	anatomical structure	FJ3158
+FMA67165	material anatomical entity	FJ3163
+FMA67498	organ	FJ1379
+FMA67135	anatomical structure	FJ1667
+FMA37368	muscle of free lower limb	FJ1388M
+FMA62955	anatomical entity	FJ3106
+FMA67498	organ	FJ3287
+FMA67498	organ	FJ3222
+FMA7593	typical rib	FJ3342
+FMA71860	segment of left hepatic biliary tree	FJ3104
+FMA67619	organ region	FJ1521
+FMA5018	bone organ	FJ3348
+FMA7477	irregular bone	FJ3289
+FMA38487	left brachioradialis	FJ1487M
+FMA5018	bone organ	FJ3347
+FMA61775	physical anatomical entity	FJ1477M
+FMA22433	vastus intermedius	FJ1441
+FMA67498	organ	FJ3373
+FMA62955	anatomical entity	FJ3220
+FMA256194	orbital gyrus	FJ1794
+FMA67165	material anatomical entity	FJ3155
+FMA50722	region of vascular tree organ	FJ1996
+FMA22470	muscle of thigh	FJ1403
+FMA55673	organ with cavitated organ parts	FJ3152
+FMA22693	branch of brachial artery	FJ2261
+FMA22331	left gluteus medius	FJ1419M
+FMA67135	anatomical structure	FJ1846
+FMA67135	anatomical structure	FJ3534
+FMA7476	flat bone	FJ3378
+FMA67165	material anatomical entity	FJ3277
+FMA61775	physical anatomical entity	FJ2341
+FMA7477	irregular bone	FJ3265
+FMA62955	anatomical entity	FJ3228
+FMA55673	organ with cavitated organ parts	FJ3286
+FMA86140	organ segment	FJ2973
+FMA67165	material anatomical entity	FJ3199
+FMA82472	cardinal organ part	FJ3290
+FMA61775	physical anatomical entity	FJ2552
+FMA55671	cavitated organ	FJ3395
+FMA55673	organ with cavitated organ parts	FJ3331
+FMA61775	physical anatomical entity	FJ3395
+FMA67498	organ	FJ3158
+FMA9915	cervical vertebra	FJ3176
+FMA65046	intrinsic muscle of plantar part of foot	FJ1413
+FMA20684	trunk of branch of external iliac artery	FJ2064
+FMA7574	rib	FJ3232
+FMA62955	anatomical entity	FJ3223
+FMA67165	material anatomical entity	FJ3331
+FMA61775	physical anatomical entity	FJ1447M
+FMA5018	bone organ	FJ3287
+FMA55671	cavitated organ	FJ3286
+FMA52739	left temporal bone	FJ3281
+FMA82472	cardinal organ part	FJ1442
+FMA62955	anatomical entity	FJ1716
+FMA67619	organ region	FJ3639
+FMA67135	anatomical structure	FJ1459
+FMA65004	superficial muscle of posterior compartment of leg	FJ1437M
+FMA67498	organ	FJ3274
+FMA55268	organ zone	FJ1480M
+FMA5018	bone organ	FJ3160
+FMA7574	rib	FJ3228
+FMA37693	medial head of triceps brachii	FJ1480
+FMA5018	bone organ	FJ3392
+FMA83153	organ component of neuraxis	FJ1808
+FMA32557	descending part of trapezius	FJ1521
+FMA86140	organ segment	FJ3561
+FMA50436	superior terminal branch of middle cerebral artery	FJ1685
+FMA22429	zone of quadriceps femoris	FJ1442M
+FMA5018	bone organ	FJ3330
+FMA5018	bone organ	FJ3260
+FMA55652	anatomical set	FJ1511M
+FMA55671	cavitated organ	FJ3348
+FMA50589	zone of posterior cerebral artery	FJ1723M
+FMA61775	physical anatomical entity	FJ3229
+FMA67135	anatomical structure	FJ1439M
+FMA67135	anatomical structure	FJ3168
+FMA68237	superior segmental bronchial tree	FJ2501
+FMA7474	long bone	FJ3262
+FMA61775	physical anatomical entity	FJ3157
+FMA61775	physical anatomical entity	FJ3170
+FMA67135	anatomical structure	FJ1441M
+FMA55670	solid organ	FJ3212
+FMA62955	anatomical entity	FJ1706
+FMA61775	physical anatomical entity	FJ2182
+FMA67498	organ	FJ3384
+FMA67498	organ	FJ3235
+FMA62955	anatomical entity	FJ1394
+FMA67165	material anatomical entity	FJ3289
+FMA37368	muscle of free lower limb	FJ1436
+FMA67135	anatomical structure	FJ3165
+FMA50723	vein	FJ2935
+FMA67135	anatomical structure	FJ3175
+FMA61775	physical anatomical entity	FJ3152
+FMA66464	systemic artery	FJ1726M
+FMA12224	segment of tracheobronchial tree	FJ2526
+FMA79980	sternocostal part of left pectoralis major	FJ1464M
+FMA34676	zone of deltoid	FJ1513M
+FMA55268	organ zone	FJ1521
+FMA9139	thoracic vertebra	FJ3155
+FMA67135	anatomical structure	FJ2589
+FMA67165	material anatomical entity	FJ1521
+FMA61775	physical anatomical entity	FJ3237
+FMA67396	articular disk of symphysis	FJ3221
+FMA10455	intervertebral disk of thoracic vertebra	FJ3205
+FMA24474	right femur	FJ3365
+FMA61775	physical anatomical entity	FJ3165
+FMA49443	anatomical cluster	FJ1342
+FMA55268	organ zone	FJ1395M
+FMA86140	organ segment	FJ2445
+FMA67498	organ	FJ3309
+FMA62955	anatomical entity	FJ3282
+FMA7476	flat bone	FJ3384
+FMA67165	material anatomical entity	FJ3332
+FMA82472	cardinal organ part	FJ1446M
+FMA61775	physical anatomical entity	FJ1446
+FMA55665	nonparenchymatous organ	FJ1403M
+FMA49443	anatomical cluster	FJ1734
+FMA55107	cartilage organ	FJ3220
+FMA7477	irregular bone	FJ3165
+FMA67498	organ	FJ3366
+FMA62955	anatomical entity	FJ2081
+FMA7594	false rib	FJ3226
+FMA50722	region of vascular tree organ	FJ2361
+FMA85453	head of muscle organ	FJ1512M
+FMA61775	physical anatomical entity	FJ3216
+FMA33583	ascending part of left trapezius	FJ1520M
+FMA37348	muscle of free upper limb	FJ1491M
+FMA7474	long bone	FJ3235
+FMA9945	sixth thoracic vertebra	FJ3171
+FMA52738	right temporal bone	FJ3386
+FMA5018	bone organ	FJ3368
+FMA61775	physical anatomical entity	FJ3206
+FMA7475	short bone	FJ3275
+FMA82472	cardinal organ part	FJ3031
+FMA67498	organ	FJ3336
+FMA67165	material anatomical entity	FJ1468M
+FMA50722	region of vascular tree organ	FJ3476
+FMA67619	organ region	FJ1512
+FMA67165	material anatomical entity	FJ1487M
+FMA22952	left ulnar vein	FJ2260
+FMA55107	cartilage organ	FJ3204
+FMA67135	anatomical structure	FJ1513
+FMA67165	material anatomical entity	FJ3202
+FMA55670	solid organ	FJ1579
+FMA66464	systemic artery	FJ1664M
+FMA67498	organ	FJ3236
+FMA67165	material anatomical entity	FJ1542M
+FMA16983	distal part of jejunum	FJ2615
+FMA55670	solid organ	FJ1439M
+FMA61775	physical anatomical entity	FJ2791
+FMA55268	organ zone	FJ3290
+FMA82472	cardinal organ part	FJ1396
+FMA37692	long head of triceps brachii	FJ1479
+FMA62955	anatomical entity	FJ1480
+FMA55670	solid organ	FJ1437
+FMA55673	organ with cavitated organ parts	FJ3167
+FMA9622	muscle of lower limb	FJ1418
+FMA67165	material anatomical entity	FJ3394
+FMA67165	material anatomical entity	FJ3287
+FMA55671	cavitated organ	FJ3265
+FMA62955	anatomical entity	FJ3209
+FMA7594	false rib	FJ3330
+FMA62955	anatomical entity	FJ3368
+FMA55673	organ with cavitated organ parts	FJ3163
+FMA55665	nonparenchymatous organ	FJ3216
+FMA9411	segmental pulmonary vein	FJ2965
+FMA67619	organ region	FJ3545
+FMA7749	fourth rib	FJ3231
+FMA37348	muscle of free upper limb	FJ1505
+FMA61775	physical anatomical entity	FJ2456
+FMA67165	material anatomical entity	FJ3220
+FMA67135	anatomical structure	FJ1468M
+FMA50722	region of vascular tree organ	FJ1924
+FMA67619	organ region	FJ3493
+FMA82472	cardinal organ part	FJ2660
+FMA8147	sixth rib	FJ3344
+FMA67619	organ region	FJ2199
+FMA67619	organ region	FJ1512M
+FMA55107	cartilage organ	FJ3208
+FMA50365	sphenoid part of middle cerebral artery	FJ1692M
+FMA62955	anatomical entity	FJ3237
+FMA9139	thoracic vertebra	FJ3154
+FMA46290	suprahyoid muscle	FJ1556
+FMA86140	organ segment	FJ2061
+FMA61775	physical anatomical entity	FJ3236
+FMA67498	organ	FJ3260
+FMA5018	bone organ	FJ3228
+FMA67619	organ region	FJ1347
+FMA13394	scapula	FJ3384
+FMA55268	organ zone	FJ1521M
+FMA67135	anatomical structure	FJ3215
+FMA67396	articular disk of symphysis	FJ3220
+FMA49893	coronary artery	FJ2714
+FMA61775	physical anatomical entity	FJ3205
+FMA12215	zone of sternum	FJ3290
+FMA9621	muscle of upper limb	FJ1482
+FMA67498	organ	FJ1418M
+FMA62955	anatomical entity	FJ2325
+FMA82472	cardinal organ part	FJ1313
+FMA67165	material anatomical entity	FJ1443M
+FMA62955	anatomical entity	FJ3290
+FMA61775	physical anatomical entity	FJ3250
+FMA82472	cardinal organ part	FJ2304
+FMA70504	subdivision of common carotid artery	FJ1690
+FMA67619	organ region	FJ1520M
+FMA67135	anatomical structure	FJ2436
+FMA10474	zone of muscle organ	FJ1467
+FMA61775	physical anatomical entity	FJ1677M
+FMA70345	subdivision of subclavian artery	FJ1728M
+FMA55670	solid organ	FJ3213
+FMA67165	material anatomical entity	FJ1403M
+FMA67498	organ	FJ3272

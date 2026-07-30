@@ -25,3 +25,17 @@ versionati.
 Serve perché `zipfile` di Python usa il ZIP64 solo quando i numeri lo impongono,
 e `force_zip64=True` tocca solo le intestazioni locali: l'indice centrale resta
 a 32 bit e quel ramo del codice non verrebbe mai eseguito.
+
+## L'estratto vero
+
+`bp3d-estratto.txt` sono righe vere di `isa_element_parts` di BodyParts3D: le
+2063 che riguardano le nostre sessanta strutture, piu' 1200 di contorno prese a
+caso. Serve perche' le prove girino sul vocabolario dell'archivio — ortografia,
+categorie, tendini e legamenti che portano il nome del muscolo — e non su nomi
+inventati da me, che e' proprio l'errore che ha fatto girare a vuoto tutta la
+giornata.
+
+`finto_reale.zip` usa i codici `FJ` veri, quindi la mappa pubblicata ci si deve
+incastrare senza aiuti.
+
+Fonte: BodyParts3D, The Database Center for Life Science, CC-BY-SA 2.1 Giappone.
