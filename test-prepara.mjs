@@ -78,7 +78,7 @@ const ANALIZZA = async () => page.evaluate(async () => {
 
 // Stati di arrivo. "Leggo…", "N di 60 strutture…" e "Riprendo l'archivio…"
 // sono di passaggio: scambiarli per la fine fa leggere risultati a meta'.
-const FINE = /^(Pronto:|Errore:|Nessuna struttura|Nomi diversi|Non riesco|Tabella letta:|Tabella gia)/;
+const FINE = /^(Pronto:|Errore:|Nessuna struttura|Nomi diversi|Non riesco|Tabella letta:|Tabella gia|\\d+ tabelle)/;
 const esegui = async (zip) => {
   await page.goto(url, { waitUntil: "load" });
   await page.setInputFiles("#zip", `${PROVE}/${zip}`);
@@ -267,9 +267,10 @@ await page.waitForFunction((re) => new RegExp(re).test(document.getElementById("
   FINE.source, { timeout: 300000, polling: 200 });
 const perNomeLog = await page.textContent("#log");
 const d = await ANALIZZA();
-check("sceglie la terza colonna, non la prima", /colonna 3 di 4 e' l'identificativo/.test(perNomeLog),
-      (perNomeLog.match(/tabella: colonna.*/) || ["-"])[0]);
-check("e la seconda per il nome", /colonna 2 il nome/.test(perNomeLog));
+check("sceglie la terza colonna, non la prima", /colonna 3 \(1049 nomi/.test(perNomeLog),
+      (perNomeLog.match(/modelli: tabella.*/) || ["-"])[0]);
+check("e la seconda per il nome", /nomi: tabella 1, colonna 2/.test(perNomeLog),
+      (perNomeLog.match(/nomi: tabella.*/) || ["-"])[0]);
 check("60 strutture riconosciute", /60 strutture riconosciute su 60/.test(perNomeLog),
       (perNomeLog.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
 check("60 strutture estratte", d?.n === 60, `${d?.n}`);
@@ -300,8 +301,8 @@ await p1.setInputFiles("#zip", `${PROVE}/finto_con_tabella.zip`);
 await p1.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
   FINE.source, { timeout: 300000, polling: 200 });
 const s11 = await p1.textContent("#stato"), log11 = await p1.textContent("#log");
-check("trovata e usata da sola", /tabella dei nomi trovata dentro l'archivio/.test(log11),
-      (log11.match(/tabella dei nomi trovata.*/) || ["-"])[0]);
+check("trovata e usata da sola", /tabella trovata dentro l'archivio/.test(log11),
+      (log11.match(/tabella trovata dentro.*/) || ["-"])[0]);
 check("60 strutture estratte senza caricare altro", /^Pronto: 60 strutture/.test(s11), s11);
 check("nessuna parte data per non trovata", !/non trovati/.test(log11));
 check("la pagina dichiara la propria versione",
@@ -336,13 +337,58 @@ check("lo dice nel registro", /riprendo/.test(await p2.textContent("#log")));
 // La tabella e' piccola e ripescarla ogni volta e' la parte piu' scomoda.
 await p2.goto(url, { waitUntil: "load" });
 await p2.waitForTimeout(400);
-check("ricaricando la pagina la tabella e' ancora li'",
-      /Tabella gia/.test(await p2.textContent("#stato")), await p2.textContent("#stato"));
+check("ricaricando la pagina le tabelle sono ancora li'",
+      /tabelle in memoria/.test(await p2.textContent("#stato")), await p2.textContent("#stato"));
 await p2.setInputFiles("#zip", `${PROVE}/finto_per_nome.zip`);
 const s3 = await fine2();
 check("e l'archivio si legge subito", /^Pronto:/.test(s3), s3);
 check("nessun errore di pagina", err2.length === 0, err2.slice(0, 2).join(" | "));
 await ctx2.close();
+
+
+// ── 13. Due tabelle separate, come BodyParts3D davvero ─────────────
+// Nome e modello non stanno sulla stessa riga: un file dice come si chiama
+// ogni organo, un altro di quali pezzi e' fatto, e i pezzi sono i .obj. Serve
+// un salto in piu', ed e' quello che mancava a tutti i tentativi con la sola
+// parts_list. Quale colonna leghi le due tabelle non si indovina: e' la coppia
+// con piu' valori in comune.
+console.log("\n\x1b[1m13. Due tabelle separate\x1b[0m");
+const ctx3 = await browser.newContext();
+const p3 = await ctx3.newPage();
+const err3 = [];
+p3.on("pageerror", e => err3.push(String(e)));
+const fine3 = async () => {
+  await p3.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+    FINE.source, { timeout: 300000, polling: 200 });
+  return p3.textContent("#stato");
+};
+await p3.goto(url, { waitUntil: "load" });
+await p3.setInputFiles("#zip", `${PROVE}/finto_parts_list2.txt`);
+check("prima tabella letta", /Tabella letta/.test(await fine3()));
+await p3.setInputFiles("#zip", `${PROVE}/finto_element_parts.txt`);
+check("seconda tabella letta e sommata alla prima",
+      /2 in tutto/.test(await fine3()), await p3.textContent("#stato"));
+await p3.setInputFiles("#zip", `${PROVE}/finto_due_tabelle.zip`);
+const s13 = await fine3(), l13 = await p3.textContent("#log");
+check("va a buon fine", /^Pronto:/.test(s13), s13);
+check("trova i modelli nella tabella giusta", /modelli: tabella 2, colonna 2/.test(l13),
+      (l13.match(/modelli: tabella.*/) || ["-"])[0]);
+check("trova i nomi nell'altra", /nomi: tabella 1, colonna 3/.test(l13),
+      (l13.match(/nomi: tabella.*/) || ["-"])[0]);
+check("trova da solo la colonna che le lega", /legame: colonna 2 della prima con la 1/.test(l13),
+      (l13.match(/legame:.*/) || ["-"])[0]);
+check("60 strutture riconosciute", /60 strutture riconosciute su 60/.test(l13),
+      (l13.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
+// I muscoli a piu' capi devono portarsi dietro tutti i pezzi dell'organo.
+// La tabella ha sia "right triceps brachii" sia i suoi tre capi: l'intero li
+// contiene gia', quindi si prende quello e non si disegna due volte la carne.
+check("del tricipite prende l'intero, non intero piu' capi", /tricipite_dx\s+3 pz/.test(l13),
+      (l13.match(/tricipite_dx\s+\d+ pz/) || ["-"])[0]);
+check("e lo dice", /presi \d+ interi invece di/.test(l13),
+      (l13.match(/tricipite_dx: presi.*/) || ["-"])[0]);
+check("nessuna parte data per non trovata", !/non trovati/.test(l13));
+check("nessun errore di pagina", err3.length === 0, err3.slice(0, 2).join(" | "));
+await ctx3.close();
 
 await browser.close();
 server.close();

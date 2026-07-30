@@ -160,7 +160,7 @@
 
   // Serve a capire, da una schermata, se il browser stia mostrando questa
   // pagina o una copia vecchia rimasta in cache.
-  const VERSIONE = "2026-07-30 · colonne";
+  const VERSIONE = "2026-07-30 · due tabelle";
   $("ver").textContent = VERSIONE;
 
   // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
@@ -213,6 +213,7 @@
   };
   // Tendini, legamenti e fasce portano il nome del muscolo ma non sono il
   // muscolo: senza escluderli il ventre si porterebbe dietro dei fili.
+  const PARTE_DI = /\b(head|part|portion|belly|division|segment|bundle) of\b/;
   const SCARTA = /\b(tendon|ligament|bursa|nerve|artery|vein|fascia|sheath|cartilage|joint|capsule|membrane|septum|retinaculum|aponeurosis|periosteum|marrow|cavity|surface|border|process of|head of humerus|neck of)\b/;
 
   const BUDGET_OSSO = 8000, BUDGET_MUSCOLO = 4000;
@@ -532,7 +533,7 @@
   // per identificativo, e la pagina smette di dipendere da quale pacchetto si
   // e' scaricato.
   let TABELLA = null;   // mappa risolta
-  let RIGHE = null;     // righe grezze della tabella dei nomi
+  let TABELLE = [];     // tabelle grezze caricate, in qualunque ordine
 
   /** Parser tollerante: non si sa quante colonne abbia il file ne' in quale
    *  ordine, quindi si prende come identificativo ogni campo fatto di poche
@@ -584,12 +585,7 @@
   /** Dai nomi alle strutture: per ognuna, gli identificativi il cui nome
    *  corrisponde. Restituisce una mappa nella stessa forma di quella scritta a
    *  mano, cosi' il resto del programma non cambia. */
-  function risolviPerNome(righe, colId, colNome) {
-    const voci = [];
-    for (const r of righe) {
-      const id = r[colId], nome = r[colNome];
-      if (id && nome && /[A-Za-z]{3}/.test(nome)) voci.push({ ids: [id], nome: nome.toLowerCase() });
-    }
+  function risolviPerNome(voci) {
     const mappa = {}, note = [];
     for (const [base, def] of Object.entries(CERCA)) {
       const lati = def.lat ? [["dx", /\bright\b/], ["sx", /\bleft\b/]] : [["", null]];
@@ -604,12 +600,24 @@
                                   && !/\b(right|left)\b/.test(v.nome));
           if (trovate.length) note.push(`${chiave}: la tabella non distingue destra e sinistra`);
         }
+        // Se la tabella ha sia il muscolo intero sia i suoi capi, l'intero li
+        // contiene gia' tutti: prenderli entrambi significa disegnare due volte
+        // la stessa carne. I capi si usano solo quando l'intero non c'e'.
+        const interi = trovate.filter(v => !PARTE_DI.test(v.nome));
+        if (interi.length && interi.length < trovate.length) {
+          note.push(`${chiave}: presi ${interi.length} interi invece di `
+                  + `${trovate.length} fra interi e capi`);
+          trovate = interi;
+        }
         const max = def.capi || 4;
         if (trovate.length > max) {
           note.push(`${chiave}: ${trovate.length} corrispondenze, tengo le prime ${max}`);
           trovate = trovate.slice(0, max);
         }
-        if (trovate.length) mappa[chiave] = trovate.map(v => v.ids);
+        // Ogni modello e' una parte a se': un organo composto ne ha molti, e
+        // servono tutti perche' insieme fanno la struttura.
+        const parti = trovate.flatMap(v => v.ids.map(id => [id])).slice(0, 80);
+        if (parti.length) mappa[chiave] = parti;
       }
     }
     return { mappa, note };
@@ -619,7 +627,7 @@
    *  nomi. Quale colonna sia l'identificativo del modello non si decide qui —
    *  lo dira' l'archivio — quindi le righe si tengono grezze. */
   async function ispezionaTesto(file) {
-    TABELLA = null; RIGHE = null;
+    TABELLA = null;
     const testo = new TextDecoder().decode(await file.arrayBuffer());
     stampa(`<b>${esc(file.name)}</b> — ${(file.size / 1e3).toFixed(0)} kB, tabella dei nomi`);
     const rr = analizzaTabella(testo);
@@ -633,35 +641,121 @@
       return null;
     }
 
-    RIGHE = rr;
-    try { localStorage.setItem("nirscope-righe", testo); } catch { /* memoria piena */ }
+    // Le tabelle si accumulano: BodyParts3D tiene i nomi in un file e la
+    // composizione degli organi in un altro, e servono tutte e due.
+    TABELLE.push(rr);
+    try {
+      const c = JSON.parse(localStorage.getItem("nirscope-tabelle") || "[]");
+      c.push(testo);
+      localStorage.setItem("nirscope-tabelle", JSON.stringify(c.slice(-4)));
+    } catch { /* memoria piena: si ricaricano a mano */ }
+    stampa(`tabelle caricate finora: ${TABELLE.length}`, "ok");
     avanza(1);
     if (zipInSospeso) {
       const z = zipInSospeso; zipInSospeso = null;
       stato("Tabella letta. Riprendo l'archivio…", "good");
-      stampa("\nriprendo <b>" + esc(z.name) + "</b> con questa tabella");
+      stampa("\nriprendo <b>" + esc(z.name) + "</b> con le tabelle caricate");
       await pausa();
       await elabora(z, true);
       return rr;
     }
-    stato(`Tabella letta: ${rr.length} righe. Adesso scegli l'archivio .zip.`, "good");
+    stato(`Tabella letta: ${rr.length} righe (${TABELLE.length} in tutto). Carica le altre tabelle, oppure l'archivio .zip.`, "good");
     return rr;
   }
 
-  /** Costruisce la mappa incrociando la tabella con i nomi dei file che stanno
-   *  davvero nell'archivio. */
+  /** Costruisce la mappa incrociando le tabelle con i nomi dei file che stanno
+   *  davvero nell'archivio.
+   *
+   *  BodyParts3D non tiene nomi e modelli nello stesso posto: una tabella dice
+   *  come si chiama ogni organo, un'altra di quali pezzi e' fatto, e i pezzi
+   *  sono i file. Quindi il collegamento puo' richiedere due salti, e quale
+   *  colonna serva a cosa non si indovina: lo si misura. La colonna dei file e'
+   *  quella che azzecca piu' nomi dell'archivio; il legame fra le due tabelle e'
+   *  la coppia di colonne con piu' valori in comune. */
+  const nCol = (T) => T.reduce((m, r) => Math.max(m, r.length), 0);
+
   function daTabella(voci) {
     const basi = new Set(voci.keys());
-    const { colId, colNome, colpi, nCol } = scegliColonne(RIGHE, basi);
-    if (colId < 0) {
-      stampa("\n<span class='no'>Nessuna colonna della tabella corrisponde ai file "
-           + "dell'archivio.</span> Prime righe della tabella:");
-      for (const r of RIGHE.slice(0, 8)) stampa("  " + esc(r.join(" | ").slice(0, 150)));
+    if (!TABELLE.length) return null;
+
+    // 1. Dove stanno i nomi dei file.
+    let file = { n: 0 };
+    TABELLE.forEach((T, ti) => {
+      for (let c = 0; c < nCol(T); c++) {
+        let n = 0;
+        for (const r of T) { const v = (r[c] || "").toLowerCase(); if (v && basi.has(v + ".obj")) n++; }
+        if (n > file.n) file = { n, ti, c };
+      }
+    });
+    if (!file.n) {
+      stampa("\n<span class='no'>Nessuna colonna delle tabelle corrisponde ai file "
+           + "dell'archivio.</span> Prime righe di ognuna:");
+      TABELLE.forEach((T, i) => {
+        stampa(`  tabella ${i + 1}, ${T.length} righe, ${nCol(T)} colonne:`);
+        for (const r of T.slice(0, 4)) stampa("    " + esc(r.join(" | ").slice(0, 140)));
+      });
       return null;
     }
-    stampa(`tabella: colonna ${colId + 1} di ${nCol} e' l'identificativo `
-         + `(${colpi} nomi su ${RIGHE.length} sono nell'archivio), colonna ${colNome + 1} il nome`);
-    const { mappa, note } = risolviPerNome(RIGHE, colId, colNome);
+    const B = TABELLE[file.ti];
+    stampa(`modelli: tabella ${file.ti + 1}, colonna ${file.c + 1} `
+         + `(${file.n} nomi su ${B.length} sono nell'archivio)`);
+
+    // 2. Dove stanno i nomi anatomici.
+    let nome = { p: -1 };
+    TABELLE.forEach((T, ti) => {
+      for (let c = 0; c < nCol(T); c++) {
+        if (ti === file.ti && c === file.c) continue;
+        let p = 0;
+        for (const r of T) {
+          const v = r[c] || "";
+          if (/[A-Za-z]{3}/.test(v) && !/^[A-Za-z]{0,6}[0-9]+$/.test(v)) p += v.length;
+        }
+        if (p > nome.p) nome = { p, ti, c };
+      }
+    });
+    if (nome.p <= 0) { stampa("Nessuna colonna con nomi anatomici.", "no"); return null; }
+    const A = TABELLE[nome.ti];
+    stampa(`nomi: tabella ${nome.ti + 1}, colonna ${nome.c + 1}`);
+
+    let lista;
+    if (nome.ti === file.ti) {
+      // Nome e modello sulla stessa riga: un salto solo.
+      lista = B.map(r => ({ ids: r[file.c] ? [r[file.c]] : [], nome: (r[nome.c] || "").toLowerCase() }));
+    } else {
+      // Due tabelle: si cerca la coppia di colonne che le lega.
+      let link = { n: 0 };
+      for (let ca = 0; ca < nCol(A); ca++) {
+        if (ca === nome.c) continue;
+        const setA = new Set(A.map(r => r[ca]).filter(Boolean));
+        if (setA.size < 10) continue;
+        for (let cb = 0; cb < nCol(B); cb++) {
+          if (cb === file.c) continue;
+          let n = 0;
+          for (const r of B) if (r[cb] && setA.has(r[cb])) n++;
+          if (n > link.n) link = { n, ca, cb };
+        }
+      }
+      if (!link.n) {
+        stampa("\n<span class='no'>Le due tabelle non hanno colonne in comune: "
+             + "non riesco a collegare i nomi ai modelli.</span>");
+        stampa("  tabella dei nomi:   " + esc(A[1] ? A[1].join(" | ").slice(0, 140) : ""));
+        stampa("  tabella dei modelli:" + esc(B[1] ? B[1].join(" | ").slice(0, 140) : ""));
+        return null;
+      }
+      stampa(`legame: colonna ${link.ca + 1} della prima con la ${link.cb + 1} della seconda `
+           + `(${link.n} righe in comune)`);
+      const elementi = new Map();
+      for (const r of B) {
+        const k = r[link.cb], f = r[file.c];
+        if (!k || !f) continue;
+        if (!elementi.has(k)) elementi.set(k, []);
+        elementi.get(k).push(f);
+      }
+      lista = A.map(r => ({ ids: elementi.get(r[link.ca]) || [], nome: (r[nome.c] || "").toLowerCase() }));
+    }
+    lista = lista.filter(v => v.ids.length && /[A-Za-z]{3}/.test(v.nome));
+
+    const { mappa, note } = risolviPerNome(lista);
     for (const n of note) stampa("  " + esc(n), "no");
     const attese = [];
     for (const [base, def] of Object.entries(CERCA)) {
@@ -672,8 +766,8 @@
     stampa(`<b>${n} strutture riconosciute</b> su ${attese.length}`);
     if (mancanti.length) stampa(`non trovate: ${esc(mancanti.join(", "))}`, "no");
     if (!n) {
-      stampa("\nprimi nomi nella tabella:");
-      for (const r of RIGHE.slice(0, 12)) stampa(`  ${esc(r[colId])}  ${esc(r[colNome])}`);
+      stampa("\nprimi nomi trovati:");
+      for (const v of lista.slice(0, 12)) stampa(`  ${esc(v.ids.slice(0,3).join("/"))}  ${esc(v.nome)}`);
       return null;
     }
     return mappa;
@@ -721,9 +815,8 @@
             const t = new TextDecoder().decode(await estrai(file, v));
             const rr = analizzaTabella(t);
             if (rr.length < 20) continue;
-            RIGHE = rr;
-            stampa(`tabella dei nomi trovata dentro l'archivio: ${esc(v.nome)}`, "ok");
-            break;
+            TABELLE.push(rr);
+            stampa(`tabella trovata dentro l'archivio: ${esc(v.nome)}`, "ok");
           } catch { /* non era leggibile, si prosegue */ }
         }
       }
@@ -733,7 +826,7 @@
       // sull'archivio vero invece che su un'ipotesi.
       // Ora che si conoscono i nomi dei file, la tabella si puo' incrociare:
       // e' l'archivio a dire quale colonna sia l'identificativo del modello.
-      if (RIGHE && !TABELLA) TABELLA = daTabella(voci);
+      if (TABELLE.length && !TABELLA) TABELLA = daTabella(voci);
 
       // Forma unica: ogni struttura e' un elenco di parti, e ogni parte un
       // elenco di identificativi alternativi fra cui basta che uno esista.
@@ -816,17 +909,16 @@
   // La tabella si conserva fra una visita e l'altra: e' piccola, e ripescarla
   // dall'app File ogni volta e' la parte piu' scomoda di tutto il giro.
   try {
-    const salvato = localStorage.getItem("nirscope-righe");
-    if (salvato) {
-      const rr = analizzaTabella(salvato);
-      if (rr.length >= 20) {
-        RIGHE = rr;
-        stampa(`tabella dei nomi gia' in memoria: ${rr.length} righe`, "ok");
-        stampa("scegli l'archivio, oppure ricarica la tabella per sostituirla.");
-        stato(`Tabella gia' in memoria (${rr.length} righe). Scegli l'archivio.`, "good");
-      }
+    for (const testo of JSON.parse(localStorage.getItem("nirscope-tabelle") || "[]")) {
+      const rr = analizzaTabella(testo);
+      if (rr.length >= 20) TABELLE.push(rr);
     }
-  } catch { /* memoria non disponibile: si ricarica a mano */ }
+    if (TABELLE.length) {
+      stampa(`${TABELLE.length} tabelle gia' in memoria`, "ok");
+      stampa("scegli l'archivio, oppure caricane altre.");
+      stato(`${TABELLE.length} tabelle in memoria. Scegli l'archivio.`, "good");
+    }
+  } catch { /* memoria non disponibile: si ricaricano a mano */ }
 
   $("zip").addEventListener("change", (e) => {
     const f = e.target.files[0];
