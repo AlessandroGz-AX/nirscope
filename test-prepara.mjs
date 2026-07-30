@@ -223,10 +223,12 @@ const testo = await page.evaluate(async () => {
   return { stato: document.getElementById("stato").textContent,
            log: document.getElementById("log").textContent };
 });
-check("una tabella di testo viene mostrata invece che rifiutata",
-      /File di testo/.test(testo.stato), testo.stato);
-check("se ne vedono le righe e il separatore",
-      /tabulazione/.test(testo.log) && /biceps brachii/.test(testo.log));
+// Troppo corto per essere la tabella dei nomi: non la si spaccia per tale, ma
+// se ne mostrano comunque le righe, che e' quello che serve per capire cos'e'.
+check("un testo che non e' la tabella non viene spacciato per tale",
+      /Non riesco a leggerla come tabella/.test(testo.stato), testo.stato);
+check("se ne vedono comunque le righe",
+      /biceps brachii/.test(testo.log) && /FMA7207/.test(testo.log));
 
 // ── 9. Archivio con nomi diversi da quelli attesi ──────────────────
 // E' il caso che si e' presentato davvero: l'archivio c'e' ma usa un'altra
@@ -239,6 +241,41 @@ check("mostra cartelle, estensioni e forma dei nomi", /forma nomi/.test(r4.log))
 check("mostra i primi nomi veri", /FJ3000\.obj/.test(r4.log));
 check("dice se i numeri cercati compaiono altrove", /numeri cercati/.test(r4.log),
       (r4.log.match(/numeri cercati.*/) || [""])[0]);
+
+
+// ── 10. Riconoscimento per nome anatomico ──────────────────────────
+// La via che rende la pagina indipendente dal pacchetto: si carica la tabella
+// dei nomi e le strutture si riconoscono da "femur", non da un identificativo.
+// L'archivio di prova usa identificativi di forma diversa da quelli della mappa
+// scritta a mano, cosi' se funzionasse solo perche' coincidono non passerebbe.
+console.log("\n\x1b[1m10. Riconoscimento per nome anatomico\x1b[0m");
+await page.goto(url, { waitUntil: "load" });
+await page.setInputFiles("#zip", `${PROVE}/finto_parts_list.txt`);
+await page.waitForFunction(
+  () => /^(Tabella|Errore|Non riesco)/.test(document.getElementById("stato").textContent),
+  null, { timeout: 60000 });
+const tab = { stato: await page.textContent("#stato"), log: await page.textContent("#log") };
+check("tabella letta", /Tabella pronta/.test(tab.stato), tab.stato);
+check("60 strutture riconosciute dai nomi", /60 strutture riconosciute su 60/.test(tab.log),
+      (tab.log.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
+check("nessuna struttura data per mancante", !/non trovate nella tabella/.test(tab.log));
+
+await page.setInputFiles("#zip", `${PROVE}/finto_per_nome.zip`);
+await page.waitForFunction(
+  () => /^(Pronto:|Errore:|Nessun|Nomi diversi)/.test(document.getElementById("stato").textContent),
+  null, { timeout: 300000 });
+const perNomeLog = await page.textContent("#log");
+const d = await ANALIZZA();
+check("l'archivio viene letto con quegli identificativi",
+      /identificativi presi dalla tabella/.test(perNomeLog));
+check("60 strutture estratte", d?.n === 60, `${d?.n}`);
+check("nessuna parte data per non trovata", !/non trovati/.test(perNomeLog),
+      (perNomeLog.match(/.*non trovati.*/) || [""])[0].trim());
+check("tipi osso/muscolo corretti", d.strutture.filter(x => x.tipo === 0).length === 26,
+      `${d.strutture.filter(x => x.tipo === 0).length} ossa`);
+// Tendini e legamenti portano il nome del muscolo: non devono finirci dentro.
+check("tendini, legamenti e fasce restano fuori",
+      !/tendon|ligament|fascia/.test(perNomeLog));
 
 await browser.close();
 server.close();

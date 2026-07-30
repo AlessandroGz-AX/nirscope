@@ -94,11 +94,18 @@
     <div class="card-body">
       <ol>
         <li><b>Non serve estrarre lo zip.</b> Lasciato compresso va benissimo — anzi, meglio:
-            leggo solo l'indice e i 126 file che servono, non il resto.</li>
+            leggo solo l'indice e i modelli che servono, non il resto.</li>
         <li><b>Tocca il riquadro qui sotto</b> e scegli l'archivio dall'app File.</li>
         <li><b>Aspetta.</b> Un minuto o due, con l'avanzamento sotto.</li>
-        <li><b>Salva il file</b> che ti propone e mandamelo, oppure caricalo su GitHub.</li>
+        <li><b>Salva il file</b> che ti propone e caricalo in
+            <a href="anatomia.html">anatomia.html</a>.</li>
       </ol>
+      <p style="margin-top:14px">
+        <b>Se dice che i nomi non corrispondono:</b> gli identificativi cambiano da un pacchetto
+        all'altro. Scarica dalla stessa pagina di BodyParts3D la <em>tabella dei nomi</em> —
+        <code>parts_list</code>, poche decine di kB — e caricala qui prima dell'archivio. A quel
+        punto le strutture si riconoscono dal nome anatomico e l'identificativo non conta piu'.
+      </p>
     </div>
   </section>
 
@@ -153,6 +160,50 @@
 
   // Le ossa reggono piu' dettaglio dei muscoli: hanno spigoli e creste che si
   // notano, mentre un ventre muscolare e' liscio e sopporta la riduzione.
+  // Riconoscimento per nome anatomico, che e' l'unica cosa stabile fra i
+  // pacchetti: gli identificativi cambiano da un albero all'altro, "femur" no.
+  // `capi` e' quanti pezzi ci si aspetta al massimo: i muscoli arrivano divisi
+  // per capi, le vertebre e le coste sono decine.
+  const CERCA = {
+    femore:  { re: /\bfemur\b/,     lat: true },
+    tibia:   { re: /\btibia\b/,     lat: true },
+    perone:  { re: /\bfibula\b/,    lat: true },
+    omero:   { re: /\bhumerus\b/,   lat: true },
+    radio:   { re: /\bradius\b/,    lat: true },
+    ulna:    { re: /\bulna\b/,      lat: true },
+    rotula:  { re: /\bpatella\b/,   lat: true },
+    scapola: { re: /\bscapula\b/,   lat: true },
+    clavicola: { re: /\bclavicle\b/, lat: true },
+    bacino:  { re: /\b(hip bone|coxal bone|pelvic bone|os coxae|innominate)\b/, lat: true },
+    sacro:   { re: /\bsacrum\b/ },
+    sterno:  { re: /\bsternum\b/ },
+    mandibola: { re: /\bmandible\b/ },
+    cranio:  { re: /\b(skull|cranium|frontal bone|parietal bone|occipital bone|temporal bone|sphenoid|ethmoid|maxilla|zygomatic bone|nasal bone|vomer|lacrimal bone|palatine bone)\b/, capi: 30 },
+    colonna: { re: /\bvertebra\b/,  capi: 30 },
+    coste:   { re: /\brib\b/,       capi: 30 },
+
+    deltoide:       { re: /\bdeltoid\b/,           lat: true, capi: 6 },
+    bicipite:       { re: /\bbiceps brachii\b/,    lat: true, capi: 6 },
+    tricipite:      { re: /\btriceps brachii\b/,   lat: true, capi: 6 },
+    brachioradiale: { re: /\bbrachioradialis\b/,   lat: true },
+    pettorale:      { re: /\bpectoralis major\b/,  lat: true, capi: 6 },
+    dentato:        { re: /\bserratus anterior\b/, lat: true, capi: 6 },
+    trapezio:       { re: /\btrapezius\b/,         lat: true, capi: 6 },
+    obliquo:        { re: /\b(obliquus externus abdominis|external oblique)\b/, lat: true, capi: 6 },
+    gluteo:         { re: /\bglut[ae]?us maximus\b/, lat: true, capi: 6 },
+    adduttore:      { re: /\badductor magnus\b/,   lat: true, capi: 6 },
+    retto_femorale: { re: /\brectus femoris\b/,    lat: true },
+    vasto:          { re: /\bvastus\b/,            lat: true, capi: 6 },
+    bicipite_fem:   { re: /\bbiceps femoris\b/,    lat: true, capi: 6 },
+    semitendinoso:  { re: /\bsemitendinosus\b/,    lat: true },
+    gastrocnemio:   { re: /\bgastrocnemius\b/,     lat: true, capi: 6 },
+    soleo:          { re: /\bsoleus\b/,            lat: true },
+    tibiale_ant:    { re: /\btibialis anterior\b/, lat: true },
+  };
+  // Tendini, legamenti e fasce portano il nome del muscolo ma non sono il
+  // muscolo: senza escluderli il ventre si porterebbe dietro dei fili.
+  const SCARTA = /\b(tendon|ligament|bursa|nerve|artery|vein|fascia|sheath|cartilage|joint|capsule|membrane|septum|retinaculum|aponeurosis|periosteum|marrow|cavity|surface|border|process of|head of humerus|neck of)\b/;
+
   const BUDGET_OSSO = 8000, BUDGET_MUSCOLO = 4000;
 
   // Elenco esplicito e non un'espressione regolare: "tibia" e' un osso ma
@@ -454,7 +505,7 @@
     for (const n of nomi.slice(0, 20)) stampa("  " + esc(n));
 
     // Se i numeri fossero gli stessi con un prefisso diverso, qui si vedrebbe.
-    const numeri = [...new Set(Object.values(MAPPA).flat().map(s => s.replace(/^\D+/, "")))];
+    const numeri = [...new Set(Object.values(TABELLA || MAPPA).flat(2).map(s => s.replace(/^\D+/, "")))];
     const trovati = [];
     for (const n of nomi) {
       if (numeri.some(num => n.includes(num))) trovati.push(n);
@@ -464,20 +515,105 @@
     for (const n of trovati) stampa("  " + esc(n));
   }
 
-  /** Un file di testo non si elabora: se ne mostra l'inizio. Serve a leggere le
-   *  tabelle di corrispondenza di BodyParts3D, che sono l'unico posto dove sta
-   *  scritto come i modelli si chiamano davvero. */
+  // ── La tabella dei nomi ────────────────────────────────────────────
+  // BodyParts3D pubblica a parte una tabella che associa a ogni modello il suo
+  // nome inglese. Caricandola, le strutture si riconoscono per nome invece che
+  // per identificativo, e la pagina smette di dipendere da quale pacchetto si
+  // e' scaricato.
+  let TABELLA = null;
+
+  /** Parser tollerante: non si sa quante colonne abbia il file ne' in quale
+   *  ordine, quindi si prende come identificativo ogni campo fatto di poche
+   *  lettere e qualche cifra, e come nome il campo piu' lungo che sembri
+   *  scritto in lingua. */
+  function analizzaTabella(testo) {
+    const voci = [];
+    for (const riga of testo.split(/\r?\n/)) {
+      if (!riga.trim()) continue;
+      const campi = riga.includes("\t") ? riga.split("\t") : riga.split(/ {2,}|,(?=\S)/);
+      const ids = [], parole = [];
+      for (const c of campi) {
+        const t = c.trim();
+        if (/^[A-Za-z]{0,5}[0-9]{3,}$/.test(t)) ids.push(t);
+        else if (/[A-Za-z]{3}/.test(t)) parole.push(t);
+      }
+      if (!ids.length || !parole.length) continue;
+      const nome = parole.reduce((a, b) => (b.length > a.length ? b : a));
+      voci.push({ ids, nome: nome.toLowerCase() });
+    }
+    return voci;
+  }
+
+  /** Dai nomi alle strutture: per ognuna, gli identificativi il cui nome
+   *  corrisponde. Restituisce una mappa nella stessa forma di quella scritta a
+   *  mano, cosi' il resto del programma non cambia. */
+  function risolviPerNome(voci) {
+    const mappa = {}, note = [];
+    for (const [base, def] of Object.entries(CERCA)) {
+      const lati = def.lat ? [["dx", /\bright\b/], ["sx", /\bleft\b/]] : [["", null]];
+      for (const [suff, reLato] of lati) {
+        const chiave = suff ? base + "_" + suff : base;
+        let trovate = voci.filter(v => def.re.test(v.nome) && !SCARTA.test(v.nome)
+                                    && (!reLato || reLato.test(v.nome)));
+        // Se la tabella non distingue i lati, la struttura c'e' ma una volta
+        // sola: meglio usarla su entrambi i lati che perderla.
+        if (!trovate.length && reLato) {
+          trovate = voci.filter(v => def.re.test(v.nome) && !SCARTA.test(v.nome)
+                                  && !/\b(right|left)\b/.test(v.nome));
+          if (trovate.length) note.push(`${chiave}: la tabella non distingue destra e sinistra`);
+        }
+        const max = def.capi || 4;
+        if (trovate.length > max) {
+          note.push(`${chiave}: ${trovate.length} corrispondenze, tengo le prime ${max}`);
+          trovate = trovate.slice(0, max);
+        }
+        if (trovate.length) mappa[chiave] = trovate.map(v => v.ids);
+      }
+    }
+    return { mappa, note };
+  }
+
+  /** Un file di testo non e' un archivio: si prova a leggerlo come tabella dei
+   *  nomi, e se non lo e' se ne mostra l'inizio per capire cos'e'. */
   async function ispezionaTesto(file) {
-    const testo = new TextDecoder().decode(await file.slice(0, 6000).arrayBuffer());
-    const rr = testo.split(/\r?\n/);
-    stampa(`<b>${esc(file.name)}</b> — ${(file.size / 1e3).toFixed(0)} kB, testo`);
-    const sep = testo.includes("\t") ? "tabulazione" :
-                testo.includes(";") ? "punto e virgola" :
-                testo.includes(",") ? "virgola" : "spazi";
-    stampa(`separatore: ${sep}\n\nprime righe:`);
-    for (const r of rr.slice(0, 12)) stampa("  " + esc(r.slice(0, 150)));
-    stato("File di testo: qui sopra le prime righe. Mandami questa schermata.", "good");
+    TABELLA = null;
+    const testo = new TextDecoder().decode(await file.arrayBuffer());
+    stampa(`<b>${esc(file.name)}</b> — ${(file.size / 1e3).toFixed(0)} kB, tabella dei nomi`);
+    const voci = analizzaTabella(testo);
+    stampa(`righe leggibili: ${voci.length}`);
+
+    if (voci.length < 20) {
+      stampa("\n<span class='no'>Non sembra la tabella dei nomi. Prime righe:</span>");
+      for (const r of testo.split(/\r?\n/).slice(0, 10)) stampa("  " + esc(r.slice(0, 150)));
+      stato("Non riesco a leggerla come tabella. Mandami questa schermata.", "err");
+      avanza(1);
+      return null;
+    }
+
+    const { mappa, note } = risolviPerNome(voci);
+    const chiavi = Object.keys(mappa);
+    const nFile = Object.values(mappa).reduce((a, v) => a + v.length, 0);
+    for (const n of note) stampa("  " + esc(n), "no");
+    const attese = [];
+    for (const [base, def] of Object.entries(CERCA)) {
+      for (const suff of def.lat ? ["_dx", "_sx"] : [""]) attese.push(base + suff);
+    }
+    const mancanti = attese.filter(k => !mappa[k]);
+    stampa(`\n<b>${chiavi.length} strutture riconosciute</b> su ${attese.length}, ${nFile} modelli`);
+    if (mancanti.length) {
+      stampa(`\n<span class="no">non trovate nella tabella:</span> ${esc(mancanti.join(", "))}`, );
+    }
+    if (!chiavi.length) {
+      stato("Tabella letta ma nessun nome riconosciuto. Mandami questa schermata.", "err");
+      stampa("\nprimi nomi nella tabella:");
+      for (const v of voci.slice(0, 12)) stampa(`  ${esc(v.ids.join("/"))}  ${esc(v.nome)}`);
+      avanza(1);
+      return null;
+    }
+    TABELLA = mappa;
     avanza(1);
+    stato(`Tabella pronta: ${chiavi.length} strutture. Adesso scegli l'archivio .zip.`, "good");
+    return mappa;
   }
 
   // ── Elaborazione ───────────────────────────────────────────────────
@@ -509,7 +645,15 @@
       const { voci, zip64 } = await indice(file);
       stampa(`indice: ${voci.size} file${zip64 ? " (formato ZIP64)" : ""}`);
 
-      const chiavi = Object.keys(MAPPA);
+      // Se e' stata caricata la tabella dei nomi si usa quella: e' risolta
+      // sull'archivio vero invece che su un'ipotesi.
+      // Forma unica: ogni struttura e' un elenco di parti, e ogni parte un
+      // elenco di identificativi alternativi fra cui basta che uno esista.
+      const USA = TABELLA || Object.fromEntries(
+        Object.entries(MAPPA).map(([k, v]) => [k, v.map(x => [x])]));
+      const quantiFile = (m) => Object.values(m).reduce((a, v) => a + v.length, 0);
+      if (TABELLA) stampa(`identificativi presi dalla tabella dei nomi (${Object.keys(TABELLA).length} strutture)`);
+      const chiavi = Object.keys(USA);
       const fatte = [], mancanti = [];
       let letti = 0, trianOrig = 0, trianFin = 0;
       const bbox = [Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];
@@ -517,14 +661,15 @@
       for (let i = 0; i < chiavi.length; i++) {
         const k = chiavi[i];
         const pezzi = [], persi = [];
-        for (const bp of MAPPA[k]) {
-          const v = cercaVoce(voci, bp);
-          if (!v) { persi.push(bp); continue; }
+        for (const parte of USA[k]) {
+          let v = null;
+          for (const alt of parte) { v = cercaVoce(voci, alt); if (v) break; }
+          if (!v) { persi.push(parte[0]); continue; }
           const m = leggiObj(await estrai(file, v));
           if (m.F.length) { pezzi.push(m); letti++; } else persi.push(bp);
         }
         avanza(0.02 + 0.93 * (i + 1) / chiavi.length);
-        if (!pezzi.length) { mancanti.push(`${k} (${MAPPA[k].join(", ")})`); await pausa(); continue; }
+        if (!pezzi.length) { mancanti.push(`${k} (${USA[k].map(p => p[0]).join(", ")})`); await pausa(); continue; }
 
         const u = unisci(pezzi);
         trianOrig += u.F.length / 3;
@@ -545,11 +690,11 @@
       }
 
       if (!fatte.length) {
-        stampa(`\n<span class="no">Nessuno dei 126 file cercati e' in questo archivio.</span>`);
+        stampa(`\n<span class="no">Nessuno dei ${quantiFile(USA)} file cercati e' in questo archivio.</span>`);
         diagnostica(voci);
         avanza(1);
-        stato("Nomi diversi da quelli attesi. Qui sopra c'e' come sono fatti davvero: "
-            + "mandami questa schermata e adatto la mappa.", "err");
+        stato("Nomi diversi da quelli attesi. Scarica dalla stessa pagina di BodyParts3D la "
+            + "tabella dei nomi (parts_list, poche decine di kB), caricala qui e riprova.", "err");
         return null;
       }
       // Anche una corrispondenza parziale merita di sapere com'e' fatto il
