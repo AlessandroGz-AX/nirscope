@@ -76,12 +76,15 @@ const ANALIZZA = async () => page.evaluate(async () => {
   return { magia, n, byte: buf.byteLength, letti: o, strutture: out, indiciFuori, nanTrovati };
 });
 
+// Stati di arrivo. "Leggo…", "N di 60 strutture…" e "Riprendo l'archivio…"
+// sono di passaggio: scambiarli per la fine fa leggere risultati a meta'.
+const FINE = /^(Pronto:|Errore:|Nessuna struttura|Nomi diversi|Non riesco|Tabella pronta:|Tabella gia)/;
 const esegui = async (zip) => {
   await page.goto(url, { waitUntil: "load" });
   await page.setInputFiles("#zip", `${PROVE}/${zip}`);
   await page.waitForFunction(
-    () => /^(Pronto:|Errore:|Nessuna|Nomi diversi|File di testo)/.test(document.getElementById("stato").textContent),
-    null, { timeout: 300000 });
+    (re) => new RegExp(re).test(document.getElementById("stato").textContent),
+    FINE.source, { timeout: 300000, polling: 200 });
   return {
     stato: await page.textContent("#stato"),
     log: await page.textContent("#log"),
@@ -281,17 +284,59 @@ check("tendini, legamenti e fasce restano fuori",
 // ── 11. Tabella dentro l'archivio ──────────────────────────────────
 // Se il pacchetto se la porta dentro non c'e' motivo di chiederla a parte:
 // un file in meno da procurarsi, e su un iPad procurarselo non e' scontato.
+// Serve un contesto pulito: dopo la prova 10 la tabella resta in memoria e la
+// ricerca dentro l'archivio verrebbe giustamente saltata.
 console.log("\n\x1b[1m11. Tabella dei nomi dentro l'archivio\x1b[0m");
-const r5 = await esegui("finto_con_tabella.zip");
-check("trovata e usata da sola", /tabella dei nomi trovata dentro l'archivio/.test(r5.log),
-      (r5.log.match(/tabella dei nomi trovata.*/) || ["-"])[0]);
-check("60 strutture estratte senza caricare altro", r5.dati?.n === 60, `${r5.dati?.n}`);
-check("nessuna parte data per non trovata", !/non trovati/.test(r5.log));
+const ctx1 = await browser.newContext();
+const p1 = await ctx1.newPage();
+await p1.goto(url, { waitUntil: "load" });
+await p1.setInputFiles("#zip", `${PROVE}/finto_con_tabella.zip`);
+await p1.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+  FINE.source, { timeout: 300000, polling: 200 });
+const s11 = await p1.textContent("#stato"), log11 = await p1.textContent("#log");
+check("trovata e usata da sola", /tabella dei nomi trovata dentro l'archivio/.test(log11),
+      (log11.match(/tabella dei nomi trovata.*/) || ["-"])[0]);
+check("60 strutture estratte senza caricare altro", /^Pronto: 60 strutture/.test(s11), s11);
+check("nessuna parte data per non trovata", !/non trovati/.test(log11));
+check("la pagina dichiara la propria versione",
+      /\d{4}-\d{2}-\d{2}/.test(await p1.textContent("#ver")), await p1.textContent("#ver"));
+await ctx1.close();
 
-// Il numero di versione serve a capire, da una schermata, se il browser stia
-// mostrando la pagina aggiornata o una copia vecchia rimasta in cache.
-const versione = await page.textContent("#ver");
-check("la pagina dichiara la propria versione", /\d{4}-\d{2}-\d{2}/.test(versione), versione);
+// ── 12. L'ordine fra archivio e tabella non conta ──────────────────
+// Chi arriva alla pagina da' l'archivio per primo, che e' la cosa naturale.
+// Se poi serve la tabella, ripescare centoquaranta mega dall'app File e'
+// una seccatura evitabile: l'archivio si tiene da parte e si riprende da soli.
+console.log("\n\x1b[1m12. L'ordine fra archivio e tabella non conta\x1b[0m");
+const ctx2 = await browser.newContext();
+const p2 = await ctx2.newPage();
+const err2 = [];
+p2.on("pageerror", e => err2.push(String(e)));
+const fine2 = async () => {
+  await p2.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+    FINE.source, { timeout: 300000, polling: 200 });
+  return p2.textContent("#stato");
+};
+await p2.goto(url, { waitUntil: "load" });
+await p2.setInputFiles("#zip", `${PROVE}/finto_per_nome.zip`);
+const s1 = await fine2();
+check("archivio per primo: dice che serve la tabella", /Nomi diversi/.test(s1), s1);
+
+await p2.setInputFiles("#zip", `${PROVE}/finto_parts_list.txt`);
+const s2 = await fine2();
+check("tabella dopo: riprende l'archivio da solo, senza richiederlo",
+      /^Pronto:/.test(s2), s2);
+check("lo dice nel registro", /riprendo/.test(await p2.textContent("#log")));
+
+// La tabella e' piccola e ripescarla ogni volta e' la parte piu' scomoda.
+await p2.goto(url, { waitUntil: "load" });
+await p2.waitForTimeout(400);
+check("ricaricando la pagina la tabella e' ancora li'",
+      /Tabella gia/.test(await p2.textContent("#stato")), await p2.textContent("#stato"));
+await p2.setInputFiles("#zip", `${PROVE}/finto_per_nome.zip`);
+const s3 = await fine2();
+check("e l'archivio si legge subito", /^Pronto:/.test(s3), s3);
+check("nessun errore di pagina", err2.length === 0, err2.slice(0, 2).join(" | "));
+await ctx2.close();
 
 await browser.close();
 server.close();

@@ -160,7 +160,7 @@
 
   // Serve a capire, da una schermata, se il browser stia mostrando questa
   // pagina o una copia vecchia rimasta in cache.
-  const VERSIONE = "2026-07-30 · nomi";
+  const VERSIONE = "2026-07-30 · nomi 2";
   $("ver").textContent = VERSIONE;
 
   // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
@@ -190,8 +190,8 @@
     sterno:  { re: /\bsternum\b/ },
     mandibola: { re: /\bmandible\b/ },
     cranio:  { re: /\b(skull|cranium|frontal bone|parietal bone|occipital bone|temporal bone|sphenoid|ethmoid|maxilla|zygomatic bone|nasal bone|vomer|lacrimal bone|palatine bone)\b/, capi: 30 },
-    colonna: { re: /\bvertebra\b/,  capi: 30 },
-    coste:   { re: /\brib\b/,       capi: 30 },
+    colonna: { re: /\bvertebra\b/,  capi: 60 },
+    coste:   { re: /\brib\b/,       capi: 50 },
 
     deltoide:       { re: /\bdeltoid\b/,           lat: true, capi: 6 },
     bicipite:       { re: /\bbiceps brachii\b/,    lat: true, capi: 6 },
@@ -622,17 +622,31 @@
       return null;
     }
     TABELLA = mappa;
+    try { localStorage.setItem("nirscope-tabella", JSON.stringify(mappa)); } catch { /* niente */ }
     avanza(1);
+    if (zipInSospeso) {
+      const z = zipInSospeso; zipInSospeso = null;
+      stato("Tabella pronta. Riprendo l'archivio…", "good");
+      stampa("\nriprendo <b>" + esc(z.name) + "</b> con i nomi appena letti");
+      await pausa();
+      await elabora(z, true);
+      return mappa;
+    }
     stato(`Tabella pronta: ${chiavi.length} strutture. Adesso scegli l'archivio .zip.`, "good");
     return mappa;
   }
 
   // ── Elaborazione ───────────────────────────────────────────────────
   let risultato = null;
+  // L'ordine fra archivio e tabella non deve contare: se l'archivio e' arrivato
+  // per primo e non si e' potuto leggere, appena c'e' la tabella si riparte da
+  // soli invece di far ripescare lo stesso file dall'app File.
+  let zipInSospeso = null;
 
-  async function elabora(file) {
-    righe = []; risultato = null; $("btn-scarica").disabled = true;
-    $("info").textContent = `${file.name} · ${(file.size/1e6).toFixed(0)} MB`;
+  async function elabora(file, ripresa) {
+    if (!ripresa) righe = [];
+    risultato = null; $("btn-scarica").disabled = true;
+    $("info").textContent = `${file.name} · ${file.size < 1e6 ? (file.size/1e3).toFixed(0) + " kB" : (file.size/1e6).toFixed(0) + " MB"}`;
     if (typeof DecompressionStream === "undefined") {
       stato("Questo browser non sa decomprimere gli archivi: serve iPadOS 16.4 o piu' recente.", "err");
       return null;
@@ -723,8 +737,9 @@
         stampa(`\n<span class="no">Nessuno dei ${quantiFile(USA)} file cercati e' in questo archivio.</span>`);
         diagnostica(voci);
         avanza(1);
-        stato("Nomi diversi da quelli attesi. Scarica dalla stessa pagina di BodyParts3D la "
-            + "tabella dei nomi (parts_list, poche decine di kB), caricala qui e riprova.", "err");
+        zipInSospeso = file;    // appena arriva la tabella si riparte da soli
+        stato("Nomi diversi da quelli attesi. Carica qui la tabella dei nomi di BodyParts3D "
+            + "(parts_list, poche decine di kB): l'archivio lo riprendo da solo.", "err");
         return null;
       }
       // Anche una corrispondenza parziale merita di sapere com'e' fatto il
@@ -754,9 +769,29 @@
     }
   }
 
+  // La tabella si conserva fra una visita e l'altra: e' piccola, e ripescarla
+  // dall'app File ogni volta e' la parte piu' scomoda di tutto il giro.
+  try {
+    const salvata = localStorage.getItem("nirscope-tabella");
+    if (salvata) {
+      const m = JSON.parse(salvata);
+      if (m && Object.keys(m).length >= 10) {
+        TABELLA = m;
+        stampa(`tabella dei nomi gia' in memoria: ${Object.keys(m).length} strutture`, "ok");
+        stampa("scegli l'archivio, oppure ricarica la tabella per sostituirla.");
+        stato(`Tabella gia' pronta (${Object.keys(m).length} strutture). Scegli l'archivio.`, "good");
+      }
+    }
+  } catch { /* memoria non disponibile: si ricarica a mano */ }
+
   $("zip").addEventListener("change", (e) => {
     const f = e.target.files[0];
-    if (f) elabora(f);
+    if (!f) return;
+    // Azzerare subito: finche' non si legge il nuovo file lo stato mostrerebbe
+    // l'esito del precedente, e su un archivio da centoquaranta mega
+    // l'equivoco dura parecchio.
+    stato("Leggo il file…"); avanza(0.01);
+    elabora(f);
   });
   $("btn-scarica").addEventListener("click", () => {
     if (!risultato) return;
