@@ -83,9 +83,9 @@
     <p class="eyebrow">nirscope · preparatore</p>
     <h1>Le mesh anatomiche, preparate qui sull'iPad</h1>
     <p class="lede">
-      Dell'archivio BodyParts3D servono 126 file su circa tremila. Questa pagina li estrae,
+      Dell'archivio BodyParts3D servono 173 modelli su circa tremila. Questa pagina li estrae,
       unisce i capi di ogni muscolo, riduce la risoluzione e ti restituisce un file solo da
-      qualche mega. Niente computer, niente rete: tutto nel browser.
+      qualche mega. Niente computer, niente da estrarre: tutto nel browser.
     </p>
   </header>
 
@@ -94,23 +94,24 @@
     <div class="card-body">
       <ol>
         <li><b>Non serve estrarre lo zip.</b> Lasciato compresso va benissimo — anzi, meglio:
-            leggo solo l'indice e i modelli che servono, non il resto.</li>
+            leggo solo l'indice e i 173 modelli che servono, non il resto.</li>
         <li><b>Tocca il riquadro qui sotto</b> e scegli l'archivio dall'app File.</li>
         <li><b>Aspetta.</b> Un minuto o due, con l'avanzamento sotto.</li>
         <li><b>Salva il file</b> che ti propone e caricalo in
             <a href="anatomia.html">anatomia.html</a>.</li>
       </ol>
       <p style="margin-top:14px">
-        <b>Se dice che i nomi non corrispondono:</b> gli identificativi cambiano da un pacchetto
-        all'altro. Serve la <em>tabella dei nomi</em> di BodyParts3D — <code>parts_list</code>,
-        poche decine di kB. Se sta dentro l'archivio la trovo da solo; altrimenti scaricala e
-        caricala qui prima dell'archivio. A quel punto le strutture si riconoscono dal nome
-        anatomico e l'identificativo non conta piu'.
+        <b>Quale archivio.</b> Quello dell'albero IS-A: <code>isa_BP3D_4.0_obj_99.zip</code>, sui
+        140 MB. Gli identificativi dei 173 modelli sono gia' qui dentro, ricavati dai metadati
+        veri: non serve altro.
       </p>
       <p>
-        Se l'app File te la mostra in grigio, e' perche' l'ha scaricata senza estensione: tienila
-        premuta, <em>Rinomina</em>, e aggiungi <code>.txt</code> in fondo. Il contenuto lo
-        riconosco comunque da solo, l'estensione serve solo a iOS per farti toccare il file.
+        <b>Se usi un pacchetto diverso</b> e dice che i nomi non corrispondono, carica anche
+        <code>element_parts</code> — o <code>parts_list</code> insieme a <code>element_parts</code>
+        — e le strutture si riconoscono dal nome anatomico invece che dall'identificativo.
+        L'ordine non conta e le tabelle restano in memoria. Se l'app File te le mostra in grigio
+        e' perche' le ha scaricate senza estensione: tienile premute, <em>Rinomina</em>, aggiungi
+        <code>.txt</code>.
       </p>
     </div>
   </section>
@@ -133,7 +134,7 @@
     <p>
       <strong>Perché non serve un giga di memoria.</strong> Un file scelto dall'app File si può
       leggere a fette senza caricarlo tutto: leggo la coda dell'archivio per l'indice, poi solo i
-      126 blocchi che mi servono. Di un archivio da un giga ne attraverso una sessantina di mega.
+      173 blocchi che mi servono. Di un archivio da 140 mega ne attraverso una decina.
     </p>
     <p>
       Fonte: BodyParts3D, The Database Center for Life Science, licenza CC-BY-SA 2.1 Giappone.
@@ -160,14 +161,18 @@
 
   // Serve a capire, da una schermata, se il browser stia mostrando questa
   // pagina o una copia vecchia rimasta in cache.
-  const VERSIONE = "2026-07-30 · due tabelle";
+  const VERSIONE = "2026-07-30 · mappa vera";
   $("ver").textContent = VERSIONE;
 
   // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
   // compongono. Risolti sui metadati reali dell'archivio: i muscoli non
   // esistono interi ma per capi, quindi il bicipite sono due file e il
   // tricipite tre.
-  const MAPPA = {"adduttore_dx":["BP4982"],"adduttore_sx":["BP8972"],"bacino_dx":["BP8768"],"bacino_sx":["BP8950"],"bicipite_dx":["BP5558","BP5566"],"bicipite_fem_dx":["BP5575","BP5573"],"bicipite_fem_sx":["BP8331","BP8616"],"bicipite_sx":["BP9153","BP8816"],"brachioradiale_dx":["BP4833"],"brachioradiale_sx":["BP8244"],"clavicola_dx":["BP9271"],"clavicola_sx":["BP8841"],"colonna":["BP8981","BP8475","BP8726","BP9156","BP8643","BP8303","BP8840","BP9221","BP8178","BP8412","BP8043","BP9250","BP9108","BP8003","BP8835","BP7845","BP7979","BP8948","BP8995","BP8227","BP8133","BP8280"],"coste":["BP8342","BP8997","BP8358","BP8082","BP8480","BP8212","BP8709","BP8882","BP8439","BP8408","BP8952","BP9062"],"cranio":["BP8209","BP9177","BP8875","BP7991","BP8991","BP9057","BP9209","BP8309","BP9046"],"deltoide_dx":["BP7573","BP7571","BP5607"],"deltoide_sx":["BP8259","BP9075","BP8151"],"dentato_dx":["BP4782"],"dentato_sx":["BP8760"],"femore_dx":["BP8920"],"femore_sx":["BP9042"],"gastrocnemio_dx":["BP5539","BP5541"],"gastrocnemio_sx":["BP9217","BP7939"],"gluteo_dx":["BP5065"],"gluteo_sx":["BP8401"],"mandibola":["BP8107"],"obliquo_dx":["BP4967"],"obliquo_sx":["BP8154"],"omero_dx":["BP9206"],"omero_sx":["BP9191"],"perone_dx":["BP8009"],"perone_sx":["BP8251"],"pettorale_dx":["BP5582","BP5615","BP5613"],"pettorale_sx":["BP9095","BP7862","BP8323"],"radio_dx":["BP8464"],"radio_sx":["BP9059"],"retto_femorale_dx":["BP5598"],"retto_femorale_sx":["BP8094"],"rotula_dx":["BP8390"],"rotula_sx":["BP8378"],"sacro":["BP9174"],"scapola_dx":["BP9101"],"scapola_sx":["BP9121"],"semitendinoso_dx":["BP4991"],"semitendinoso_sx":["BP9066"],"soleo_dx":["BP4999"],"soleo_sx":["BP8819"],"sterno":["BP8989"],"tibia_dx":["BP8031"],"tibia_sx":["BP9202"],"tibiale_ant_dx":["BP5018"],"tibiale_ant_sx":["BP8720"],"trapezio_dx":["BP5638","BP5610","BP5636"],"trapezio_sx":["BP8225","BP8252","BP8267"],"tricipite_dx":["BP5562","BP5550","BP5564"],"tricipite_sx":["BP8257","BP8525","BP8344"],"ulna_dx":["BP8233"],"ulna_sx":["BP9070"],"vasto_dx":["BP5602","BP5600","BP5604"],"vasto_sx":["BP8754","BP9128","BP9207"]};
+  // Le 60 strutture con gli identificativi dei modelli, risolti sui metadati
+  // veri di BodyParts3D (isa_element_parts): sono i nomi dei file .obj
+  // dentro isa_BP3D_4.0_obj_99.zip. Non piu' un'ipotesi — 173 modelli
+  // ricavati incrociando i nomi anatomici con la tabella degli elementi.
+  const MAPPA = {"femore_dx":["FJ3365"],"femore_sx":["FJ3259"],"tibia_dx":["FJ3387"],"tibia_sx":["FJ3282"],"perone_dx":["FJ3366"],"perone_sx":["FJ3260"],"omero_dx":["FJ3368"],"omero_sx":["FJ3262"],"radio_dx":["FJ3349"],"radio_sx":["FJ3277"],"ulna_dx":["FJ3391"],"ulna_sx":["FJ3286"],"rotula_dx":["FJ3381"],"rotula_sx":["FJ3275"],"scapola_dx":["FJ3384"],"scapola_sx":["FJ3279"],"clavicola_dx":["FJ3362"],"clavicola_sx":["FJ3237"],"bacino_dx":["FJ3152"],"bacino_sx":["FJ3288"],"sacro":["FJ3393"],"sterno":["FJ3178","FJ3290"],"mandibola":["FJ3289"],"cranio":["FJ3274","FJ3380","FJ3395","FJ3269","FJ3375","FJ3200","FJ3309","FJ3394","FJ3281","FJ3386","FJ3199","FJ3265","FJ3371","FJ3272","FJ3378","FJ3273","FJ3379","FJ3287","FJ3392"],"colonna":["FJ3154","FJ3155","FJ3156","FJ3158","FJ3160","FJ3163","FJ3166","FJ3169","FJ3171","FJ3173","FJ3174","FJ3175","FJ3157","FJ3159","FJ3161","FJ3162","FJ3164","FJ3165","FJ3167","FJ3168","FJ3170","FJ3172","FJ3176","FJ3177","FJ3203","FJ3204","FJ3205","FJ3206","FJ3207","FJ3208","FJ3209","FJ3210","FJ3222","FJ3223","FJ3224","FJ3212","FJ3214","FJ3215","FJ3216","FJ3217","FJ3202","FJ3213","FJ3218","FJ3219","FJ3220","FJ3221"],"coste":["FJ3225","FJ3226","FJ3227","FJ3228","FJ3229","FJ3230","FJ3231","FJ3232","FJ3233","FJ3234","FJ3235","FJ3236","FJ3330","FJ3331","FJ3332","FJ3334","FJ3336","FJ3338","FJ3340","FJ3342","FJ3344","FJ3346","FJ3347","FJ3348"],"deltoide_dx":["FJ1468","FJ1467","FJ1513"],"deltoide_sx":["FJ1468M","FJ1467M","FJ1513M"],"bicipite_dx":["FJ1512","FJ1478"],"bicipite_sx":["FJ1512M","FJ1478M"],"tricipite_dx":["FJ1480","FJ1477","FJ1479"],"tricipite_sx":["FJ1480M","FJ1477M","FJ1479M"],"brachioradiale_dx":["FJ1487"],"brachioradiale_sx":["FJ1487M"],"pettorale_dx":["FJ1447","FJ1446","FJ1464"],"pettorale_sx":["FJ1447M","FJ1446M","FJ1464M"],"dentato_dx":["FJ1459"],"dentato_sx":["FJ1459M"],"trapezio_dx":["FJ1520","FJ1554","FJ1521"],"trapezio_sx":["FJ1520M","FJ1554M","FJ1521M"],"obliquo_dx":["FJ1452"],"obliquo_sx":["FJ1452M"],"gluteo_dx":["FJ1418"],"gluteo_sx":["FJ1418M"],"adduttore_dx":["FJ1403"],"adduttore_sx":["FJ1403M"],"retto_femorale_dx":["FJ1433"],"retto_femorale_sx":["FJ1433M"],"vasto_dx":["FJ1442","FJ1443","FJ1441"],"vasto_sx":["FJ1442M","FJ1443M","FJ1441M"],"bicipite_fem_dx":["FJ1395","FJ1444"],"bicipite_fem_sx":["FJ1395M","FJ1444M"],"semitendinoso_dx":["FJ1436"],"semitendinoso_sx":["FJ1436M"],"gastrocnemio_dx":["FJ1397","FJ1394"],"gastrocnemio_sx":["FJ1397M","FJ1394M"],"soleo_dx":["FJ1437"],"soleo_sx":["FJ1437M"],"tibiale_ant_dx":["FJ1439"],"tibiale_ant_sx":["FJ1439M"]};
 
   // Le ossa reggono piu' dettaglio dei muscoli: hanno spigoli e creste che si
   // notano, mentre un ventre muscolare e' liscio e sopporta la riduzione.
@@ -616,7 +621,17 @@
         }
         // Ogni modello e' una parte a se': un organo composto ne ha molti, e
         // servono tutti perche' insieme fanno la struttura.
-        const parti = trovate.flatMap(v => v.ids.map(id => [id])).slice(0, 80);
+        // Categorie e pezzi singoli condividono gli stessi file: "vertebra",
+        // "thoracic vertebra" e "first thoracic vertebra" puntano allo stesso
+        // modello. Senza togliere i doppioni la stessa mesh finirebbe disegnata
+        // decine di volte — sui dati veri, 344 pezzi invece di 173.
+        const visti = new Set();
+        const parti = [];
+        for (const v of trovate) for (const id of v.ids) {
+          if (visti.has(id)) continue;
+          visti.add(id); parti.push([id]);
+        }
+        if (parti.length > 80) parti.length = 80;
         if (parti.length) mappa[chiave] = parti;
       }
     }
@@ -847,7 +862,7 @@
           for (const alt of parte) { v = cercaVoce(voci, alt); if (v) break; }
           if (!v) { persi.push(parte[0]); continue; }
           const m = leggiObj(await estrai(file, v));
-          if (m.F.length) { pezzi.push(m); letti++; } else persi.push(bp);
+          if (m.F.length) { pezzi.push(m); letti++; } else persi.push(parte[0]);
         }
         avanza(0.02 + 0.93 * (i + 1) / chiavi.length);
         if (!pezzi.length) { mancanti.push(`${k} (${USA[k].map(p => p[0]).join(", ")})`); await pausa(); continue; }

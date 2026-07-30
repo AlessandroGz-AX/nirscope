@@ -109,10 +109,14 @@ def scrivi_zip(nome, salta=(), stored=(), zip64=False, decoy=250):
     import os
     print("%-22s %8.2f MB" % (nome, os.path.getsize(nome) / 1e6))
 
+# I buchi si ricavano dalla mappa invece di elencare identificativi a mano:
+# cosi' restano validi anche quando la mappa cambia, e non c'e' modo di
+# lasciarci dentro codici che non esistono piu'.
 scrivi_zip("finto_bp3d.zip")
 scrivi_zip("finto_buchi.zip",
-           salta={"BP8920", "BP5566", "BP5562", "BP5550", "BP5564"},
-           stored={"BP9042", "BP8816"})
+           salta=set(MAPPA["femore_dx"]) | set(MAPPA["tricipite_dx"])
+                 | {MAPPA["bicipite_dx"][0]},
+           stored=set(MAPPA["femore_sx"]) | {MAPPA["bicipite_sx"][0]})
 
 # Un archivio con un'altra convenzione di nomi: e' il caso capitato davvero,
 # l'archivio giusto ma con identificativi che la mappa non conosce.

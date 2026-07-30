@@ -1,13 +1,26 @@
 # Mesh anatomiche — cosa serve e perche'
 
-`mappa-bodyparts3d.json` elenca **60 strutture** composte da **126 file**
-`BPxxxx.obj` di BodyParts3D: 26 ossa e 34 muscoli. La mappa e' risolta sui
-metadati reali dell'archivio, non indovinata.
+`mappa-bodyparts3d.json` elenca **60 strutture** composte da **173 modelli**
+`FJxxxx.obj` di BodyParts3D: 26 ossa e 34 muscoli. La mappa e' risolta sui
+metadati reali, non indovinata — ed e' costata tre ipotesi sbagliate.
 
-## Tre cose che si scoprono solo guardando i metadati veri
+## Quattro cose che si scoprono solo guardando i metadati veri
 
-**I file non si chiamano `FMAxxxx.obj`.** L'identificativo di concetto (FMA) e
-quello di rappresentazione (BP) sono diversi, e i file portano il secondo.
+**I file non si chiamano ne' `FMAxxxx.obj` ne' `BPxxxx.obj`.** BodyParts3D usa
+tre serie di identificativi: `FMA` per il concetto anatomico, `BP` per la sua
+rappresentazione, `FJ` per il singolo file di poligoni. I modelli portano il
+terzo, e nessuna tabella di corrispondenza lo lascia intuire dagli altri due.
+
+**Nome e modello non stanno sulla stessa riga di `parts_list`.**
+`isa_parts_list_e.txt` associa concetto, rappresentazione e nome inglese, ma non
+i file. Quelli sono in `isa_element_parts.txt`, che ha concetto, nome e
+`element file id` — ed e' l'unico file che serve, perche' porta nome e modello
+insieme.
+
+**Categorie e pezzi condividono i file.** "vertebra", "thoracic vertebra" e
+"first thoracic vertebra" puntano allo stesso modello: sommandole senza togliere
+i doppioni si passa da 173 pezzi a 344, e la colonna vertebrale viene disegnata
+due volte e mezzo.
 
 **I muscoli non esistono interi.** BodyParts3D li distribuisce per capi e parti:
 il bicipite brachiale e' `short head` piu' `long head`, il tricipite tre capi, il

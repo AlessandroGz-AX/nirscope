@@ -97,7 +97,7 @@ console.log("\n\x1b[1m1. Mappa e classificazione\x1b[0m");
 await page.goto(url, { waitUntil: "load" });
 const c = await page.evaluate(() => window.__prep.conteggi());
 check("60 strutture", c.strutture === 60, `${c.strutture}`);
-check("126 file", c.file === 126, `${c.file}`);
+check("173 modelli", c.file === 173, `${c.file}`);
 check("26 ossa / 34 muscoli", c.ossa === 26, `${c.ossa} ossa`);
 const tib = await page.evaluate(() => [window.__prep.isOsso("tibia_dx"),
                                        window.__prep.isOsso("tibiale_ant_dx"),
@@ -389,6 +389,59 @@ check("e lo dice", /presi \d+ interi invece di/.test(l13),
 check("nessuna parte data per non trovata", !/non trovati/.test(l13));
 check("nessun errore di pagina", err3.length === 0, err3.slice(0, 2).join(" | "));
 await ctx3.close();
+
+
+// ── 14. I nomi veri di BodyParts3D ─────────────────────────────────
+// L'estratto contiene le righe vere di isa_element_parts — vocabolario,
+// ortografia e trappole originali — e l'archivio usa i codici FJ veri. E' la
+// prova che conta: qui il riconoscimento gira sul linguaggio dell'archivio,
+// non su nomi che mi sono inventato io.
+console.log("\n\x1b[1m14. Sul vocabolario vero di BodyParts3D\x1b[0m");
+const ctx4 = await browser.newContext();
+const p4 = await ctx4.newPage();
+const err4 = [];
+p4.on("pageerror", e => err4.push(String(e)));
+const fine4 = async () => {
+  await p4.waitForFunction((re) => new RegExp(re).test(document.getElementById("stato").textContent),
+    FINE.source, { timeout: 300000, polling: 200 });
+  return p4.textContent("#stato");
+};
+
+// (a) con la mappa gia' dentro la pagina: basta l'archivio.
+await p4.goto(url, { waitUntil: "load" });
+await p4.setInputFiles("#zip", `${PROVE}/finto_reale.zip`);
+const sA = await fine4(), lA = await p4.textContent("#log");
+check("col solo archivio, senza tabelle", /^Pronto: 60 strutture/.test(sA), sA);
+check("nessun modello mancante", !/senza file/.test(lA),
+      (lA.match(/\d+ strutture senza file/) || ["-"])[0]);
+check("le coste sono ventiquattro", /coste\s+24 pz/.test(lA),
+      (lA.match(/coste\s+\d+ pz/) || ["-"])[0]);
+check("il deltoide ha le sue tre parti", /deltoide_dx\s+3 pz/.test(lA),
+      (lA.match(/deltoide_dx\s+\d+ pz/) || ["-"])[0]);
+check("il vasto ha i tre capi", /vasto_dx\s+3 pz/.test(lA),
+      (lA.match(/vasto_dx\s+\d+ pz/) || ["-"])[0]);
+const dA = await (async () => { const t = p4; const b = await t.evaluate(async () => {
+  const r = window.__prep.risultato; if (!r) return null;
+  const buf = await r.arrayBuffer(); return new DataView(buf).getUint32(8, true); }); return b; })();
+check("60 strutture nel file prodotto", dA === 60, `${dA}`);
+
+// (b) partendo dalla tabella vera, senza la mappa: stesso risultato.
+await p4.goto(url, { waitUntil: "load" });
+await p4.evaluate(() => { window.__prep.MAPPA && Object.keys(window.__prep.MAPPA)
+  .forEach(k => delete window.__prep.MAPPA[k]); });
+await p4.setInputFiles("#zip", `${PROVE}/bp3d-estratto.txt`);
+await fine4();
+await p4.setInputFiles("#zip", `${PROVE}/finto_reale.zip`);
+const sB = await fine4(), lB = await p4.textContent("#log");
+check("dalla tabella vera si arriva allo stesso punto", /^Pronto: 60 strutture/.test(sB), sB);
+check("60 riconosciute per nome", /60 strutture riconosciute su 60/.test(lB),
+      (lB.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
+// Le categorie e i pezzi condividono i file: senza togliere i doppioni la
+// colonna vertebrale verrebbe disegnata due volte e mezzo.
+check("i doppioni fra categorie e pezzi sono tolti", !/colonna\s+1[0-9][0-9] pz/.test(lB),
+      (lB.match(/colonna\s+\d+ pz/) || ["-"])[0]);
+check("nessun errore di pagina", err4.length === 0, err4.slice(0, 2).join(" | "));
+await ctx4.close();
 
 await browser.close();
 server.close();
