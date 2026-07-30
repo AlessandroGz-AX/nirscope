@@ -90,7 +90,7 @@
   </header>
 
   <section class="card">
-    <div class="card-head"><h2>Cosa fare</h2><span class="eyebrow">Due minuti</span></div>
+    <div class="card-head"><h2>Cosa fare</h2><span class="eyebrow" id="ver">versione —</span></div>
     <div class="card-body">
       <ol>
         <li><b>Non serve estrarre lo zip.</b> Lasciato compresso va benissimo — anzi, meglio:
@@ -102,9 +102,15 @@
       </ol>
       <p style="margin-top:14px">
         <b>Se dice che i nomi non corrispondono:</b> gli identificativi cambiano da un pacchetto
-        all'altro. Scarica dalla stessa pagina di BodyParts3D la <em>tabella dei nomi</em> —
-        <code>parts_list</code>, poche decine di kB — e caricala qui prima dell'archivio. A quel
-        punto le strutture si riconoscono dal nome anatomico e l'identificativo non conta piu'.
+        all'altro. Serve la <em>tabella dei nomi</em> di BodyParts3D — <code>parts_list</code>,
+        poche decine di kB. Se sta dentro l'archivio la trovo da solo; altrimenti scaricala e
+        caricala qui prima dell'archivio. A quel punto le strutture si riconoscono dal nome
+        anatomico e l'identificativo non conta piu'.
+      </p>
+      <p>
+        Se l'app File te la mostra in grigio, e' perche' l'ha scaricata senza estensione: tienila
+        premuta, <em>Rinomina</em>, e aggiungi <code>.txt</code> in fondo. Il contenuto lo
+        riconosco comunque da solo, l'estensione serve solo a iOS per farti toccare il file.
       </p>
     </div>
   </section>
@@ -151,6 +157,11 @@
   const stato = (t, cls) => { $("stato").textContent = t; $("stato").className = "stato " + (cls || ""); };
   const avanza = (f) => { $("prog").style.width = (Math.max(0, Math.min(1, f)) * 100).toFixed(1) + "%"; };
   const pausa = () => new Promise(r => setTimeout(r, 0));
+
+  // Serve a capire, da una schermata, se il browser stia mostrando questa
+  // pagina o una copia vecchia rimasta in cache.
+  const VERSIONE = "2026-07-30 · nomi";
+  $("ver").textContent = VERSIONE;
 
   // Le 60 strutture, ognuna formata dagli identificativi BodyParts3D che la
   // compongono. Risolti sui metadati reali dell'archivio: i muscoli non
@@ -643,6 +654,25 @@
       stato("Leggo l'indice dell'archivio…"); avanza(0.02);
       stampa(`<b>${file.name}</b> — ${(file.size/1e6).toFixed(1)} MB`);
       const { voci, zip64 } = await indice(file);
+
+      // Alcuni pacchetti si portano dentro la tabella dei nomi. Se c'e', si usa
+      // senza star li' a chiederla: un file in meno da procurarsi.
+      if (!TABELLA) {
+        for (const [base, v] of voci) {
+          if (!/(parts?[_-]?list|element[_-]?parts)/i.test(base) || /\.obj$/i.test(base)) continue;
+          try {
+            const t = new TextDecoder().decode(await estrai(file, v));
+            const vv = analizzaTabella(t);
+            if (vv.length < 20) continue;
+            const { mappa } = risolviPerNome(vv);
+            if (Object.keys(mappa).length < 10) continue;
+            TABELLA = mappa;
+            stampa(`tabella dei nomi trovata dentro l'archivio: ${esc(v.nome)}`, "ok");
+            stampa(`  ${Object.keys(mappa).length} strutture riconosciute per nome`);
+            break;
+          } catch { /* non era leggibile, si prosegue */ }
+        }
+      }
       stampa(`indice: ${voci.size} file${zip64 ? " (formato ZIP64)" : ""}`);
 
       // Se e' stata caricata la tabella dei nomi si usa quella: e' risolta

@@ -277,6 +277,22 @@ check("tipi osso/muscolo corretti", d.strutture.filter(x => x.tipo === 0).length
 check("tendini, legamenti e fasce restano fuori",
       !/tendon|ligament|fascia/.test(perNomeLog));
 
+
+// ── 11. Tabella dentro l'archivio ──────────────────────────────────
+// Se il pacchetto se la porta dentro non c'e' motivo di chiederla a parte:
+// un file in meno da procurarsi, e su un iPad procurarselo non e' scontato.
+console.log("\n\x1b[1m11. Tabella dei nomi dentro l'archivio\x1b[0m");
+const r5 = await esegui("finto_con_tabella.zip");
+check("trovata e usata da sola", /tabella dei nomi trovata dentro l'archivio/.test(r5.log),
+      (r5.log.match(/tabella dei nomi trovata.*/) || ["-"])[0]);
+check("60 strutture estratte senza caricare altro", r5.dati?.n === 60, `${r5.dati?.n}`);
+check("nessuna parte data per non trovata", !/non trovati/.test(r5.log));
+
+// Il numero di versione serve a capire, da una schermata, se il browser stia
+// mostrando la pagina aggiornata o una copia vecchia rimasta in cache.
+const versione = await page.textContent("#ver");
+check("la pagina dichiara la propria versione", /\d{4}-\d{2}-\d{2}/.test(versione), versione);
+
 await browser.close();
 server.close();
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);
