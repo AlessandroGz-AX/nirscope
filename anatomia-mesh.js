@@ -281,7 +281,13 @@ export function derivaScheletro(mappa) {
   if (A.spalla_dx && A.spalla_sx) A.midSpalle = meta(A.spalla_dx, A.spalla_sx);
   if (!A.midAnche) A.midAnche = bacino;
   if (!A.midSpalle) A.midSpalle = add(bacino, mul(su, len(sub(testa, bacino)) * 0.62));
-  A.testa = testa;
+  // Dal vivo il segmento della testa finisce sul naso, che sporge in avanti. A
+  // riposo finiva nel baricentro del cranio, quasi a piombo sopra le spalle:
+  // due assi con inclinazioni diverse, e il cranio usciva ruotato di mezzo
+  // giro. L'ancora giusta e' la parte piu' anteriore del cranio, che e' il
+  // massiccio facciale — l'equivalente del naso.
+  const gCranio = [...G("cranio"), ...G("mandibola")];
+  A.testa = gCranio.length ? estremoGruppo(gCranio, avanti, 0.03, +1) : testa;
 
   return { su, laterale, avanti, ancore: A, bacino, avvisi, scambiaLati,
            altezzaTronco: len(sub(A.midSpalle, A.midAnche)) };
@@ -362,10 +368,17 @@ export const SEGMENTI = {
  *  agganciate a un riferimento esterno per non ruotare a caso attorno all'asse. */
 export function frameSegmento(a, b, rifSu, rifAvanti) {
   const asse = norm(sub(b, a));
-  // Se l'asse e' quasi parallelo al riferimento verticale, il prodotto vettore
-  // degenera: si passa all'altro riferimento.
-  let lat = cross(rifSu, asse);
-  if (len(lat) < 0.15) lat = cross(rifAvanti, asse);
+  // Il riferimento e' l'anteriore, non il verticale: le ossa sono quasi tutte
+  // verticali, e con il verticale il prodotto vettore degenera proprio nel caso
+  // comune. Il verticale resta come ripiego per i pochi segmenti puntati in
+  // avanti.
+  //
+  // Conta che riposo e vivo scelgano lo stesso ramo. Prima la soglia era secca
+  // su un riferimento solo: la testa a riposo stava a mezzo grado dalla
+  // verticale e prendeva il ripiego, dal vivo a diciotto e prendeva l'altro, e
+  // il cranio compariva girato di 180 gradi.
+  let lat = cross(rifAvanti, asse);
+  if (len(lat) < 0.25) lat = cross(rifSu, asse);
   lat = norm(lat);
   return { asse, laterale: lat, avanti: norm(cross(asse, lat)) };
 }

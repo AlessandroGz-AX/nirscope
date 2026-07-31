@@ -350,7 +350,10 @@ function montaMesh(strutture, sk) {
     perStruttura.set(chiave, { mesh, mat, l: g.l, tipo: g.tipo, muscolo: g.muscolo,
                                pezzi: g.pezzi });
   }
-  return { pronte: pronte.length, fuori, gruppi: gruppi.size, conta };
+  const perSegmento = {};
+  for (const nome of Object.keys(SEGMENTI)) perSegmento[nome] = 0;
+  for (const l of pronte) perSegmento[l.segmento] = (perSegmento[l.segmento] || 0) + 1;
+  return { pronte: pronte.length, fuori, gruppi: gruppi.size, conta, perSegmento };
 }
 
 const M4 = new THREE.Matrix4();
@@ -392,7 +395,7 @@ cv.addEventListener("pointermove", (e) => {
 
 // ── Stato ──────────────────────────────────────────────────────────
 let landmarker = null, running = false, riposo = null, ultimiPts = null;
-let scheletro = null;
+let scheletro = null, ultimoEsito = null;
 const strainLisciato = new Float32Array(MUSCOLI.length);
 
 // ── Caricamento delle mesh ─────────────────────────────────────────
@@ -441,15 +444,20 @@ function usaMesh(buf, daDeposito) {
   try {
     const strutture = leggiNira(buf);
     scheletro = derivaScheletro(new Map(strutture.map(s => [s.nome, s])));
-    const esito = montaMesh(strutture, scheletro);
+    const esito = ultimoEsito = montaMesh(strutture, scheletro);
     const { pronte, fuori } = esito;
     gruppoMesh.visible = true;
     $("btn-scorda").hidden = false;
     $("et-nira").textContent = "Sostituisci le mesh";
     const note = [];
     if (fuori.length) note.push(`${fuori.length} senza aggancio`);
-    if (esito.conta) note.push(`${esito.conta.vicinanza} collocate per vicinanza`);
+    if (esito.conta && esito.conta.vicinanza)
+      note.push(`${esito.conta.vicinanza} collocate per vicinanza invece che dal nome`);
     for (const a of scheletro.avvisi) note.push(a);
+    // Se una parte del corpo resta senza strutture si vede subito, e basta una
+    // schermata per dirlo.
+    const vuoti = Object.entries(esito.perSegmento || {}).filter(([, n]) => n === 0);
+    if (vuoti.length) note.push(`nessuna struttura su: ${vuoti.map(v => v[0]).join(", ")}`);
     st.className = note.length ? "status" : "status good";
     st.textContent = `Mesh caricate: ${pronte} strutture in ${esito.gruppi} gruppi`
       + (daDeposito ? " (dalla memoria del browser)" : "")
@@ -765,6 +773,8 @@ window.__anatomia = {
     // Posizione di ogni singola struttura, non solo del gruppo: si prende il
     // baricentro a riposo e gli si applica la matrice del gruppo, che e' la
     // stessa per tutti i suoi pezzi.
+    perSegmento: ultimoEsito?.perSegmento || null,
+    conta: ultimoEsito?.conta || null,
     posizioni: (() => {
       const out = {}, v3 = new THREE.Vector3();
       for (const [, g] of perStruttura) {

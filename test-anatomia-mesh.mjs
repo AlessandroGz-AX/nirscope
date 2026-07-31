@@ -402,5 +402,38 @@ check("i metatarsi sul piede del loro lato",
 check("le cartilagini costali sul tronco",
       gC.pronte.filter(p => /costal_cartilage/.test(p.nome)).every(p => p.segmento === "tronco"));
 
+
+// ── 11. La testa non deve uscire girata ────────────────────────────
+// Il segmento della testa e' quasi verticale a riposo e inclinato in avanti dal
+// vivo, perche' finisce sul naso. Se i due sistemi trasversali non concordano
+// il cranio compare ruotato — ed e' successo: 180 gradi esatti, perche' i due
+// assi finivano in due rami diversi della costruzione della terna.
+console.log("\n\x1b[1m11. Il cranio non esce girato\x1b[0m");
+{
+  const bR = readFileSync(new URL("./anatomia.nira", import.meta.url));
+  const M = leggiNira(bR.buffer.slice(bR.byteOffset, bR.byteOffset + bR.byteLength));
+  const skT = derivaScheletro(M);
+  const gT = preparaLegami(M, skT);
+  const su1 = [0, 1, 0], av1 = [0, 0, 1];
+  const proj = (v, base) => base.map(b => dot(v, b));
+  for (const [nome, a1, b1, base] of [
+    ["testa",     [0, 1.43, 0],    [0, 1.68, 0.08],  [[1,0,0], su1, av1]],
+    ["tronco",    [0, 0, 0],       [0, 0.48, 0],     [[1,0,0], su1, av1]],
+    ["femore_dx", [-0.09, 0, 0],   [-0.095, -0.44, 0], [[1,0,0], su1, av1]],
+    ["omero_dx",  [-0.19, 0.48, 0],[-0.21, 0.18, 0], [[1,0,0], su1, av1]],
+  ]) {
+    const l = gT.pronte.find(p => p.segmento === nome);
+    if (!l) { check(`${nome}: presente`, false); continue; }
+    const F1 = frameSegmento(a1, b1, su1, av1);
+    // Il laterale del segmento, letto nelle coordinate anatomiche dei due
+    // sistemi: se il modello e' agganciato bene devono coincidere.
+    const r = proj(l.frame.laterale, [skT.laterale, skT.su, skT.avanti]);
+    const v = proj(F1.laterale, base);
+    const ang = Math.acos(Math.max(-1, Math.min(1, dot(r, v)))) * 180 / Math.PI;
+    check(`${nome}: riposo e vivo concordano sulla rotazione`, ang < 25,
+          `${ang.toFixed(1)}°`);
+  }
+}
+
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);
 process.exit(ko ? 1 : 0);
