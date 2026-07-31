@@ -38,7 +38,7 @@ export function leggiNira(buffer) {
     }
     const pos = new Float32Array(buffer, o, nv * 3); o += nv * 12;
     const idx = new Uint32Array(buffer, o, nt * 3);  o += nt * 12;
-    out.push({ nome, osso: tipo === 0, pos, idx });
+    out.push({ nome, tipo, osso: tipo === 0, pos, idx });
   }
   return out;
 }
@@ -85,6 +85,72 @@ function estremita(s, su) {
   return [estremo(s, su, 0.03, +1), estremo(s, su, 0.03, -1)];
 }
 
+// ── Riconoscere le strutture chiave ────────────────────────────────
+// Il file puo' venire dalla mappa ridotta a sessanta strutture, con le chiavi
+// in italiano, o dal catalogo completo, dove i nomi sono quelli inglesi di
+// BodyParts3D: "left_femur", "tenth_thoracic_vertebra", "frontal_bone". Qui si
+// riconoscono le poche che servono a orientare il modello, in entrambi i modi.
+const LATO_DX = /(^|_)(dx|right)(_|$)/, LATO_SX = /(^|_)(sx|left)(_|$)/;
+const CHIAVE = {
+  cranio:   /^cranio$|frontal_bone|parietal_bone|occipital_bone|temporal_bone|^sphenoid|^ethmoid/,
+  mandibola:/^mandibola$|^mandible/,
+  bacino:   /(^|_)bacino(_|$)|hip_bone|coxal_bone|innominate/,
+  sacro:    /^sacro$|^sacrum/,
+  colonna:  /^colonna$|vertebra/,
+  sterno:   /^sterno$|^sternum|manubrium/,
+  coste:    /^coste$|(^|_)rib(_|$)/,
+  femore:   /(^|_)femore(_|$)|(^|_)femur(_|$)/,
+  // Il confine e' necessario: senza, "tibia" pesca "tibiale anteriore",
+  // che e' un muscolo, e l'osso lungo risulterebbe dove non e'.
+  tibia:    /(^|_)tibia(_|$)/,
+  omero:    /(^|_)omero(_|$)|(^|_)humerus(_|$)/,
+  radio:    /(^|_)radio(_|$)|(^|_)radius(_|$)/,
+  ulna:     /(^|_)ulna(_|$)/,
+  scapola:  /(^|_)scapola(_|$)|(^|_)scapula(_|$)/,
+  rotula:   /(^|_)rotula(_|$)|(^|_)patella(_|$)/,
+  mano:     /carpal|carpus|metacarpal|phalanx_of_(left_|right_)?(thumb|index|middle|ring|little)/,
+  piede:    /talus|calcaneus|navicular|cuboid|cuneiform|metatarsal|phalanx_of_.*toe/,
+  pettorale:/(^|_)pettorale(_|$)|pectoralis/,
+  trapezio: /(^|_)trapezio(_|$)|trapezius/,
+};
+
+/** Le strutture che rispondono a una chiave, eventualmente di un lato solo. */
+function raccogli(strutture, chiave, lato) {
+  const re = CHIAVE[chiave];
+  return strutture.filter(s => re.test(s.nome) &&
+    (!lato || (lato === "dx" ? LATO_DX.test(s.nome) : LATO_SX.test(s.nome))));
+}
+
+/** Baricentro di un gruppo di strutture, pesato sul numero di vertici: una
+ *  vertebra da mille vertici non deve contare quanto il cranio intero. */
+function baricentroGruppo(gruppo) {
+  let x = 0, y = 0, z = 0, n = 0;
+  for (const s of gruppo) {
+    const c = s.pos.length / 3;
+    for (let i = 0; i < c; i++) { x += s.pos[i*3]; y += s.pos[i*3+1]; z += s.pos[i*3+2]; }
+    n += c;
+  }
+  return n ? [x/n, y/n, z/n] : null;
+}
+
+/** Estremo di un gruppo lungo una direzione. */
+function estremoGruppo(gruppo, dir, frazione = 0.03, verso = 1) {
+  const punti = [];
+  for (const s of gruppo) {
+    const c = s.pos.length / 3;
+    for (let i = 0; i < c; i++) {
+      const p = [s.pos[i*3], s.pos[i*3+1], s.pos[i*3+2]];
+      punti.push([verso * dot(p, dir), p]);
+    }
+  }
+  if (!punti.length) return null;
+  punti.sort((a, b) => b[0] - a[0]);
+  const quanti = Math.max(1, Math.floor(punti.length * frazione));
+  let x = 0, y = 0, z = 0;
+  for (let i = 0; i < quanti; i++) { x += punti[i][1][0]; y += punti[i][1][1]; z += punti[i][1][2]; }
+  return [x/quanti, y/quanti, z/quanti];
+}
+
 /** Sistema di riferimento e articolazioni dedotti dalle mesh.
  *
  *  Nessuna convenzione data per scontata: ne' quale asse sia il verticale, ne'
@@ -98,13 +164,11 @@ function estremita(s, su) {
  *  perche' uno scheletro specchiato sembra normale. */
 export function derivaScheletro(mappa) {
   const avvisi = [];
-  const c = (k) => mappa.has(k) ? baricentro(mappa.get(k)) : null;
+  const strutture = Array.isArray(mappa) ? mappa : [...mappa.values()];
+  const G = (k, lato) => raccogli(strutture, k, lato);
+  const c = (k, lato) => baricentroGruppo(G(k, lato));
 
-  const bacino = (() => {
-    const p = [c("bacino_dx"), c("bacino_sx"), c("sacro")].filter(Boolean);
-    if (!p.length) return null;
-    return mul(p.reduce(add, [0,0,0]), 1/p.length);
-  })();
+  const bacino = baricentroGruppo([...G("bacino"), ...G("sacro")]);
   const testa = c("cranio") || c("mandibola");
   if (!bacino || !testa) {
     throw new Error("Servono almeno bacino e cranio per orientare il modello.");
@@ -112,12 +176,15 @@ export function derivaScheletro(mappa) {
   const su = norm(sub(testa, bacino));
 
   // Un asse laterale qualsiasi, solo per avere una terna su cui lavorare.
+  const paio = (k) => {
+    const A = c(k, "dx"), B = c(k, "sx");
+    return A && B ? sub(B, A) : null;
+  };
   const coppia = (a, b) => {
     const A = c(a), B = c(b);
     return A && B ? sub(B, A) : null;
   };
-  let latGrezzo = coppia("femore_dx", "femore_sx") || coppia("scapola_dx", "scapola_sx")
-                || coppia("omero_dx", "omero_sx") || coppia("bacino_dx", "bacino_sx");
+  let latGrezzo = paio("femore") || paio("scapola") || paio("omero") || paio("bacino");
   if (!latGrezzo) throw new Error("Servono le ossa pari per capire destra e sinistra.");
   let laterale = norm(sub(latGrezzo, mul(su, dot(latGrezzo, su))));   // Gram-Schmidt
 
@@ -126,8 +193,10 @@ export function derivaScheletro(mappa) {
   // cosi' non conta dove esattamente sia il baricentro della colonna, che non
   // e' detto stia sulla linea mediana.
   const terzo = norm(cross(su, laterale));
-  const anteriori = coppia("colonna", "sterno") || coppia("trapezio_dx", "pettorale_dx")
-                 || coppia("colonna", "coste") || coppia("femore_dx", "rotula_dx");
+  const anteriori = coppia("colonna", "sterno")
+                 || (c("trapezio") && c("pettorale") ? sub(c("pettorale"), c("trapezio")) : null)
+                 || coppia("colonna", "coste")
+                 || (c("femore") && c("rotula") ? sub(c("rotula"), c("femore")) : null);
   let avanti;
   if (anteriori) {
     const segno = dot(anteriori, terzo);
@@ -164,10 +233,13 @@ export function derivaScheletro(mappa) {
 
   // Articolazioni dalle estremita' delle ossa lunghe.
   const A = {};
-  const lungo = (nome) => mappa.has(nome) ? estremita(mappa.get(nome), su) : null;
+  const lungo = (k, lato) => {
+    const g = G(k, lato);
+    return g.length ? [estremoGruppo(g, su, 0.03, +1), estremoGruppo(g, su, 0.03, -1)] : null;
+  };
   for (const lato of ["dx", "sx"]) {
-    const fem = lungo("femore_" + lato), tib = lungo("tibia_" + lato);
-    const ome = lungo("omero_" + lato), rad = lungo("radio_" + lato) || lungo("ulna_" + lato);
+    const fem = lungo("femore", lato), tib = lungo("tibia", lato);
+    const ome = lungo("omero", lato), rad = lungo("radio", lato) || lungo("ulna", lato);
     if (fem) { A["anca_" + lato] = fem[0]; A["ginocchio_" + lato] = fem[1]; }
     if (tib) {
       // Il ginocchio lo vedono sia il femore che la tibia: la media dei due e'
@@ -182,6 +254,26 @@ export function derivaScheletro(mappa) {
     }
     for (const g of ["anca", "ginocchio", "caviglia", "spalla", "gomito", "polso"]) {
       if (!A[g + "_" + lato]) avvisi.push(`manca l'osso per ricavare ${g} ${lato}`);
+    }
+  }
+
+  // Mano e piede: il punto piu' lontano dall'articolazione che li porta. Cosi'
+  // il segmento ha una lunghezza vera invece di finire sul polso.
+  for (const lato of ["dx", "sx"]) {
+    for (const [k, giunto, nome] of [["mano", "polso_" + lato, "mano_" + lato],
+                                     ["piede", "caviglia_" + lato, "piede_" + lato]]) {
+      const g = G(k, lato);
+      if (!g.length || !A[giunto]) continue;
+      let lontano = null, dm = 0;
+      for (const s of g) {
+        const n = s.pos.length / 3;
+        for (let i = 0; i < n; i++) {
+          const p = [s.pos[i*3], s.pos[i*3+1], s.pos[i*3+2]];
+          const d = len(sub(p, A[giunto]));
+          if (d > dm) { dm = d; lontano = p; }
+        }
+      }
+      if (lontano) A[nome] = lontano;
     }
   }
 
@@ -258,6 +350,12 @@ export const SEGMENTI = {
   femore_sx:       { ancore: ["anca_sx", "ginocchio_sx"],  lm: [23, 25] },
   tibia_dx:        { ancore: ["ginocchio_dx", "caviglia_dx"], lm: [26, 28] },
   tibia_sx:        { ancore: ["ginocchio_sx", "caviglia_sx"], lm: [25, 27] },
+  // Carpo, metacarpi e falangi: MediaPipe da' anche l'indice, quindi la mano ha
+  // un asse suo invece di restare appesa al polso.
+  mano_dx:         { ancore: ["polso_dx", "mano_dx"],       lm: [16, 20] },
+  mano_sx:         { ancore: ["polso_sx", "mano_sx"],       lm: [15, 19] },
+  piede_dx:        { ancore: ["caviglia_dx", "piede_dx"],   lm: [28, 32] },
+  piede_sx:        { ancore: ["caviglia_sx", "piede_sx"],   lm: [27, 31] },
 };
 
 /** Terna ortonormale di un segmento: l'asse, piu' due direzioni trasversali
@@ -272,19 +370,84 @@ export function frameSegmento(a, b, rifSu, rifAvanti) {
   return { asse, laterale: lat, avanti: norm(cross(asse, lat)) };
 }
 
+// ── A quale segmento appartiene ogni struttura ─────────────────────
+// Con seicento strutture la tabella scritta a mano non basta piu'. Il nome pero'
+// dice quasi sempre da che parte sta — BodyParts3D scrive "left femur",
+// "phalanx of right thumb" — e quel che il nome non dice lo dice la posizione.
+const REGOLE = [
+  // Muscoli oculari e palpebrali, e cartilagini della laringe: stanno in testa
+  // e al collo, e nessuno dei due gruppi si nomina come le ossa craniche.
+  [/(superior|inferior|medial|lateral)_rectus|obliquus_(superior|inferior)(_|$)|levator_palpebrae|palpebral|ciliary|stapedius|tensor_tympani|auricular|occipitofrontalis|epicranius|pterygoid|tensor_veli|levator_veli|palatoglossus|palatopharyngeus|styloglossus|hyoglossus|genioglossus|lingual|uvulae/, "testa", false],
+  [/cricoid|arytenoid|epiglottic|corniculate|cuneiform_cartilage|thyroid_cartilage|tracheal_cartilage|laryngeal|cricothyroid|thyroarytenoid|thyrohyoid|sternohyoid|sternothyroid|omohyoid|constrictor_of_pharynx/, "tronco", false],
+  [/cranial|frontal_bone|parietal|occipital|temporal_bone|sphenoid|ethmoid|vomer|maxilla|zygomatic|nasal_bone|lacrimal|palatine|concha|mandible|hyoid|tooth|incisor|canine|premolar|molar|masseter|temporalis|orbicularis|zygomaticus|buccinator|nasalis|mentalis|procerus|corrugator|risorius|digastric|mylohyoid|platysma|geniohyoid|stylohyoid/, "testa", false],
+  [/vertebra|sacrum|coccyx|(^|_)rib(_|$)|sternum|manubrium|xiphoid|costal_cartilage|hip_bone|coxal|scapula|clavicle|pelvi|multifidus|rotatores|semispinalis|spinalis|longissimus|iliocostalis|splenius|scalenus|sternocleidomastoid|intercostal|serratus|rhomboid|latissimus|trapezius|pectoralis|obliquus|transversus_abdominis|rectus_abdominis|quadratus_lumborum|psoas|iliacus|diaphragm|levator_scapulae|subclavius|pyramidalis|erector/, "tronco", false],
+  // I carpali hanno un nome proprio ciascuno e nessuno di loro contiene
+  // "carpal": senza elencarli finirebbero decisi per vicinanza, e il polso e'
+  // proprio il punto dove due segmenti si toccano.
+  [/carpal|carpus|metacarpal|scaphoid|lunate|triquetral|pisiform|trapezium|trapezoid|capitate|hamate|phalanx_of_.*(thumb|finger)|lumbrical|interosseous_of_.*hand|opponens|palmaris_brevis|pollicis|hypothenar|thenar|retinaculum_of_.*(wrist|hand)|palmar_aponeurosis/, "mano", true],
+  [/talus|calcaneus|navicular_bone|cuboid|cuneiform_bone|metatarsal|phalanx_of_.*toe|hallucis|digitorum_brevis|plantar|interosseous_of_.*foot|quadratus_plantae|sesamoid_bone_of_.*foot|retinaculum_of_.*(ankle|foot)/, "piede", true],
+  [/(^|_)humerus(_|$)|deltoid|biceps_brachii|triceps_brachii|coracobrachialis|brachialis(_|$)|subscapularis|supraspinatus|infraspinatus|teres_(major|minor)/, "omero", true],
+  [/(^|_)(radius|ulna)(_|$)|brachioradialis|pronator|supinator|anconeus|flexor_(carpi|digitorum|pollicis_longus)|extensor_(carpi|digitorum|indicis|pollicis)|palmaris_longus/, "avambraccio", true],
+  [/(^|_)femur(_|$)|patella|gluteus|adductor_(magnus|longus|brevis|minimus)|rectus_femoris|vastus|sartorius|gracilis|biceps_femoris|semitendinosus|semimembranosus|piriformis|pectineus|obturator|gemellus|tensor_fasciae/, "femore", true],
+  // Ultime reti: "of the right foot" dice tutto anche quando il nome del
+  // muscolo non e' fra quelli elencati.
+  [/_of_.*(foot|toe)(_|$)|_of_.*(foot|toe)$/, "piede", true],
+  [/_of_.*(hand|finger|thumb)(_|$)|_of_.*(hand|finger|thumb)$/, "mano", true],
+  [/femoris(_|$)|(^|_)femoris/, "femore", true],
+  [/perineal|levator_ani|coccygeus|sphincter|bulbospongiosus|ischiocavernosus/, "tronco", false],
+  [/(^|_)(tibia|fibula)(_|$)|gastrocnemius|soleus|tibialis|fibularis|peroneus|popliteus|plantaris|flexor_(hallucis|digitorum)_longus|extensor_(hallucis|digitorum)_longus/, "tibia", true],
+];
+
+/** Distanza di un punto dal segmento, non dalla retta: fuori dalle estremita'
+ *  conta la distanza dal capo, altrimenti una struttura del piede risulterebbe
+ *  vicinissima all'asse della tibia prolungato. */
+function distSegmento(p, a, b) {
+  const ab = sub(b, a), ap = sub(p, a);
+  const l2 = dot(ab, ab);
+  const t = l2 > 0 ? Math.max(0, Math.min(1, dot(ap, ab) / l2)) : 0;
+  return len(sub(p, add(a, mul(ab, t))));
+}
+
+/** Il segmento di una struttura: prima il nome, poi — se il nome non basta —
+ *  la vicinanza. Restituisce anche come si e' deciso, che serve a capire se il
+ *  modello e' stato interpretato bene o no. */
+export function segmentoDi(s, sk, override) {
+  if (override && override[s.nome]) return { segmento: override[s.nome], come: "tabella" };
+  const lato = LATO_DX.test(s.nome) ? "dx" : LATO_SX.test(s.nome) ? "sx" : null;
+  for (const [re, base, bilaterale] of REGOLE) {
+    if (!re.test(s.nome)) continue;
+    if (!bilaterale) return { segmento: base, come: "nome" };
+    if (lato && SEGMENTI[base + "_" + lato]) return { segmento: base + "_" + lato, come: "nome" };
+    break;   // il nome dice quale osso ma non quale lato: decide la posizione
+  }
+  const p = baricentroGruppo([s]);
+  let scelto = null, dm = Infinity;
+  for (const [nome, seg] of Object.entries(SEGMENTI)) {
+    const a = sk.ancore[seg.ancore[0]], b = sk.ancore[seg.ancore[1]];
+    if (!a || !b) continue;
+    if (lato && /_(dx|sx)$/.test(nome) && !nome.endsWith("_" + lato)) continue;
+    const d = distSegmento(p, a, b);
+    if (d < dm) { dm = d; scelto = nome; }
+  }
+  return { segmento: scelto, come: "vicinanza" };
+}
+
 /** Prepara, per ogni struttura, quel che serve a posizionarla a ogni
  *  fotogramma: il segmento, le ancore a riposo, la terna a riposo e la
  *  lunghezza a riposo. */
 export function preparaLegami(strutture, sk) {
   const fuori = [];
   const pronte = [];
+  const conta = { tabella: 0, nome: 0, vicinanza: 0 };
   for (const s of strutture) {
     // Se i lati sono scambiati si aggancia al segmento dell'altro lato: la mesh
     // di quello che la mappa chiama femore destro sta davvero sulla gamba
     // sinistra, e li' deve seguire i landmark.
     const chiave = sk.scambiaLati ? altroLato(s.nome) : s.nome;
-    const nomeSeg = LEGAMI[chiave];
+    const d = segmentoDi({ ...s, nome: chiave }, sk, LEGAMI);
+    const nomeSeg = d.segmento;
     const seg = nomeSeg && SEGMENTI[nomeSeg];
+    if (seg) conta[d.come]++;
     if (!seg) { fuori.push(s.nome); continue; }
     const a = sk.ancore[seg.ancore[0]], b = sk.ancore[seg.ancore[1]];
     if (!a || !b) { fuori.push(s.nome); continue; }
@@ -296,7 +459,7 @@ export function preparaLegami(strutture, sk) {
       frame: frameSegmento(a, b, sk.su, sk.avanti),
     });
   }
-  return { pronte, fuori };
+  return { pronte, fuori, conta };
 }
 
 /** Matrice che porta la struttura dalla posizione anatomica alla posa viva.

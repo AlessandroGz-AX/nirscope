@@ -96,9 +96,11 @@ const esegui = async (zip) => {
 console.log("\n\x1b[1m1. Mappa e classificazione\x1b[0m");
 await page.goto(url, { waitUntil: "load" });
 const c = await page.evaluate(() => window.__prep.conteggi());
-check("60 strutture", c.strutture === 60, `${c.strutture}`);
-check("173 modelli", c.file === 173, `${c.file}`);
-check("26 ossa / 34 muscoli", c.ossa === 26, `${c.ossa} ossa`);
+check("629 strutture", c.strutture === 629, `${c.strutture}`);
+check("629 modelli, uno per struttura", c.file === 629, `${c.file}`);
+check("225 ossa, 326 muscoli, 26 cartilagini, 28 denti, 24 legamenti",
+      JSON.stringify(c.tipi) === JSON.stringify({0:225,1:326,2:26,3:28,4:24}),
+      JSON.stringify(c.tipi));
 const tib = await page.evaluate(() => [window.__prep.isOsso("tibia_dx"),
                                        window.__prep.isOsso("tibiale_ant_dx"),
                                        window.__prep.isOsso("bicipite_fem_dx")]);
@@ -113,7 +115,7 @@ console.log(`  (${((Date.now()-t0)/1000).toFixed(1)} s)`);
 check("nessun errore di pagina", errori.length === 0, errori.slice(0,2).join(" | "));
 check("stato finale a buon fine", /^Pronto:/.test(r1.stato), r1.stato);
 check("magia NIRANAT1", r1.dati?.magia === "NIRANAT1", r1.dati?.magia);
-check("60 strutture nel file", r1.dati?.n === 60, `${r1.dati?.n}`);
+check("629 strutture nel file", r1.dati?.n === 629, `${r1.dati?.n}`);
 check("nessuna struttura mancante", !/senza file/.test(r1.log));
 check("lunghezza esatta (nessun byte avanzato)", r1.dati.letti === r1.dati.byte,
       `${r1.dati.letti} / ${r1.dati.byte}`);
@@ -192,19 +194,22 @@ console.log("\n\x1b[1m7. Buchi nell'archivio e voci non compresse\x1b[0m");
 const r3 = await esegui("finto_buchi.zip");
 const nomi3 = new Set(r3.dati.strutture.map(s => s.nome));
 check("va comunque a buon fine", /^Pronto:/.test(r3.stato), r3.stato);
-check("femore_dx (unico file assente) segnalato mancante", !nomi3.has("femore_dx"));
-check("tricipite_dx (tutti e tre i capi assenti) segnalato mancante", !nomi3.has("tricipite_dx"));
-check("bicipite_dx tenuto con il capo superstite", nomi3.has("bicipite_dx"));
-check("le mancanze sono elencate nel registro", /2 strutture senza file/.test(r3.log),
+check("right_femur (unico modello assente) segnalato mancante", !nomi3.has("right_femur"));
+check("le tre parti del deltoide destro tutte assenti",
+      !nomi3.has("acromial_part_of_right_deltoid") &&
+      !nomi3.has("clavicular_part_of_right_deltoid") &&
+      !nomi3.has("spinal_part_of_right_deltoid"));
+check("il deltoide sinistro non ne risente",
+      nomi3.has("acromial_part_of_left_deltoid"));
+check("le mancanze sono elencate nel registro", /4 strutture senza file/.test(r3.log),
       (r3.log.match(/\d+ strutture senza file/) || ["-"])[0]);
-check("58 strutture su 60", r3.dati.n === 58, `${r3.dati.n}`);
+check("625 strutture su 629", r3.dati.n === 625, `${r3.dati.n}`);
 // I due file scritti senza compressione devono essere letti lo stesso.
-check("femore_sx non compresso letto correttamente",
-      nomi3.has("femore_sx") && perNome["femore_sx"] &&
-      Math.abs(r3.dati.strutture.find(s=>s.nome==="femore_sx").vol - atteso["femore_sx"].vol)
-        / atteso["femore_sx"].vol < 0.05);
-check("bicipite_sx (un capo non compresso) letto correttamente",
-      r3.dati.strutture.find(s=>s.nome==="bicipite_sx")?.nt > 0);
+// Il femore sinistro e' scritto senza compressione: deve leggersi lo stesso.
+check("left_femur non compresso letto correttamente",
+      nomi3.has("left_femur") &&
+      Math.abs(r3.dati.strutture.find(s=>s.nome==="left_femur").vol - atteso["left_femur"].vol)
+        / atteso["left_femur"].vol < 0.05);
 
 // ── 8. File che non sono l'archivio giusto ─────────────────────────
 console.log("\n\x1b[1m8. File che non sono l'archivio giusto\x1b[0m");
@@ -271,12 +276,13 @@ check("sceglie la terza colonna, non la prima", /colonna 3 \(1049 nomi/.test(per
       (perNomeLog.match(/modelli: tabella.*/) || ["-"])[0]);
 check("e la seconda per il nome", /nomi: tabella 1, colonna 2/.test(perNomeLog),
       (perNomeLog.match(/nomi: tabella.*/) || ["-"])[0]);
-check("60 strutture riconosciute", /60 strutture riconosciute su 60/.test(perNomeLog),
+check("60 strutture riconosciute per nome", /60 strutture riconosciute su 60/.test(perNomeLog),
       (perNomeLog.match(/\d+ strutture riconosciute su \d+/) || ["-"])[0]);
-check("60 strutture estratte", d?.n === 60, `${d?.n}`);
+check("60 strutture estratte per nome", d?.n === 60, `${d?.n}`);
 check("nessuna parte data per non trovata", !/non trovati/.test(perNomeLog),
       (perNomeLog.match(/.*non trovati.*/) || [""])[0].trim());
-check("tipi osso/muscolo corretti", d.strutture.filter(x => x.tipo === 0).length === 26,
+check("26 ossa fra le 60 riconosciute per nome",
+      d.strutture.filter(x => x.tipo === 0).length === 26,
       `${d.strutture.filter(x => x.tipo === 0).length} ossa`);
 check("gli identificativi con la lettera in coda non si perdono",
       !/non trovati/.test(perNomeLog));
@@ -411,19 +417,47 @@ const fine4 = async () => {
 await p4.goto(url, { waitUntil: "load" });
 await p4.setInputFiles("#zip", `${PROVE}/finto_reale.zip`);
 const sA = await fine4(), lA = await p4.textContent("#log");
-check("col solo archivio, senza tabelle", /^Pronto: 60 strutture/.test(sA), sA);
+check("col solo archivio, con la mappa gia' in pagina",
+      /^Pronto: 629 strutture/.test(sA), sA);
 check("nessun modello mancante", !/senza file/.test(lA),
       (lA.match(/\d+ strutture senza file/) || ["-"])[0]);
-check("le coste sono ventiquattro", /coste\s+24 pz/.test(lA),
-      (lA.match(/coste\s+\d+ pz/) || ["-"])[0]);
-check("il deltoide ha le sue tre parti", /deltoide_dx\s+3 pz/.test(lA),
-      (lA.match(/deltoide_dx\s+\d+ pz/) || ["-"])[0]);
-check("il vasto ha i tre capi", /vasto_dx\s+3 pz/.test(lA),
-      (lA.match(/vasto_dx\s+\d+ pz/) || ["-"])[0]);
-const dA = await (async () => { const t = p4; const b = await t.evaluate(async () => {
+// Nel catalogo le parti non si fondono: le tre porzioni del deltoide sono tre
+// strutture distinte, ed e' questo che fa comparire i piani fra loro. Si
+// verifica leggendo i nomi dal file prodotto, non il registro.
+const prodotto = await p4.evaluate(async () => {
   const r = window.__prep.risultato; if (!r) return null;
-  const buf = await r.arrayBuffer(); return new DataView(buf).getUint32(8, true); }); return b; })();
-check("60 strutture nel file prodotto", dA === 60, `${dA}`);
+  const buf = await r.arrayBuffer(), dv = new DataView(buf), u8 = new Uint8Array(buf);
+  const n = dv.getUint32(8, true), nomi = [], dec = new TextDecoder();
+  let o = 12;
+  for (let i = 0; i < n; i++) {
+    const ln = dv.getUint8(o), nv = dv.getUint32(o+2, true), nt = dv.getUint32(o+6, true);
+    nomi.push(dec.decode(u8.subarray(o+10, o+10+ln)));
+    o += 10 + ln + ((4 - ((ln + 10) % 4)) % 4) + nv*12 + nt*12;
+  }
+  return { n, nomi };
+});
+const dA = prodotto?.n;
+const N = new Set(prodotto?.nomi || []);
+check("le tre parti del deltoide destro sono strutture distinte",
+      ["acromial", "clavicular", "spinal"].every(x => N.has(x + "_part_of_right_deltoid")),
+      [...N].filter(x => /right_deltoid/.test(x)).join(", "));
+check("i tre capi del vasto sono distinti",
+      ["lateralis", "medialis", "intermedius"].every(x => N.has("right_vastus_" + x)),
+      [...N].filter(x => /right_vastus/.test(x)).join(", "));
+check("le ossa del cranio sono separate, non un blocco unico",
+      N.has("frontal_bone") && N.has("left_parietal_bone") && N.has("right_temporal_bone"));
+check("le vertebre sono una per una",
+      [...N].filter(x => /vertebra/.test(x)).length > 20,
+      [...N].filter(x => /vertebra/.test(x)).length + " vertebre");
+check("ci sono le ossa della mano e del piede",
+      [...N].some(x => /metacarpal/.test(x)) && [...N].some(x => /metatarsal/.test(x)));
+// Sette paia, non dodici: solo le prime sette coste hanno una cartilagine
+// propria che arriva allo sterno. Dalla ottava alla decima si innestano sulla
+// settima, e le ultime due sono fluttuanti.
+check("ci sono le cartilagini costali, sette paia",
+      [...N].filter(x => /costal_cartilage/.test(x)).length === 14,
+      [...N].filter(x => /costal_cartilage/.test(x)).length + "");
+check("629 strutture nel file prodotto", dA === 629, `${dA}`);
 
 // (b) partendo dalla tabella vera, senza la mappa: stesso risultato.
 await p4.goto(url, { waitUntil: "load" });

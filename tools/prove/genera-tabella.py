@@ -61,7 +61,9 @@ def nomi():
 VOCI = nomi()
 # Identificativi del modello: forma diversa da quella della mappa scritta a
 # mano, e un pezzo con la lettera in coda come nell'archivio vero.
-ids = {n: ("FJ%04d%s" % (2000 + i, "a" if i % 9 == 0 else ""))
+# Fuori dall'intervallo dei codici veri: altrimenti i finti si scontrano con
+# quelli del catalogo e la prova passa per collisione invece che per merito.
+ids = {n: ("FX%05d%s" % (70000 + i, "a" if i % 9 == 0 else ""))
        for i, n in enumerate(VOCI)}
 
 # La colonna del modello NON e' la prima, e prima di lei c'e' un'altra colonna

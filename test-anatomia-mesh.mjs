@@ -360,5 +360,47 @@ const triR = reale.reduce((a, s) => a + s.idx.length / 3, 0);
 check("sotto i 400 mila triangoli", triR < 400000, `${triR.toLocaleString("it")}`);
 check("sotto gli 8 MB", b.byteLength < 8e6, `${(b.byteLength/1e6).toFixed(2)} MB`);
 
+
+// ── 10. Il catalogo completo ───────────────────────────────────────
+// Seicentoventinove strutture coi nomi veri di BodyParts3D: e' il salto da
+// sessanta blocchi fusi alle singole ossa craniche, alle vertebre una per una,
+// alle ossa di mano e piede. Le forme qui sono blocchetti — quel che si prova
+// e' che la catena regga quel numero e che i nomi bastino a collocarle.
+console.log("\n\x1b[1m10. Il catalogo completo di BodyParts3D\x1b[0m");
+const bc = readFileSync(new URL("./tools/prove/catalogo.nira", import.meta.url));
+const cat = leggiNira(bc.buffer.slice(bc.byteOffset, bc.byteOffset + bc.byteLength));
+check("629 strutture", cat.length === 629, `${cat.length}`);
+const tipiCat = cat.reduce((a, s) => (a[s.tipo] = (a[s.tipo] || 0) + 1, a), {});
+check("cinque tipi: ossa, muscoli, cartilagini, denti, legamenti",
+      Object.keys(tipiCat).length === 5, JSON.stringify(tipiCat));
+const skC = derivaScheletro(cat);
+check("orientamento dedotto dai soli nomi inglesi", skC.avvisi.length === 0, skC.avvisi.join("; "));
+check("lati non scambiati", skC.scambiaLati === false);
+// Le ancore nuove: senza mano e piede quelle strutture non avrebbero un
+// segmento proprio e resterebbero appese al polso e alla caviglia.
+for (const a of ["mano_dx", "mano_sx", "piede_dx", "piede_sx"])
+  check(`ancora ${a} ricavata`, !!skC.ancore[a]);
+const gC = preparaLegami(cat, skC);
+check("tutte e 629 agganciate", gC.pronte.length === 629,
+      `${gC.pronte.length}, fuori ${gC.fuori.length}`);
+check("oltre il 90% collocate dal nome", gC.conta.nome / cat.length > 0.9,
+      `${gC.conta.nome} dal nome, ${gC.conta.vicinanza} per vicinanza`);
+const perSeg = gC.pronte.reduce((a, p) => (a[p.segmento] = (a[p.segmento] || 0) + 1, a), {});
+check("tutti e quattordici i segmenti in uso", Object.keys(perSeg).length === 14,
+      Object.keys(perSeg).length + "");
+check("le ossa del cranio finiscono sulla testa",
+      gC.pronte.filter(p => /frontal_bone|parietal_bone|occipital_bone/.test(p.nome))
+        .every(p => p.segmento === "testa"));
+check("le vertebre sul tronco",
+      gC.pronte.filter(p => /vertebra/.test(p.nome)).every(p => p.segmento === "tronco"));
+check("i metacarpi sulla mano del loro lato",
+      gC.pronte.filter(p => /metacarpal/.test(p.nome))
+        .every(p => p.segmento === (/right/.test(p.nome) ? "mano_dx" : "mano_sx")));
+check("i metatarsi sul piede del loro lato",
+      gC.pronte.filter(p => /metatarsal/.test(p.nome))
+        .every(p => p.segmento === (/right/.test(p.nome) ? "piede_dx" : "piede_sx")));
+check("le cartilagini costali sul tronco",
+      gC.pronte.filter(p => /costal_cartilage/.test(p.nome)).every(p => p.segmento === "tronco"));
+
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);
 process.exit(ko ? 1 : 0);

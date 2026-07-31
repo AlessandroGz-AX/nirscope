@@ -6,7 +6,11 @@ verifica che la riduzione non lo stravolga.
 """
 import json, math, random, struct, zipfile, io, sys
 
-MAPPA = json.load(open("../mappa-bodyparts3d.json"))
+# Il catalogo completo: chiave → "tipo,modello". I finti archivi devono
+# contenere gli stessi modelli che la pagina cerca davvero.
+_cat = json.load(open("../mappa-completa.json"))
+MAPPA = {k: [v.split(",")[1]] for k, v in _cat.items()}
+TIPO = {k: int(v.split(",")[0]) for k, v in _cat.items()}
 
 def icosfera(suddivisioni):
     t = (1 + 5 ** 0.5) / 2
@@ -54,9 +58,7 @@ def volume(V, F, centro, raggi):
 
 # Un ellissoide per struttura, con i capi dei muscoli sfalsati fra loro cosi'
 # che l'unione si veda dall'ingombro complessivo.
-OSSA = {"bacino","clavicola","colonna","coste","cranio","femore","mandibola","omero",
-        "perone","radio","rotula","sacro","scapola","sterno","tibia","ulna"}
-def base(k): return k[:-3] if k.endswith(("_dx","_sx")) else k
+def osso_di(k): return TIPO[k] == 0
 
 rng = random.Random(7)
 V5, F5 = icosfera(5)   # 20480 triangoli, per le ossa
@@ -66,7 +68,7 @@ print("icosfera 4:", len(V4), "vertici", len(F4), "triangoli")
 
 pezzi, atteso = {}, {}
 for k, bps in MAPPA.items():
-    osso = base(k) in OSSA
+    osso = osso_di(k)
     lato = 1 if k.endswith("_dx") else (-1 if k.endswith("_sx") else 0)
     cx = lato * rng.uniform(60, 180)
     cy = rng.uniform(-800, 700)
@@ -114,9 +116,11 @@ def scrivi_zip(nome, salta=(), stored=(), zip64=False, decoy=250):
 # lasciarci dentro codici che non esistono piu'.
 scrivi_zip("finto_bp3d.zip")
 scrivi_zip("finto_buchi.zip",
-           salta=set(MAPPA["femore_dx"]) | set(MAPPA["tricipite_dx"])
-                 | {MAPPA["bicipite_dx"][0]},
-           stored=set(MAPPA["femore_sx"]) | {MAPPA["bicipite_sx"][0]})
+           # Un osso intero e tutte le parti di un muscolo: la prima struttura deve
+    # risultare mancante, la seconda pure, e le altre non devono accorgersene.
+    salta=set(MAPPA["right_femur"]) | {v[0] for k, v in MAPPA.items()
+                                       if k.endswith("_of_right_deltoid")},
+           stored=set(MAPPA["left_femur"]))
 
 # Un archivio con un'altra convenzione di nomi: e' il caso capitato davvero,
 # l'archivio giusto ma con identificativi che la mappa non conosce.

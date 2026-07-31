@@ -78,7 +78,8 @@ await page.evaluate((posa) => {
 await page.waitForTimeout(1500);
 const s = await page.evaluate(() => window.__anatomia.statoMesh());
 check("60 strutture agganciate", s?.strutture === 60, `${s?.strutture}`);
-check("tutte e 60 visibili", s?.visibili === 60, `${s?.visibili}`);
+check("tutte e 60 visibili nei loro gruppi", s?.visibili === s?.gruppi,
+      `${s?.visibili} di ${s?.gruppi} gruppi`);
 check("nessun avviso", (s?.avvisi || []).length === 0, (s?.avvisi || []).join("; "));
 
 // La posa e' alta 1,75 m: nella scena il modello va da circa -0,95 (piedi) a
@@ -129,8 +130,9 @@ console.log("\n\x1b[1m5. Le viste filtrano anche le mesh\x1b[0m");
 for (const [vista, atteso] of [["ossa", 26], ["muscoli", 34], ["tutto", 60]]) {
   await page.click(`[data-v="${vista}"]`);
   await page.waitForTimeout(250);
-  const v = await page.evaluate(() => window.__anatomia.statoMesh().visibili);
-  check(`vista "${vista}": ${atteso} strutture`, v === atteso, `${v}`);
+  const st = await page.evaluate(() => window.__anatomia.statoMesh());
+  const n = Object.values(st.posizioni).filter(Boolean).length;
+  check(`vista "${vista}": ${atteso} strutture`, n === atteso, `${n}`);
 }
 
 console.log("\n\x1b[1m6. Il movimento muove le mesh\x1b[0m");

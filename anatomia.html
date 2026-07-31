@@ -262,56 +262,104 @@ const perStruttura = new Map();          // nome → { mesh, mat, muscolo }
 // Alcuni ventri non hanno un corrispondente e restano neutri: il dentato non e'
 // modellato, e vasti e soleo condividono la misura del loro sinergico
 // biarticolare perche' da soli non li distinguiamo.
-const COLORE_DA = {
-  bicipite: ["Bicipite brachiale"], tricipite: ["Tricipite brachiale"],
-  deltoide: ["Deltoide"], brachioradiale: ["Flessori avambraccio"],
-  pettorale: ["Gran pettorale"], trapezio: ["Trapezio"], obliquo: ["Obliquo"],
-  gluteo: ["Grande gluteo"], adduttore: ["Adduttori"],
-  retto_femorale: ["Retto femorale"], vasto: ["Retto femorale"],
-  bicipite_fem: ["Ischiocrurali"], semitendinoso: ["Ischiocrurali"],
-  gastrocnemio: ["Gastrocnemio"], soleo: ["Gastrocnemio"],
-  tibiale_ant: ["Tibiale anteriore"],
-};
+// Le chiavi valgono sia per la mappa ridotta, in italiano, sia per il catalogo
+// completo, dove i nomi sono quelli inglesi di BodyParts3D.
+const COLORE_DA = [
+  [/^bicipite_|biceps_brachii/,        "Bicipite brachiale"],
+  [/^tricipite_|triceps_brachii/,      "Tricipite brachiale"],
+  [/^deltoide_|deltoid/,               "Deltoide"],
+  [/^brachioradiale_|brachioradialis|flexor_(carpi|digitorum)/, "Flessori avambraccio"],
+  [/extensor_(carpi|digitorum)/,       "Estensori avambraccio"],
+  [/^pettorale_|pectoralis_major/,     "Gran pettorale"],
+  [/^trapezio_|trapezius/,             "Trapezio"],
+  [/^obliquo_|obliquus_externus/,      "Obliquo"],
+  [/^gluteo_|gluteus_maximus/,         "Grande gluteo"],
+  [/^adduttore_|adductor_(magnus|longus|brevis)/, "Adduttori"],
+  [/^retto_femorale_|rectus_femoris|^vasto_|vastus/, "Retto femorale"],
+  [/^bicipite_fem_|biceps_femoris|^semitendinoso_|semitendinosus|semimembranosus/, "Ischiocrurali"],
+  [/^gastrocnemio_|gastrocnemius|^soleo_|soleus/, "Gastrocnemio"],
+  [/^tibiale_ant_|tibialis_anterior/,  "Tibiale anteriore"],
+  [/latissimus_dorsi/,                 "Gran dorsale"],
+];
 function indiceMuscolo(nome) {
-  const lato = nome.endsWith("_dx") ? "Dx" : nome.endsWith("_sx") ? "Sx" : null;
-  const base = lato ? nome.slice(0, -3) : nome;
-  const cerca = COLORE_DA[base];
-  if (!cerca || !lato) return -1;
-  return MUSCOLI.findIndex(m => m.nome === cerca[0] && m.lato === lato);
+  const lato = /(^|_)(dx|right)(_|$)/.test(nome) ? "Dx"
+             : /(^|_)(sx|left)(_|$)/.test(nome) ? "Sx" : null;
+  if (!lato) return -1;
+  const v = COLORE_DA.find(([re]) => re.test(nome));
+  return v ? MUSCOLI.findIndex(m => m.nome === v[1] && m.lato === lato) : -1;
 }
 
-const matOssoMesh = new THREE.MeshStandardMaterial({
-  color: 0xEDE3CB, roughness: .62, metalness: .04 });
+// Un materiale per tipo: osso, muscolo, cartilagine, dente, legamento.
+const MATERIALI = {
+  0: new THREE.MeshStandardMaterial({ color: 0xEDE3CB, roughness: .62, metalness: .04 }),
+  1: new THREE.MeshStandardMaterial({ color: 0xB4494B, roughness: .5,  metalness: .02 }),
+  2: new THREE.MeshStandardMaterial({ color: 0xBFD4D8, roughness: .35, metalness: .02 }),
+  3: new THREE.MeshStandardMaterial({ color: 0xF6F2E4, roughness: .25, metalness: .03 }),
+  4: new THREE.MeshStandardMaterial({ color: 0xD8CFA8, roughness: .55, metalness: .02 }),
+};
+const OSSEO = new Set([0, 2, 3, 4]);        // tutto cio' che non e' muscolo
+
+/** Fonde piu' strutture in una geometria sola. Con seicento pezzi, disegnarli
+ *  uno per uno vorrebbe dire seicento chiamate per fotogramma: su un iPad e'
+ *  la differenza fra fluido e a scatti. Le strutture che condividono segmento e
+ *  materiale condividono anche la matrice, quindi si possono fondere senza
+ *  perdere nulla — le suture restano visibili perche' restano superfici
+ *  distinte, solo dentro la stessa mesh. */
+function fondi(pezzi) {
+  let nv = 0, ni = 0;
+  for (const p of pezzi) { nv += p.pos.length; ni += p.idx.length; }
+  const pos = new Float32Array(nv), idx = new Uint32Array(ni);
+  let op = 0, oi = 0, base = 0;
+  for (const p of pezzi) {
+    pos.set(p.pos, op);
+    for (let i = 0; i < p.idx.length; i++) idx[oi + i] = p.idx[i] + base;
+    base += p.pos.length / 3; op += p.pos.length; oi += p.idx.length;
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setIndex(new THREE.BufferAttribute(idx, 1));
+  g.computeVertexNormals();
+  return g;
+}
 
 function montaMesh(strutture, sk) {
   for (const [, v] of perStruttura) { v.mesh.geometry.dispose(); gruppoMesh.remove(v.mesh); }
   perStruttura.clear();
-  const { pronte, fuori } = preparaLegami(strutture, sk);
+  const { pronte, fuori, conta } = preparaLegami(strutture, sk);
   legami = pronte;
+
+  // I ventri che il modello cinematico misura restano separati, perche' il loro
+  // colore cambia da solo a ogni fotogramma. Tutto il resto si fonde per
+  // segmento e materiale.
+  const gruppi = new Map();
   for (const l of pronte) {
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(l.pos.slice(), 3));
-    g.setIndex(new THREE.BufferAttribute(l.idx.slice(), 1));
-    g.computeVertexNormals();
-    const mat = l.osso ? matOssoMesh
-      : new THREE.MeshStandardMaterial({ color: COL_NEUTRO.clone(), roughness: .5, metalness: .02 });
-    const mesh = new THREE.Mesh(g, mat);
+    const idx = l.tipo === 1 ? indiceMuscolo(l.nome) : -1;
+    const chiave = idx >= 0 ? "solo:" + l.nome : `${l.segmento}|${l.tipo}`;
+    if (!gruppi.has(chiave)) gruppi.set(chiave, { pezzi: [], l, tipo: l.tipo, muscolo: idx });
+    gruppi.get(chiave).pezzi.push(l);
+  }
+
+  for (const [chiave, g] of gruppi) {
+    const mat = g.muscolo >= 0
+      ? new THREE.MeshStandardMaterial({ color: COL_NEUTRO.clone(), roughness: .5, metalness: .02 })
+      : MATERIALI[g.tipo] || MATERIALI[0];
+    const mesh = new THREE.Mesh(fondi(g.pezzi), mat);
     mesh.matrixAutoUpdate = false;      // la matrice la scriviamo noi
     mesh.visible = false;
     gruppoMesh.add(mesh);
-    perStruttura.set(l.nome, { mesh, mat, l, muscolo: l.osso ? -1 : indiceMuscolo(l.nome) });
+    perStruttura.set(chiave, { mesh, mat, l: g.l, tipo: g.tipo, muscolo: g.muscolo,
+                               pezzi: g.pezzi });
   }
-  return { pronte: pronte.length, fuori };
+  return { pronte: pronte.length, fuori, gruppi: gruppi.size, conta };
 }
 
 const M4 = new THREE.Matrix4();
-/** Posa tutte le mesh sulla posa corrente. `ancore` sono i punti vivi, `sk` lo
- *  scheletro a riposo, `strain` la deformazione per muscolo. */
+/** Posa tutti i gruppi sulla posa corrente. */
 function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
   for (const [, v] of perStruttura) {
     const seg = SEGMENTI[v.l.segmento];
     const a1 = ancore[seg.lm[0]], b1 = ancore[seg.lm[1]];
-    const mostra = v.l.osso ? vistaOssa : vistaMuscoli;
+    const mostra = v.tipo === 1 ? vistaMuscoli : vistaOssa;
     if (!mostra || !a1 || !b1) { v.mesh.visible = false; continue; }
 
     let ingrosso = 1;
@@ -393,15 +441,17 @@ function usaMesh(buf, daDeposito) {
   try {
     const strutture = leggiNira(buf);
     scheletro = derivaScheletro(new Map(strutture.map(s => [s.nome, s])));
-    const { pronte, fuori } = montaMesh(strutture, scheletro);
+    const esito = montaMesh(strutture, scheletro);
+    const { pronte, fuori } = esito;
     gruppoMesh.visible = true;
     $("btn-scorda").hidden = false;
     $("et-nira").textContent = "Sostituisci le mesh";
     const note = [];
     if (fuori.length) note.push(`${fuori.length} senza aggancio`);
+    if (esito.conta) note.push(`${esito.conta.vicinanza} collocate per vicinanza`);
     for (const a of scheletro.avvisi) note.push(a);
     st.className = note.length ? "status" : "status good";
-    st.textContent = `Mesh caricate: ${pronte} strutture`
+    st.textContent = `Mesh caricate: ${pronte} strutture in ${esito.gruppi} gruppi`
       + (daDeposito ? " (dalla memoria del browser)" : "")
       + (note.length ? ". " + note.join("; ") : ".");
     renderer.render(scene, camera);
@@ -711,11 +761,23 @@ window.__anatomia = {
       }
       return b.isEmpty() ? null : { min: b.min.toArray(), max: b.max.toArray() };
     })(),
-    posizioni: Object.fromEntries([...perStruttura].map(([n, v]) => {
-      if (!v.mesh.visible) return [n, null];
-      const b = new THREE.Box3().setFromObject(v.mesh);
-      return [n, b.getCenter(new THREE.Vector3()).toArray()];
-    })),
+    gruppi: perStruttura.size,
+    // Posizione di ogni singola struttura, non solo del gruppo: si prende il
+    // baricentro a riposo e gli si applica la matrice del gruppo, che e' la
+    // stessa per tutti i suoi pezzi.
+    posizioni: (() => {
+      const out = {}, v3 = new THREE.Vector3();
+      for (const [, g] of perStruttura) {
+        if (!g.mesh.visible) { for (const p of g.pezzi) out[p.nome] = null; continue; }
+        for (const p of g.pezzi) {
+          const n = p.pos.length / 3;
+          let x = 0, y = 0, z = 0;
+          for (let i = 0; i < n; i++) { x += p.pos[i*3]; y += p.pos[i*3+1]; z += p.pos[i*3+2]; }
+          out[p.nome] = v3.set(x/n, y/n, z/n).applyMatrix4(g.mesh.matrix).toArray();
+        }
+      }
+      return out;
+    })(),
   } : null,
 };
 ridimensiona();

@@ -15,13 +15,13 @@ exec(src, ns)
 VOCI = ns["nomi"]()
 
 # Ogni organo ha un identificativo suo; i suoi pezzi ne hanno un altro.
-organo = {n: "BP%04d" % (7000 + i) for i, n in enumerate(VOCI)}
+organo = {n: "BQ%05d" % (70000 + i) for i, n in enumerate(VOCI)}
 pezzi = {}
 for i, n in enumerate(VOCI):
     # I muscoli con piu' capi hanno piu' pezzi, come nell'archivio vero.
     k = 3 if ("triceps" in n or "deltoid" in n or "trapezius" in n) else \
         2 if ("biceps" in n or "pectoralis" in n) else 1
-    pezzi[n] = ["FJ%04d%s" % (2000 + i * 3 + j, "a" if (i + j) % 9 == 0 else "")
+    pezzi[n] = ["FX%05d%s" % (70000 + i * 3 + j, "a" if (i + j) % 9 == 0 else "")
                 for j in range(k)]
 
 with open("finto_parts_list2.txt", "w") as f:
