@@ -150,7 +150,49 @@ check("la tibia destra segue il ginocchio", spost > 0.05, `spostata di ${spost.t
 const femSx = await page.evaluate(() => window.__anatomia.statoMesh().posizioni.tibia_sx);
 check("la gamba sinistra resta ferma", Math.abs(femSx[1] - prima[1]) < 0.05);
 
-console.log("\n\x1b[1m7. Un file rovinato non rompe la pagina\x1b[0m");
+console.log("\n\x1b[1m7. Con la posa che balla, le mesh stanno ferme\x1b[0m");
+{
+  // La prova sul filtro da sola dice che i punti si lisciano. Questa dice che
+  // il tremolio non arriva alle mesh, che e' poi la cosa che si vede: in mezzo
+  // ci sono lo scheletro dedotto e le matrici di posa, che un movimento
+  // millimetrico all'anca lo amplificano al ginocchio.
+  const misura = await page.evaluate(async (posa) => {
+    const base = posa.map(p => p.slice());
+    let seme = 12345;
+    const caso = () => { seme = (seme * 1664525 + 1013904223) >>> 0; return seme / 4294967296 - 0.5; };
+    const gen = () => base.map(p => [p[0] + caso() * 0.012,
+                                     p[1] + caso() * 0.012,
+                                     p[2] + caso() * 0.012]);
+    const raccogli = async (rumoroso) => {
+      // Il ciclo rilegge __posaTest a ogni fotogramma: con un getter il rumore
+      // e' diverso ogni volta, come dalla fotocamera vera.
+      Object.defineProperty(window, "__posaTest", {
+        configurable: true, get: () => rumoroso ? gen() : base,
+      });
+      await new Promise(r => setTimeout(r, 900));            // assestamento
+      const serie = [];
+      for (let i = 0; i < 40; i++) {
+        serie.push(window.__anatomia.statoMesh().posizioni.tibia_dx);
+        await new Promise(r => requestAnimationFrame(r));
+      }
+      const m = [0, 1, 2].map(k => serie.reduce((s, v) => s + v[k], 0) / serie.length);
+      const sq = serie.reduce((s, v) =>
+        s + (v[0]-m[0])**2 + (v[1]-m[1])**2 + (v[2]-m[2])**2, 0) / serie.length;
+      return Math.sqrt(sq) * 1000;                            // in millimetri
+    };
+    const fermo = await raccogli(false);
+    const ballerino = await raccogli(true);
+    Object.defineProperty(window, "__posaTest",
+                          { configurable: true, value: base, writable: true });
+    return { fermo, ballerino };
+  }, POSA);
+  check("a posa immobile la tibia non si muove affatto", misura.fermo < 0.5,
+        `${misura.fermo.toFixed(2)} mm`);
+  check("con 12 mm di rumore sui punti la tibia balla meno di 5 mm",
+        misura.ballerino < 5, `${misura.ballerino.toFixed(1)} mm`);
+}
+
+console.log("\n\x1b[1m8. Un file rovinato non rompe la pagina\x1b[0m");
 const rotto = await page.evaluate(() => {
   const b = new Uint8Array(64); b.set([78,73,82,65,78,65,84,49]); // magia giusta, resto no
   new DataView(b.buffer).setUint32(8, 5, true);

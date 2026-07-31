@@ -143,7 +143,18 @@ ingrossa, ma non si avvolge attorno al giunto. La lunghezza muscolo-tendinea
 continua a misurarla il modello cinematico — le mesh sono come la si mostra,
 non cosa si misura.
 
+**Come viene letto il corpo.** I 33 punti di MediaPipe ballano di qualche
+millimetro anche a soggetto fermo, e su una mesh lunga mezzo metro quel tremolio
+si vede tutto. `posa-filtro.js` li liscia con un filtro one euro, che stringe la
+banda da fermo e la allarga in movimento, piu' un recupero del ritardo ricavato
+dalla velocita' gia' stimata: senza, ogni taratura scambia tremolio contro
+ritardo lungo la stessa curva. I punti che la telecamera non vede vengono tenuti
+fermi invece di inseguire le ipotesi del modello, e un buco nel rilevamento
+tiene l'ultima posa buona per quattro decimi di secondo invece di far sparire
+tutto. Misurato: 12 mm di rumore sui punti diventano 1,1 mm alla tibia.
+
     node test-anatomia-mesh.mjs      # orientamento, articolazioni, pose
+    node test-posa-filtro.mjs        # tremolio, ritardo, punti non visti
     node test-anatomia-pagina.mjs    # la pagina vera, con Playwright
     node test-prepara.mjs            # il preparatore, su archivi finti
 

@@ -194,6 +194,7 @@ import * as THREE from "./vendor/three.module.js";
 import { PoseLandmarker, FilesetResolver } from "./vendor/vision_bundle.mjs";
 import { MUSCOLI, OSSA, REGIONI, frameCorpo, tracciaMuscolo, deformazione } from "./muscoli.js";
 import { leggiNira, derivaScheletro, preparaLegami, matricePosa, SEGMENTI } from "./anatomia-mesh.js";
+import { FiltroPosa, fiduciaPosa, consiglioInquadratura } from "./posa-filtro.js";
 
 const $ = (id) => document.getElementById(id);
 const cv = $("scena"), video = $("src");
@@ -395,6 +396,8 @@ cv.addEventListener("pointermove", (e) => {
 
 // ── Stato ──────────────────────────────────────────────────────────
 let landmarker = null, running = false, riposo = null, ultimiPts = null;
+let ultimiGrezzi = null, ultimaVis = null;
+const filtro = new FiltroPosa();
 let scheletro = null, ultimoEsito = null;
 const strainLisciato = new Float32Array(MUSCOLI.length);
 
@@ -652,21 +655,34 @@ function loop() {
   // Gancio di prova: permette di pilotare la scena con pose sintetiche senza
   // fotocamera, per verificare il modello e il rendering.
   const iniettati = window.__posaTest;
-  let pts = null, lm = null;
+  let grezzi = null, lm = null, vis = null;
+  const ora = performance.now();
 
   if (iniettati) {
-    pts = iniettati;
+    grezzi = iniettati;
   } else if (landmarker && video.readyState >= 2) {
-    const t = performance.now();
-    if (t !== lastT) {
-      lastT = t;
-      const res = landmarker.detectForVideo(video, t);
+    if (ora !== lastT) {
+      lastT = ora;
+      const res = landmarker.detectForVideo(video, ora);
       if (res.worldLandmarks?.length) {
-        pts = res.worldLandmarks[0].map(p => [p.x, p.y, p.z]);
+        grezzi = res.worldLandmarks[0].map(p => [p.x, p.y, p.z]);
         lm = res.landmarks[0];
+        // La visibilita' sta sui landmark d'immagine, ma gli indici sono gli
+        // stessi: e' lo stesso punto visto nei due sistemi.
+        vis = lm.map(p => p.visibility ?? 1);
       }
+    } else {
+      // Stesso millisecondo del fotogramma precedente: non si rileva due volte,
+      // ma non e' un buco. Si ridisegna e basta.
+      grezzi = ultimiGrezzi; vis = ultimaVis;
     }
   }
+
+  // Lisciatura: i landmark ballano di qualche millimetro anche a soggetto
+  // fermo, e su mesh lunghe mezzo metro quel tremolio si vede tutto.
+  ultimiGrezzi = grezzi; ultimaVis = vis;
+  const f = filtro.applica(grezzi, vis, ora);
+  const pts = f.pts;
 
   if (pts) {
     ultimiPts = pts;
@@ -674,7 +690,10 @@ function loop() {
     if (lm) aggiornaParti(lm);
     if (ris) {
       aggiornaClassifica(ris);
-      $("badge").textContent = riposo ? "in ascolto" : "calibra il riposo";
+      const consiglio = vis ? consiglioInquadratura(vis) : null;
+      $("badge").textContent = consiglio ? consiglio
+        : !f.fresco ? "ti ho perso un attimo…"
+        : riposo ? "in ascolto" : "calibra il riposo";
     }
     $("btn-cal").disabled = false;
   } else if (running && !iniettati) {
@@ -706,12 +725,29 @@ async function avvia() {
       const fileset = await FilesetResolver.forVisionTasks("./vendor/wasm");
       landmarker = await PoseLandmarker.createFromOptions(fileset, {
         baseOptions: { modelAssetPath: "./vendor/pose_landmarker_full.task", delegate: "GPU" },
-        runningMode: "VIDEO", numPoses: 1, minPoseDetectionConfidence: 0.5,
+        runningMode: "VIDEO", numPoses: 1,
+        // Trovare la persona deve costare fatica, seguirla no: una volta
+        // agganciata, una soglia alta la farebbe perdere ogni volta che si gira
+        // di profilo o esce mezza dall'inquadratura.
+        minPoseDetectionConfidence: 0.6,
+        minPosePresenceConfidence: 0.5,
+        minTrackingConfidence: 0.4,
+        outputSegmentationMasks: false,
       });
     }
+    // A corpo intero la persona occupa una striscia stretta e alta del
+    // fotogramma: con 640x480 le caviglie stanno in una manciata di pixel e i
+    // punti ballano. Il ritaglio che il modello analizza parte da qui, quindi
+    // partire piu' definiti si sente. Se la fotocamera non arriva a tanto,
+    // "ideal" la lascia scendere invece di far fallire l'avvio.
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: facing }, width: { ideal: 640 }, height: { ideal: 480 } }, audio: false,
+      video: { facingMode: { ideal: facing },
+               width: { ideal: 1280 }, height: { ideal: 720 },
+               frameRate: { ideal: 30 } }, audio: false,
     });
+    // Cambiando fotocamera la persona salta di posto: ripartire dallo stato
+    // vecchio farebbe scivolare il modello da dov'era prima.
+    filtro.azzera(); ultimiGrezzi = null; ultimaVis = null;
     video.srcObject = stream; $("preview").srcObject = stream;
     await video.play(); await $("preview").play();
 
