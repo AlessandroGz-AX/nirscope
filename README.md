@@ -138,10 +138,24 @@ freno l'osso si stirerebbe a fisarmonica — mentre di traverso resta la scala
 generale del corpo. I ventri muscolari si ingrossano quando si accorciano, che
 e' la conservazione del volume.
 
-Un muscolo biarticolare resta agganciato a un solo osso: si sposta e si
-ingrossa, ma non si avvolge attorno al giunto. La lunghezza muscolo-tendinea
-continua a misurarla il modello cinematico — le mesh sono come la si mostra,
-non cosa si misura.
+**Come si piega la carne.** Ogni vertice puo' seguire fino a quattro ossa con
+pesi diversi (`pesi.js`), e la mescolanza la fa il vertex shader. Il peso di un
+osso vicino cade col quadrato della distanza dal *giunto* che i due
+condividono, non dall'osso: cosi' l'influenza resta locale all'articolazione, e
+a una costola non tocca un po' di omero solo perche' il braccio le passa
+accanto. Sul giunto il peso e' meta' e meta', ed e' quello che fa piegare il
+ventre di un muscolo invece di spezzarlo in due blocchi.
+
+A differenza di un personaggio animato, qui le ossa restano rigide: si
+deformano solo muscoli, cartilagini e legamenti. Un femore mescolato fra bacino
+e tibia si piegherebbe come gomma, e la testa del femore ruota col femore.
+Le normali hanno una matrice loro, l'inversa trasposta: le scale sono
+anisotrope — fino al 40% lungo l'asse e al 28% di traverso — e trattare una
+normale come un punto sbaglierebbe fino a una trentina di gradi, con
+l'illuminazione che segue.
+
+La lunghezza muscolo-tendinea continua a misurarla il modello cinematico — le
+mesh sono come la si mostra, non cosa si misura.
 
 **Come viene letto il corpo.** I 33 punti di MediaPipe ballano di qualche
 millimetro anche a soggetto fermo, e su una mesh lunga mezzo metro quel tremolio
@@ -155,6 +169,7 @@ tutto. Misurato: 12 mm di rumore sui punti diventano 1,1 mm alla tibia.
 
     node test-anatomia-mesh.mjs      # orientamento, articolazioni, pose
     node test-posa-filtro.mjs        # tremolio, ritardo, punti non visti
+    node test-pesi.mjs               # deformazione: catena, pesi, normali
     node test-anatomia-pagina.mjs    # la pagina vera, con Playwright
     node test-prepara.mjs            # il preparatore, su archivi finti
 

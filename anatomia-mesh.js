@@ -488,21 +488,8 @@ export function preparaLegami(strutture, sk) {
  *
  *  `ingrosso` moltiplica le sole direzioni trasversali: serve ai ventri
  *  muscolari, che si gonfiano accorciandosi. */
-export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 1, rigido = false) {
-  const L1 = len(sub(b1, a1));
-  if (!(L1 > 1e-9)) return null;
-  const F1 = frameSegmento(a1, b1, rifSu, rifAvanti);
-  const F0 = l.frame;
-
-  // La scala lungo l'asse segue la lunghezza vera del segmento, ma con un
-  // limite: i landmark tremolano e un arto quasi puntato verso l'obiettivo
-  // viene stimato corto, il che senza freno stirerebbe l'osso a fisarmonica.
-  const kA = rigido ? scalaCorpo
-    : Math.max(scalaCorpo * 0.7, Math.min(scalaCorpo * 1.4, L1 / l.lunghezzaRiposo));
-  const kL = scalaCorpo * ingrosso;
-  const S = [kL, kA, kL];
-
-  // M3 = F1 · S · F0ᵀ, dove le colonne di F sono laterale, asse, avanti.
+/** M3 = F1 · S · F0ᵀ, dove le colonne di F sono laterale, asse, avanti. */
+function blocco3(F0, F1, S) {
   const c0 = [F0.laterale, F0.asse, F0.avanti];
   const c1 = [F1.laterale, F1.asse, F1.avanti];
   const M3 = [[0,0,0],[0,0,0],[0,0,0]];
@@ -513,6 +500,46 @@ export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 
       M3[r][c] = v;
     }
   }
+  return M3;
+}
+
+/** Le scale del segmento: lungo l'asse e di traverso. */
+function scale(l, a1, b1, scalaCorpo, ingrosso, rigido) {
+  const L1 = len(sub(b1, a1));
+  if (!(L1 > 1e-9)) return null;
+  // La scala lungo l'asse segue la lunghezza vera del segmento, ma con un
+  // limite: i landmark tremolano e un arto quasi puntato verso l'obiettivo
+  // viene stimato corto, il che senza freno stirerebbe l'osso a fisarmonica.
+  const kA = rigido ? scalaCorpo
+    : Math.max(scalaCorpo * 0.7, Math.min(scalaCorpo * 1.4, L1 / l.lunghezzaRiposo));
+  const kL = scalaCorpo * ingrosso;
+  return [kL, kA, kL];
+}
+
+/** La matrice con cui vanno trasformate le normali.
+ *
+ *  Non e' la stessa della posizione: le scale sono anisotrope — lungo l'asse
+ *  l'osso si allunga fino al 40%, di traverso il ventre si gonfia del 28% — e
+ *  una normale trasformata come un punto si inclina dove la superficie e'
+ *  obliqua, con l'illuminazione che ne segue. Serve l'inversa trasposta.
+ *
+ *  Qui pero' si conosce la forma esatta: M3 = F1 · S · F0ᵀ con F ortonormali,
+ *  quindi l'inversa trasposta e' semplicemente F1 · S⁻¹ · F0ᵀ. Nessuna inversione
+ *  numerica da fare, e nessun caso degenere da temere. */
+export function matriceNormali(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 1, rigido = false) {
+  const S = scale(l, a1, b1, scalaCorpo, ingrosso, rigido);
+  if (!S) return null;
+  const M3 = blocco3(l.frame, frameSegmento(a1, b1, rifSu, rifAvanti),
+                     [1 / S[0], 1 / S[1], 1 / S[2]]);
+  return [M3[0][0], M3[1][0], M3[2][0],
+          M3[0][1], M3[1][1], M3[2][1],
+          M3[0][2], M3[1][2], M3[2][2]];
+}
+
+export function matricePosa(l, a1, b1, rifSu, rifAvanti, scalaCorpo, ingrosso = 1, rigido = false) {
+  const S = scale(l, a1, b1, scalaCorpo, ingrosso, rigido);
+  if (!S) return null;
+  const M3 = blocco3(l.frame, frameSegmento(a1, b1, rifSu, rifAvanti), S);
   const a0 = l.ancoraA;
   const t = [
     a1[0] - (M3[0][0]*a0[0] + M3[0][1]*a0[1] + M3[0][2]*a0[2]),

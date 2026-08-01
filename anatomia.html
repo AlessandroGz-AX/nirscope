@@ -193,7 +193,9 @@
 import * as THREE from "./vendor/three.module.js";
 import { PoseLandmarker, FilesetResolver } from "./vendor/vision_bundle.mjs";
 import { MUSCOLI, OSSA, REGIONI, frameCorpo, tracciaMuscolo, deformazione } from "./muscoli.js";
-import { leggiNira, derivaScheletro, preparaLegami, matricePosa, SEGMENTI } from "./anatomia-mesh.js";
+import { leggiNira, derivaScheletro, preparaLegami, matricePosa, matriceNormali,
+         frameSegmento, SEGMENTI } from "./anatomia-mesh.js";
+import { adiacenze, pesiGruppo, quantiMescolati, DEFORMABILI } from "./pesi.js";
 import { FiltroPosa, fiduciaPosa, consiglioInquadratura } from "./posa-filtro.js";
 
 const $ = (id) => document.getElementById(id);
@@ -306,7 +308,7 @@ const OSSEO = new Set([0, 2, 3, 4]);        // tutto cio' che non e' muscolo
  *  materiale condividono anche la matrice, quindi si possono fondere senza
  *  perdere nulla — le suture restano visibili perche' restano superfici
  *  distinte, solo dentro la stessa mesh. */
-function fondi(pezzi) {
+function fondi(pezzi, segmento, vic, deformabile) {
   let nv = 0, ni = 0;
   for (const p of pezzi) { nv += p.pos.length; ni += p.idx.length; }
   const pos = new Float32Array(nv), idx = new Uint32Array(ni);
@@ -320,8 +322,85 @@ function fondi(pezzi) {
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   g.setIndex(new THREE.BufferAttribute(idx, 1));
   g.computeVertexNormals();
-  return g;
+  // A quali ossa obbedisce ogni vertice. Gli indici viaggiano come float
+  // perche' e' l'unica cosa che un attributo sa fare in GLSL ES 1.00, e sono
+  // pochi: quattordici ossa stanno in un byte con enorme margine.
+  const { indici, pesi, usate } = pesiGruppo(pos, segmento, vic, INDICE_OSSO, deformabile);
+  g.setAttribute("pesoIndice", new THREE.BufferAttribute(indici, 4));
+  g.setAttribute("pesoValore", new THREE.BufferAttribute(pesi, 4));
+  g.computeBoundingBox();
+  return { geometria: g, usate, mescolati: quantiMescolati(pesi), vertici: nv / 3 };
 }
+
+// ── La pelle: ogni vertice puo' seguire piu' ossa ──────────────────
+// La trasformazione si e' spostata dentro il vertex shader. Prima ogni gruppo
+// aveva una matrice sola e la scriveva sulla mesh; ora ogni vertice mescola
+// fino a quattro matrici coi suoi pesi, ed e' questo che fa piegare il ventre
+// di un muscolo attorno all'articolazione invece di spezzarlo in due blocchi.
+const CATENA = Object.keys(SEGMENTI);
+const INDICE_OSSO = Object.fromEntries(CATENA.map((n, i) => [n, i]));
+
+/** Un corredo di matrici: la posa e, separata, quella per le normali. */
+function nuoveUniformi() {
+  return {
+    ossa:  { value: Array.from({ length: CATENA.length }, () => new THREE.Matrix4()) },
+    ossaN: { value: Array.from({ length: CATENA.length }, () => new THREE.Matrix3()) },
+  };
+}
+// Tutto cio' che non si ingrossa condivide le stesse matrici: si calcolano una
+// volta per fotogramma. Solo i ventri colorati, che si gonfiano ognuno per
+// conto suo, ne hanno di proprie.
+const uniBase = nuoveUniformi();
+
+const DICHIARA = `
+attribute vec4 pesoIndice;
+attribute vec4 pesoValore;
+uniform mat4 ossa[${CATENA.length}];
+uniform mat3 ossaN[${CATENA.length}];
+`;
+// Le ossa vere non si mescolano mai: tutto il loro peso sta sulla prima
+// casella. Far comunque quattro moltiplicazioni di matrice per vertice sarebbe
+// lavoro buttato, e sono la maggior parte dei vertici del modello.
+const SOLA = `
+  mat4 mPelle = ossa[int(pesoIndice.x)];
+  mat3 mPelleN = ossaN[int(pesoIndice.x)];
+`;
+const MESCOLA = `
+  mat4 mPelle = pesoValore.x * ossa[int(pesoIndice.x)]
+              + pesoValore.y * ossa[int(pesoIndice.y)]
+              + pesoValore.z * ossa[int(pesoIndice.z)]
+              + pesoValore.w * ossa[int(pesoIndice.w)];
+  mat3 mPelleN = pesoValore.x * ossaN[int(pesoIndice.x)]
+               + pesoValore.y * ossaN[int(pesoIndice.y)]
+               + pesoValore.z * ossaN[int(pesoIndice.z)]
+               + pesoValore.w * ossaN[int(pesoIndice.w)];
+`;
+
+/** Innesta la mescolanza in un materiale standard, lasciandogli tutto il resto:
+ *  luci, ombre, rugosita'. Si riscrivono due soli blocchi, quello che inizia la
+ *  normale e quello che inizia la posizione. */
+function conPelle(mat, uni, rigido = false) {
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.ossa = uni.ossa;
+    shader.uniforms.ossaN = uni.ossaN;
+    shader.vertexShader = DICHIARA + shader.vertexShader
+      .replace("#include <beginnormal_vertex>",
+               (rigido ? SOLA : MESCOLA) + "  vec3 objectNormal = normalize(mPelleN * vec3(normal));")
+      // La normale va trasformata con l'inversa trasposta, non con la stessa
+      // matrice del punto: lungo l'asse l'osso si allunga fino al 40% e di
+      // traverso il ventre si gonfia del 28%, e con una scala cosi' storta una
+      // normale trattata come un punto sbaglia fino a una trentina di gradi.
+      .replace("#include <begin_vertex>",
+               "  vec3 transformed = (mPelle * vec4(position, 1.0)).xyz;");
+  };
+  // Senza questa, i materiali con e senza pelle si scambierebbero il programma
+  // compilato, perche' three li giudica uguali guardando solo le proprieta'.
+  mat.customProgramCacheKey = () => rigido ? "pelle-rigida" : "pelle";
+  return mat;
+}
+// I materiali per tipo sono condivisi fra i gruppi, e con loro le matrici: sono
+// tutti a ingrossamento uno, quindi non c'e' niente da distinguere.
+for (const k of Object.keys(MATERIALI)) conPelle(MATERIALI[k], uniBase, !DEFORMABILI.has(+k));
 
 function montaMesh(strutture, sk) {
   for (const [, v] of perStruttura) { v.mesh.geometry.dispose(); gruppoMesh.remove(v.mesh); }
@@ -340,26 +419,81 @@ function montaMesh(strutture, sk) {
     gruppi.get(chiave).pezzi.push(l);
   }
 
+  const vic = adiacenze(sk);
+  preparaOssa(sk);
+  let mescolati = 0, vertici = 0;
   for (const [chiave, g] of gruppi) {
+    // I ventri colorati hanno materiale proprio perche' cambiano colore da
+    // soli; approfittandone, hanno anche matrici proprie, cosi' possono
+    // ingrossarsi senza trascinarsi dietro tutto il resto del segmento.
+    const uni = g.muscolo >= 0 ? nuoveUniformi() : uniBase;
     const mat = g.muscolo >= 0
-      ? new THREE.MeshStandardMaterial({ color: COL_NEUTRO.clone(), roughness: .5, metalness: .02 })
+      ? conPelle(new THREE.MeshStandardMaterial({ color: COL_NEUTRO.clone(), roughness: .5, metalness: .02 }), uni)
       : MATERIALI[g.tipo] || MATERIALI[0];
-    const mesh = new THREE.Mesh(fondi(g.pezzi), mat);
-    mesh.matrixAutoUpdate = false;      // la matrice la scriviamo noi
+    const f = fondi(g.pezzi, g.l.segmento, vic, DEFORMABILI.has(g.tipo));
+    mescolati += f.mescolati; vertici += f.vertici;
+    const mesh = new THREE.Mesh(f.geometria, mat);
+    mesh.matrixAutoUpdate = false;      // resta l'identita': trasforma il shader
+    // Il riquadro di contenimento e' quello a riposo, e la posa lo sposta:
+    // lasciando fare a three, le mesh sparirebbero appena il corpo si muove.
+    mesh.frustumCulled = false;
     mesh.visible = false;
     gruppoMesh.add(mesh);
-    perStruttura.set(chiave, { mesh, mat, l: g.l, tipo: g.tipo, muscolo: g.muscolo,
-                               pezzi: g.pezzi });
+    perStruttura.set(chiave, { mesh, mat, uni, l: g.l, tipo: g.tipo, muscolo: g.muscolo,
+                               pezzi: g.pezzi, usate: f.usate, M: new THREE.Matrix4() });
   }
   const perSegmento = {};
   for (const nome of Object.keys(SEGMENTI)) perSegmento[nome] = 0;
   for (const l of pronte) perSegmento[l.segmento] = (perSegmento[l.segmento] || 0) + 1;
-  return { pronte: pronte.length, fuori, gruppi: gruppi.size, conta, perSegmento };
+  return { pronte: pronte.length, fuori, gruppi: gruppi.size, conta, perSegmento,
+           mescolati, vertici };
 }
 
 const M4 = new THREE.Matrix4();
+// Il riferimento a riposo di ogni osso, che serve a costruirne la matrice. E'
+// lo stesso per tutte le strutture del segmento, quindi si tiene una volta
+// sola invece che per gruppo.
+let riposoOsso = null;
+function preparaOssa(sk) {
+  riposoOsso = CATENA.map((nome) => {
+    const seg = SEGMENTI[nome];
+    const a = sk.ancore[seg.ancore[0]], b = sk.ancore[seg.ancore[1]];
+    if (!a || !b) return null;
+    const L = Math.hypot(b[0]-a[0], b[1]-a[1], b[2]-a[2]);
+    if (!(L > 1e-9)) return null;
+    return { nome, lm: seg.lm, rigido: !!seg.rigido,
+             l: { ancoraA: a, lunghezzaRiposo: L,
+                  frame: frameSegmento(a, b, sk.su, sk.avanti) } };
+  });
+}
+
+/** Scrive nelle uniformi le matrici delle ossa che servono a un gruppo.
+ *  Solo quelle: un muscolo ne usa due o tre su quattordici, e calcolarle tutte
+ *  per ognuno dei trenta ventri colorati sarebbe lavoro buttato. */
+function scriviOssa(uni, quali, ancore, su1, avanti1, scalaCorpo, ingrosso) {
+  let almenoUna = false;
+  for (const j of quali) {
+    const o = riposoOsso[j];
+    if (!o) continue;
+    const a1 = ancore[o.lm[0]], b1 = ancore[o.lm[1]];
+    if (!a1 || !b1) continue;
+    const M = matricePosa(o.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso, o.rigido);
+    const N = matriceNormali(o.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso, o.rigido);
+    if (!M || !N) continue;
+    uni.ossa.value[j].fromArray(M);
+    uni.ossaN.value[j].fromArray(N);
+    almenoUna = true;
+  }
+  return almenoUna;
+}
+
+const TUTTE = CATENA.map((_, i) => i);
 /** Posa tutti i gruppi sulla posa corrente. */
 function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
+  if (!riposoOsso) return;
+  // Le matrici comuni una volta sola, non una per gruppo.
+  scriviOssa(uniBase, TUTTE, ancore, su1, avanti1, scalaCorpo, 1);
+
   for (const [, v] of perStruttura) {
     const seg = SEGMENTI[v.l.segmento];
     const a1 = ancore[seg.lm[0]], b1 = ancore[seg.lm[1]];
@@ -374,12 +508,16 @@ function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
       v.mat.color.copy(tmpCol);
       // Il ventre conserva il volume: accorciandosi si ingrossa.
       ingrosso = e < 0 ? 1 + k * 0.28 : 1 - k * 0.12;
+      if (!scriviOssa(v.uni, v.usate, ancore, su1, avanti1, scalaCorpo, ingrosso)) {
+        v.mesh.visible = false; continue;
+      }
     }
+    // La matrice del segmento serve ancora, ma solo per dire dov'e' finita la
+    // struttura: a schermo ci pensa il shader, vertice per vertice.
     const M = matricePosa(v.l, a1, b1, su1, avanti1, scalaCorpo, ingrosso, !!seg.rigido);
     if (!M) { v.mesh.visible = false; continue; }
     v.mesh.visible = true;
-    v.mesh.matrix.copy(M4.fromArray(M));
-    v.mesh.matrixWorldNeedsUpdate = true;
+    v.M.fromArray(M);
   }
 }
 
@@ -395,6 +533,7 @@ cv.addEventListener("pointermove", (e) => {
 });
 
 // ── Stato ──────────────────────────────────────────────────────────
+let inquadraturaFerma = false;
 let landmarker = null, running = false, riposo = null, ultimiPts = null;
 let ultimiGrezzi = null, ultimaVis = null;
 const filtro = new FiltroPosa();
@@ -454,6 +593,8 @@ function usaMesh(buf, daDeposito) {
     $("et-nira").textContent = "Sostituisci le mesh";
     const note = [];
     if (fuori.length) note.push(`${fuori.length} senza aggancio`);
+    if (esito.vertici)
+      note.push(`${Math.round(100 * esito.mescolati / esito.vertici)}% dei vertici si piega alle articolazioni`);
     if (esito.conta && esito.conta.vicinanza)
       note.push(`${esito.conta.vicinanza} collocate per vicinanza invece che dal nome`);
     for (const a of scheletro.avvisi) note.push(a);
@@ -640,6 +781,7 @@ function inquadra(pts) {
   const margine = 1.30;
   const alt = (yMax - yMin) * margine, larg = xMax * 2 * margine;
   const mezzoV = Math.tan(camera.fov * Math.PI / 360);
+  if (inquadraturaFerma) return;
   const mezzoO = Math.atan(mezzoV * camera.aspect);
   const rV = (alt / 2) / mezzoV, rO = (larg / 2) / Math.tan(mezzoO);
   const r = Math.max(1.2, Math.min(6, Math.max(rV, rO)));
@@ -786,6 +928,9 @@ window.__anatomia = {
   calibra() { $("btn-cal").click(); },
   strain: () => Array.from(strainLisciato),
   nomi: () => MUSCOLI.map(m => m.nome + " " + m.lato),
+  // Gancio di prova: a inquadratura ferma, se l'immagine cambia cambiando posa
+  // vuol dire che a muoverla e' il vertex shader e non la telecamera.
+  bloccaInquadratura: (v) => { inquadraturaFerma = !!v; },
   conteggi: () => ({ muscoli: MUSCOLI.length, ossa: OSSA.length,
                      meshVisibili: gruppo.children.filter(c => c.visible).length }),
   caricaMesh: (buf) => usaMesh(buf, false),
@@ -797,11 +942,13 @@ window.__anatomia = {
     // Ingombro di quel che si vede davvero, per accorgersi se qualcosa e'
     // finito fuori scala o dall'altra parte della scena.
     ingombro: (() => {
-      const b = new THREE.Box3();
+      const b = new THREE.Box3(), cassa = new THREE.Box3();
       for (const [, v] of perStruttura) {
         if (!v.mesh.visible) continue;
-        v.mesh.updateMatrixWorld(true);
-        b.expandByObject(v.mesh);
+        // Il riquadro della geometria e' quello a riposo: va portato nella posa
+        // con la matrice del segmento, perche' la mesh a schermo la muove il
+        // shader e three non ne sa niente.
+        b.union(cassa.copy(v.mesh.geometry.boundingBox).applyMatrix4(v.M));
       }
       return b.isEmpty() ? null : { min: b.min.toArray(), max: b.max.toArray() };
     })(),
@@ -810,6 +957,8 @@ window.__anatomia = {
     // baricentro a riposo e gli si applica la matrice del gruppo, che e' la
     // stessa per tutti i suoi pezzi.
     perSegmento: ultimoEsito?.perSegmento || null,
+    mescolati: ultimoEsito?.mescolati ?? null,
+    vertici: ultimoEsito?.vertici ?? null,
     conta: ultimoEsito?.conta || null,
     posizioni: (() => {
       const out = {}, v3 = new THREE.Vector3();
@@ -819,7 +968,7 @@ window.__anatomia = {
           const n = p.pos.length / 3;
           let x = 0, y = 0, z = 0;
           for (let i = 0; i < n; i++) { x += p.pos[i*3]; y += p.pos[i*3+1]; z += p.pos[i*3+2]; }
-          out[p.nome] = v3.set(x/n, y/n, z/n).applyMatrix4(g.mesh.matrix).toArray();
+          out[p.nome] = v3.set(x/n, y/n, z/n).applyMatrix4(g.M).toArray();
         }
       }
       return out;

@@ -4,7 +4,52 @@
 import { chromium } from "playwright";
 import { readFileSync } from "node:fs";
 import http from "node:http";
+import zlib from "node:zlib";
 import { costruisci } from "./tools/prove/genera-nira.mjs";
+
+/** Decodifica un PNG a 8 bit non interlacciato: quello che produce il browser.
+ *  Serve perche' confrontare i byte compressi non dice niente — due immagini
+ *  identiche danno lo stesso stream, ma due quasi identiche danno stream del
+ *  tutto diversi, e la percentuale che ne uscirebbe sarebbe un numero senza
+ *  significato. */
+function leggiPng(buf) {
+  let larg = 0, alt = 0, canali = 0, i = 8;
+  const dati = [];
+  while (i < buf.length) {
+    const n = buf.readUInt32BE(i), tipo = buf.toString("ascii", i + 4, i + 8);
+    const corpo = buf.subarray(i + 8, i + 8 + n);
+    if (tipo === "IHDR") {
+      larg = corpo.readUInt32BE(0); alt = corpo.readUInt32BE(4);
+      if (corpo[8] !== 8) throw new Error("PNG non a 8 bit");
+      if (corpo[12] !== 0) throw new Error("PNG interlacciato");
+      canali = { 0: 1, 2: 3, 4: 2, 6: 4 }[corpo[9]];
+      if (!canali) throw new Error("PNG con tavolozza");
+    } else if (tipo === "IDAT") dati.push(corpo);
+    else if (tipo === "IEND") break;
+    i += 12 + n;
+  }
+  const grezzo = zlib.inflateSync(Buffer.concat(dati));
+  const riga = larg * canali, out = Buffer.alloc(alt * riga);
+  for (let y = 0; y < alt; y++) {
+    const f = grezzo[y * (riga + 1)];
+    const src = grezzo.subarray(y * (riga + 1) + 1, y * (riga + 1) + 1 + riga);
+    for (let x = 0; x < riga; x++) {
+      const a = x >= canali ? out[y * riga + x - canali] : 0;
+      const b = y > 0 ? out[(y - 1) * riga + x] : 0;
+      const c = (x >= canali && y > 0) ? out[(y - 1) * riga + x - canali] : 0;
+      let v = src[x];
+      if (f === 1) v += a;
+      else if (f === 2) v += b;
+      else if (f === 3) v += (a + b) >> 1;
+      else if (f === 4) {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+      }
+      out[y * riga + x] = v & 255;
+    }
+  }
+  return { larg, alt, canali, dati: out };
+}
 
 const DIR = process.env.NIRSCOPE_DIR || process.cwd();
 const TIPI = { ".html":"text/html", ".js":"text/javascript", ".mjs":"text/javascript",
@@ -192,7 +237,86 @@ console.log("\n\x1b[1m7. Con la posa che balla, le mesh stanno ferme\x1b[0m");
         misura.ballerino < 5, `${misura.ballerino.toFixed(1)} mm`);
 }
 
-console.log("\n\x1b[1m8. Un file rovinato non rompe la pagina\x1b[0m");
+console.log("\n\x1b[1m8. La deformazione arriva davvero a schermo\x1b[0m");
+{
+  // Prova indispensabile. Da quando la posa la applica il vertex shader, la
+  // matrice della mesh resta l'identita' per sempre: se il programma non
+  // compilasse, o gli attributi dei pesi non arrivassero, il corpo resterebbe
+  // disegnato nella posizione a riposo — e tutte le prove qui sopra
+  // passerebbero lo stesso, perche' leggono le posizioni calcolate, non i
+  // pixel. L'unico modo di accorgersene e' guardare l'immagine.
+  // L'inquadratura si riassesta da sola su ogni nuova posa, e finche' si muove
+  // cambia ogni pixel dell'immagine: confrontare troppo presto misurerebbe lo
+  // spostamento della telecamera invece della deformazione. Si aspetta che
+  // l'immagine smetta di cambiare.
+  const scatta = async (posa) => {
+    await page.evaluate(p => { window.__posaTest = p; }, posa);
+    let prec = null;
+    for (let i = 0; i < 40; i++) {
+      await page.waitForTimeout(120);
+      const img = leggiPng(await page.locator("#scena").screenshot());
+      if (prec && diversi(prec, img).q < 0.0005) return img;
+      prec = img;
+    }
+    throw new Error("l'inquadratura non si e' mai fermata");
+  };
+  /** Quanti pixel cambiano, e dove: la meta' alta dell'immagine contro quella
+   *  bassa. Alzando un braccio deve muoversi la parte alta, non le gambe. */
+  const diversi = (a, b) => {
+    const c = a.canali;
+    let n = 0, tot = 0, alto = 0, basso = 0;
+    for (let y = 0; y < a.alt; y++) {
+      for (let x = 0; x < a.larg; x++) {
+        const i = (y * a.larg + x) * c;
+        tot++;
+        if (Math.abs(a.dati[i] - b.dati[i]) > 8 ||
+            Math.abs(a.dati[i+1] - b.dati[i+1]) > 8 ||
+            Math.abs(a.dati[i+2] - b.dati[i+2]) > 8) {
+          n++;
+          if (y < a.alt / 2) alto++; else basso++;
+        }
+      }
+    }
+    return { q: n / tot, alto, basso };
+  };
+  // A inquadratura libera la telecamera si riquadra da sola a ogni posa e
+  // cambierebbe tutti i pixel anche se il corpo restasse immobile: cosi' la
+  // prova non distinguerebbe niente. Bloccandola, l'unica cosa che puo' ancora
+  // muovere l'immagine e' la trasformazione dentro il shader.
+  // Solo ossa: i ventri muscolari cambiano colore da soli quando cambia la
+  // lunghezza, e quel colore da solo muoverebbe i pixel anche con la geometria
+  // ferma. Le ossa hanno un materiale a tinta fissa, quindi se cambiano loro e'
+  // perche' si sono davvero spostate.
+  await page.click('[data-v="ossa"]');
+  await page.evaluate(() => window.__anatomia.bloccaInquadratura(true));
+  const dritto = await scatta(POSA);
+  const alzato = POSA.map(p => p.slice());
+  alzato[14] = [-0.26, -0.48, 0]; alzato[16] = [-0.28, -0.78, 0];   // braccio dx su
+  const conBraccio = await scatta(alzato);
+  const d = diversi(dritto, conBraccio);
+  check("a telecamera ferma e a tinta fissa, alzare il braccio muove i pixel",
+        d.q > 0.004, `${(d.q * 100).toFixed(1)}% dei pixel`);
+  check("e si muove la parte alta dell'immagine, non le gambe",
+        d.alto > d.basso * 3, `${d.alto} pixel in alto contro ${d.basso} in basso`);
+
+  const uguale = await scatta(POSA);
+  // Non si pretende l'identita' al pixel: la lisciatura si riassesta con un
+  // residuo che sta sotto la soglia di stabilita' stessa. Si pretende che lo
+  // scarto sia due ordini di grandezza sotto il movimento del braccio.
+  const rit = diversi(dritto, uguale).q;
+  check("tornando alla posa di prima l'immagine ci ritorna sopra",
+        rit < d.q / 20, `${(rit * 100).toFixed(3)}% contro ${(d.q * 100).toFixed(1)}%`);
+  await page.evaluate(() => window.__anatomia.bloccaInquadratura(false));
+  await page.click('[data-v="tutto"]');
+
+  // I pesi devono esistere davvero sul modello vero, non solo in teoria.
+  const st = await page.evaluate(() => window.__anatomia.statoMesh());
+  check("una parte dei vertici e' agganciata a piu' di un osso",
+        st.mescolati > 0 && st.mescolati < st.vertici,
+        `${st.mescolati} di ${st.vertici} vertici`);
+}
+
+console.log("\n\x1b[1m9. Un file rovinato non rompe la pagina\x1b[0m");
 const rotto = await page.evaluate(() => {
   const b = new Uint8Array(64); b.set([78,73,82,65,78,65,84,49]); // magia giusta, resto no
   new DataView(b.buffer).setUint32(8, 5, true);
