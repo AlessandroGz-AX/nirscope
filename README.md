@@ -167,7 +167,48 @@ fermi invece di inseguire le ipotesi del modello, e un buco nel rilevamento
 tiene l'ultima posa buona per quattro decimi di secondo invece di far sparire
 tutto. Misurato: 12 mm di rumore sui punti diventano 1,1 mm alla tibia.
 
+### Come si muove la colonna
+
+`biomeccanica.js` porta i dati di mobilita' segmentale della letteratura. Il
+tronco non e' piu' un blocco unico: ogni livello vertebrale ha la sua
+escursione nei tre piani, e un movimento complessivo si spartisce fra i livelli
+in proporzione a quanto ciascuno puo' muoversi.
+
+Il fatto che conta di piu' e' che **le lombari quasi non ruotano**: 13 gradi in
+tutto contro i 45 delle toraciche. Chi modella la colonna come un tubo uniforme
+fa ruotare il bacino insieme alle spalle, ed e' sbagliato — la torsione del
+tronco avviene quasi tutta nel torace. In flessione e' l'opposto: 60 gradi ai
+lombi contro 28 al torace, che la gabbia toracica frena. E la sola C1-C2 vale
+il 52% della torsione del collo, che e' perche' si gira la testa senza muovere
+le spalle.
+
+**Una trappola in cui si casca facilmente.** I valori per singolo livello che
+si trovano in letteratura vengono quasi tutti da prove *in vitro*, su segmenti
+di cadavere; i totali di regione che si trovano accanto sono misure *in vivo*.
+Non sono confrontabili: sommando i valori in vitro delle toraciche vengono 95
+gradi di flesso-estensione contro i 28 che si misurano su una persona in piedi.
+Qui serve animare una persona viva, quindi il profilo per livello viene dalla
+letteratura ma ogni regione e' riscalata perche' la sua somma faccia il totale
+clinico. Le prove lo verificano regione per regione.
+
+Ci sono anche il **ritmo scapolo-omerale** (sotto i 30 gradi la scapola sta
+ferma, oltre ne fa uno ogni due di braccio: a elevazione piena, 50 gradi di
+scapola e 130 di gleno-omerale) e il **ritmo lombo-pelvico**, che serve perche'
+una telecamera sola non vede la meta' della schiena — fra anche e spalle non ci
+sono landmark. L'inclinazione del tronco si misura, ma quanta ne sia flessione
+della colonna e quanta rotazione dell'anca va dedotto: all'inizio del
+piegamento comanda la colonna quattro a uno, a meta' si pareggiano, alla fine
+comanda il bacino.
+
+Fonti: [Liebsch et al., PLOS One 2017](https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0177823)
+per i tre piani toracici; [White e Panjabi](https://musculoskeletalkey.com/measurement-of-range-of-motion-of-the-thoracic-and-lumbar-spine/)
+per la flesso-estensione toracica; [ROM lombare L1-S1 in vivo](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9643460/);
+[cinematica cervicale](https://www.physio-pedia.com/Kinematics_of_the_Cervical_Spine);
+[ritmo scapolo-omerale](https://www.physio-pedia.com/Scapulohumeral_Rhythm);
+[ritmo lombo-pelvico](https://www.physio-pedia.com/Lumbopelvic_Rhythm).
+
     node test-anatomia-mesh.mjs      # orientamento, articolazioni, pose
+    node test-biomeccanica.mjs       # mobilita' segmentale, ritmi, catena
     node test-posa-filtro.mjs        # tremolio, ritardo, punti non visti
     node test-pesi.mjs               # deformazione: catena, pesi, normali
     node test-anatomia-pagina.mjs    # la pagina vera, con Playwright
