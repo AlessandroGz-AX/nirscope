@@ -92,6 +92,7 @@ function estremita(s, su) {
 // riconoscono le poche che servono a orientare il modello, in entrambi i modi.
 const LATO_DX = /(^|_)(dx|right)(_|$)/, LATO_SX = /(^|_)(sx|left)(_|$)/;
 const CHIAVE = {
+  temporale: /temporal_bone/,
   cranio:   /^cranio$|frontal_bone|parietal_bone|occipital_bone|temporal_bone|^sphenoid|^ethmoid/,
   mandibola:/^mandibola$|^mandible/,
   bacino:   /(^|_)bacino(_|$)|hip_bone|coxal_bone|innominate/,
@@ -288,10 +289,17 @@ export function derivaScheletro(mappa) {
   // massiccio facciale — l'equivalente del naso.
   const gCranio = [...G("cranio"), ...G("mandibola")];
   A.testa = gCranio.length ? estremoGruppo(gCranio, avanti, 0.03, +1) : testa;
-  // La base del cranio: da li' in giu' comincia il collo. Prima le cervicali
-  // erano incollate alla testa e il collo non si piegava affatto.
-  A.baseCranio = gCranio.length ? estremoGruppo(gCranio, su, 0.05, -1)
-                                : meta(A.midSpalle, testa);
+  // Il punto delle orecchie, dove il collo finisce e la testa comincia.
+  //
+  // Dal vivo quel punto e' la meta' fra i due landmark delle orecchie. A riposo
+  // deve essere la stessa cosa, altrimenti i due assi non parlano della stessa
+  // grandezza: erano le ossa temporali a mancare. Prendendo invece la base del
+  // cranio, l'asse a riposo puntava in alto — 75 gradi dall'avanti — mentre dal
+  // vivo puntava avanti, e il cranio compariva inclinato di quasi sessanta
+  // gradi. Con le temporali l'asse va a 3,6 gradi dall'avanti, come dal vivo.
+  const gTemporali = G("temporale");
+  A.orecchie = gTemporali.length ? baricentroGruppo(gTemporali)
+    : (gCranio.length ? estremoGruppo(gCranio, su, 0.05, -1) : meta(A.midSpalle, testa));
 
   return { su, laterale, avanti, ancore: A, bacino, avvisi, scambiaLati,
            altezzaTronco: len(sub(A.midSpalle, A.midAnche)) };
@@ -351,7 +359,7 @@ export const SEGMENTI = {
   // Il collo: le cervicali e i muscoli che ci stanno sopra. Dal vivo va dalla
   // meta' delle spalle alla meta' delle orecchie, che e' il punto piu' vicino
   // alla base del cranio che MediaPipe sappia dare.
-  collo:           { ancore: ["midSpalle", "baseCranio"], lm: ["midSpalle", "midOrecchie"] },
+  collo:           { ancore: ["midSpalle", "orecchie"], lm: ["midSpalle", "midOrecchie"] },
   // Il cingolo scapolare: scapola e clavicola non appartengono al torace, si
   // muovono con la spalla. Alzando il braccio la scapola ruota verso l'alto —
   // ogni due gradi di omero, uno di scapola — e prima restava inchiodata.
@@ -360,7 +368,7 @@ export const SEGMENTI = {
   // Il cranio e' rigido: la sua dimensione segue la corporatura, non la
   // distanza naso-spalle, che cambia solo perche' si inclina la testa. Senza
   // questo la testa si allunga fino a sembrare un uovo.
-  testa:           { ancore: ["baseCranio", "testa"],   lm: ["midOrecchie", "naso"], rigido: true },
+  testa:           { ancore: ["orecchie", "testa"],    lm: ["midOrecchie", "naso"], rigido: true },
   omero_dx:        { ancore: ["spalla_dx", "gomito_dx"],   lm: [12, 14] },
   omero_sx:        { ancore: ["spalla_sx", "gomito_sx"],   lm: [11, 13] },
   avambraccio_dx:  { ancore: ["gomito_dx", "polso_dx"],    lm: [14, 16] },

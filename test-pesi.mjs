@@ -20,7 +20,7 @@ const check = (n, c, e = "") => {
 // corpo, perche' e' da quelle che nascono i giunti e i raggi.
 const A = {
   midAnche: [0, 0.95, 0],      midSpalle: [0, 1.42, 0],   testa: [0, 1.60, 0.06],
-  baseCranio: [0, 1.52, 0],
+  orecchie: [0, 1.56, -0.02],
   spalla_dx: [-0.18, 1.40, 0], gomito_dx: [-0.20, 1.13, 0], polso_dx: [-0.21, 0.87, 0],
   spalla_sx: [ 0.18, 1.40, 0], gomito_sx: [ 0.20, 1.13, 0], polso_sx: [ 0.21, 0.87, 0],
   mano_dx: [-0.21, 0.70, 0],   mano_sx: [ 0.21, 0.70, 0],

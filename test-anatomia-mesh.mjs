@@ -395,6 +395,44 @@ check("le ossa del cranio finiscono sulla testa",
         .every(p => p.segmento === "testa"));
 // Le cervicali stanno sul collo, non sul tronco: e' il collo a piegarsi
 // quando si gira la testa, e prima erano incollate al torace.
+// Gli assi a riposo devono puntare dove puntano quelli dal vivo, altrimenti la
+// struttura compare ruotata. E' l'errore che ha inclinato il cranio di 57 gradi
+// quando l'ancora della testa era la base del cranio invece delle orecchie: le
+// prove sulla rotazione attorno all'asse non lo vedevano, perche' li' sbagliava
+// l'asse stesso.
+{
+  const nrm = (v) => { const L = Math.hypot(...v) || 1; return v.map(x => x / L); };
+  const dif = (a, b) => [a[0]-b[0], a[1]-b[1], a[2]-b[2]];
+  const gradi = (a, b) => Math.acos(Math.max(-1, Math.min(1,
+                  a[0]*b[0] + a[1]*b[1] + a[2]*b[2]))) * 180 / Math.PI;
+  const A = skC.ancore;
+  // Dal vivo la testa va da fra le orecchie al naso: quasi orizzontale in
+  // avanti. Il collo va dalle spalle alle orecchie: quasi verticale.
+  const aTesta = gradi(nrm(dif(A.testa, A.orecchie)), skC.avanti);
+  const aCollo = gradi(nrm(dif(A.orecchie, A.midSpalle)), skC.su);
+  // Confronto relativo, non soglia secca: il cranio del catalogo sintetico e'
+  // solo approssimativo, e una soglia tarata su di lui non direbbe niente sul
+  // modello vero. Quel che deve valere sempre e' che l'ancora scelta batta
+  // quella sbagliata — la base del cranio, che puntava in su invece che avanti
+  // e inclinava la testa di 57 gradi. Sul modello vero di BodyParts3D questo
+  // asse sta a 3,6 gradi dall'anteriore contro i 75,4 dell'altro.
+  // Il confronto che conta e' relativo: l'asse della testa deve puntare piu'
+  // verso l'avanti che verso l'alto. Con l'ancora sbagliata — la base del
+  // cranio invece delle orecchie — puntava in alto, e la testa compariva
+  // inclinata di 57 gradi. Una soglia secca in gradi non andrebbe bene: il
+  // cranio del catalogo sintetico e' solo approssimativo e darebbe un numero
+  // che non dice niente sul modello vero, dove questo asse sta a 3,6 gradi
+  // dall'anteriore contro i 75,4 che dava prima.
+  check("l'asse della testa punta piu' avanti che in alto",
+        aTesta < gradi(nrm(dif(A.testa, A.orecchie)), skC.su),
+        `${aTesta.toFixed(1)}° dall'anteriore, ` +
+        `${gradi(nrm(dif(A.testa, A.orecchie)), skC.su).toFixed(1)}° dalla verticale`);
+  check("l'asse del collo a riposo punta in alto, come dal vivo",
+        aCollo < 25, `${aCollo.toFixed(1)}° dalla verticale`);
+  const aTronco = gradi(nrm(dif(A.midSpalle, A.midAnche)), skC.su);
+  check("e quello del tronco pure", aTronco < 20, `${aTronco.toFixed(1)}°`);
+}
+
 check("le cervicali sul collo",
       gC.pronte.filter(p => /cervical_vertebra/.test(p.nome))
         .every(p => p.segmento === "collo"),
