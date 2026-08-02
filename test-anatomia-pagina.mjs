@@ -237,6 +237,25 @@ console.log("\n\x1b[1m7. Con la posa che balla, le mesh stanno ferme\x1b[0m");
         misura.ballerino < 5, `${misura.ballerino.toFixed(1)} mm`);
 }
 
+console.log("\n\x1b[1m7b. Nessun segmento resta senza le sue ancore vive\x1b[0m");
+{
+  // Il bug che questa prova impedisce: i segmenti mano e piede usano i
+  // landmark 19, 20, 31 e 32, ma l'elenco di quelli passati alle mesh era
+  // scritto a mano e si era fermato al 28. Mani e piedi non avevano l'ancora
+  // distale e restavano invisibili — sul modello vero erano 193 strutture su
+  // 629, quasi un terzo, e nessuna prova se ne accorgeva perche' il modello
+  // sintetico non ha ne' mani ne' piedi.
+  const mancanti = await page.evaluate(() => {
+    const usati = new Set(window.__anatomia.landmarkUsati());
+    const serve = new Set();
+    for (const s of Object.values(window.__anatomia.segmenti()))
+      for (const l of s.lm) if (typeof l === "number") serve.add(l);
+    return [...serve].filter(l => !usati.has(l));
+  });
+  check("ogni landmark che serve a un segmento viene passato alle mesh",
+        mancanti.length === 0, mancanti.length ? "mancano: " + mancanti.join(", ") : "");
+}
+
 console.log("\n\x1b[1m8. La deformazione arriva davvero a schermo\x1b[0m");
 {
   // Prova indispensabile. Da quando la posa la applica il vertex shader, la

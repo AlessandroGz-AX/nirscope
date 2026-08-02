@@ -660,10 +660,20 @@ function toVec(p) {
  *  frameCorpo lavora nel sistema di MediaPipe: la conversione (x, -y, -z) e'
  *  una diagonale con determinante positivo, quindi vale identica per i punti e
  *  per le direzioni e non specchia nulla. */
+// I landmark che servono ai segmenti, presi dai segmenti stessi. Prima erano
+// elencati a mano, e quando sono arrivati mano e piede — che usano gli indici
+// 19, 20, 31 e 32 — l'elenco non e' stato esteso: le loro ancore distali non
+// venivano mai passate, e 193 strutture su 629 restavano invisibili per
+// sempre. Un elenco scritto due volte prima o poi diverge, quindi ora si
+// ricava da SEGMENTI e non puo' piu' restare indietro.
+const LANDMARK_USATI = [...new Set(
+  Object.values(SEGMENTI).flatMap(s => s.lm).filter(x => typeof x === "number")
+    .concat([0]))];
+
 function ancoreVive(pts, F) {
   const d = (v) => [v[0], -v[1], -v[2]];
   const A = {};
-  for (const i of [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 0]) {
+  for (const i of LANDMARK_USATI) {
     if (pts[i]) A[i] = d(pts[i]);
   }
   A.midAnche = d(F.midAnche); A.midSpalle = d(F.midSpalle);
@@ -931,6 +941,8 @@ window.__anatomia = {
   // Gancio di prova: a inquadratura ferma, se l'immagine cambia cambiando posa
   // vuol dire che a muoverla e' il vertex shader e non la telecamera.
   bloccaInquadratura: (v) => { inquadraturaFerma = !!v; },
+  landmarkUsati: () => LANDMARK_USATI.slice(),
+  segmenti: () => SEGMENTI,
   conteggi: () => ({ muscoli: MUSCOLI.length, ossa: OSSA.length,
                      meshVisibili: gruppo.children.filter(c => c.visible).length }),
   caricaMesh: (buf) => usaMesh(buf, false),
