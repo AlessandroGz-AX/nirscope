@@ -196,7 +196,8 @@ import { MUSCOLI, OSSA, REGIONI, frameCorpo, tracciaMuscolo, deformazione } from
 import { leggiNira, derivaScheletro, preparaLegami, matricePosa, matriceNormali,
          frameSegmento, SEGMENTI } from "./anatomia-mesh.js";
 import { adiacenze, pesiGruppo, quantiMescolati, DEFORMABILI } from "./pesi.js";
-import { FiltroPosa, fiduciaPosa, consiglioInquadratura } from "./posa-filtro.js";
+import { FiltroPosa, fiduciaPosa, consiglioInquadratura,
+         visibilitaSegmenti, mostraSegmento } from "./posa-filtro.js";
 
 const $ = (id) => document.getElementById(id);
 const cv = $("scena"), video = $("src");
@@ -489,15 +490,22 @@ function scriviOssa(uni, quali, ancore, su1, avanti1, scalaCorpo, ingrosso) {
 
 const TUTTE = CATENA.map((_, i) => i);
 /** Posa tutti i gruppi sulla posa corrente. */
-function posaMesh(ancore, su1, avanti1, scalaCorpo, strain) {
+function posaMesh(ancore, su1, avanti1, scalaCorpo, strain, affidabilita) {
   if (!riposoOsso) return;
+  // Un segmento che la telecamera non vede non si disegna: meglio non mostrare
+  // un femore che mostrarlo nel posto sbagliato.
+  if (affidabilita) {
+    for (const [nome, a] of Object.entries(affidabilita))
+      segmentoVisibile[nome] = mostraSegmento(a, segmentoVisibile[nome] !== false);
+  }
   // Le matrici comuni una volta sola, non una per gruppo.
   scriviOssa(uniBase, TUTTE, ancore, su1, avanti1, scalaCorpo, 1);
 
   for (const [, v] of perStruttura) {
     const seg = SEGMENTI[v.l.segmento];
     const a1 = ancore[seg.lm[0]], b1 = ancore[seg.lm[1]];
-    const mostra = v.tipo === 1 ? vistaMuscoli : vistaOssa;
+    const mostra = (v.tipo === 1 ? vistaMuscoli : vistaOssa)
+                && segmentoVisibile[v.l.segmento] !== false;
     if (!mostra || !a1 || !b1) { v.mesh.visible = false; continue; }
 
     let ingrosso = 1;
@@ -534,6 +542,7 @@ cv.addEventListener("pointermove", (e) => {
 
 // ── Stato ──────────────────────────────────────────────────────────
 let inquadraturaFerma = false;
+const segmentoVisibile = {};   // per segmento: se e' abbastanza visto da disegnarlo
 let landmarker = null, running = false, riposo = null, ultimiPts = null;
 let ultimiGrezzi = null, ultimaVis = null;
 const filtro = new FiltroPosa();
@@ -681,7 +690,7 @@ function ancoreVive(pts, F) {
   return { A, su1: d(F.su), avanti1: d(F.avanti) };
 }
 
-function aggiornaScena(pts) {
+function aggiornaScena(pts, vis) {
   const F = frameCorpo(pts);
   if (!F) return null;
 
@@ -731,7 +740,8 @@ function aggiornaScena(pts) {
     // La scala esce dal rapporto fra il tronco vivo e quello del modello: cosi'
     // il modello si adatta alla corporatura senza che si sappia in che unita'
     // di misura fosse l'archivio.
-    posaMesh(A, su1, avanti1, tronco / scheletro.altezzaTronco, strainLisciato);
+    posaMesh(A, su1, avanti1, tronco / scheletro.altezzaTronco, strainLisciato,
+             visibilitaSegmenti(SEGMENTI, vis));
   }
   return risultati;
 }
@@ -812,6 +822,7 @@ function loop() {
 
   if (iniettati) {
     grezzi = iniettati;
+    vis = window.__visTest || null;
   } else if (landmarker && video.readyState >= 2) {
     if (ora !== lastT) {
       lastT = ora;
@@ -838,7 +849,7 @@ function loop() {
 
   if (pts) {
     ultimiPts = pts;
-    const ris = aggiornaScena(pts);
+    const ris = aggiornaScena(pts, vis);
     if (lm) aggiornaParti(lm);
     if (ris) {
       aggiornaClassifica(ris);
@@ -969,6 +980,8 @@ window.__anatomia = {
     // baricentro a riposo e gli si applica la matrice del gruppo, che e' la
     // stessa per tutti i suoi pezzi.
     perSegmento: ultimoEsito?.perSegmento || null,
+    segmentiNascosti: Object.entries(segmentoVisibile)
+      .filter(([, v]) => v === false).map(([k]) => k),
     mescolati: ultimoEsito?.mescolati ?? null,
     vertici: ultimoEsito?.vertici ?? null,
     conta: ultimoEsito?.conta || null,

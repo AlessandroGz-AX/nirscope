@@ -167,6 +167,17 @@ fermi invece di inseguire le ipotesi del modello, e un buco nel rilevamento
 tiene l'ultima posa buona per quattro decimi di secondo invece di far sparire
 tutto. Misurato: 12 mm di rumore sui punti diventano 1,1 mm alla tibia.
 
+**Quel che la telecamera non vede non si disegna.** Quando una parte del corpo
+esce dall'inquadratura MediaPipe non smette di dare i punti: continua a darli,
+inventati, con visibilita' bassa, e tutto quel che ci sta agganciato finisce
+dove capita. Da seduti si vedeva il bacino sparso per la scena. Un modello che
+mostra un femore nel posto sbagliato e' peggio di uno che non lo mostra: il
+primo dice una cosa falsa, il secondo dice che non sa. L'affidabilita' di un
+segmento e' quella del PIU' incerto dei due punti che lo guidano — non la
+media, perche' con un capo buono e uno inventato e' la direzione a essere
+sbagliata. Le soglie sono due, con isteresi: con una sola, un punto che oscilla
+attorno ad essa farebbe lampeggiare mezzo scheletro.
+
 ### Come si muove la colonna
 
 `biomeccanica.js` porta i dati di mobilita' segmentale della letteratura. Il

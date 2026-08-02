@@ -5,7 +5,8 @@
 // persona si muove davvero. Le due cose tirano in direzioni opposte, ed e'
 // proprio per quello che serve un filtro che cambia banda invece di una media
 // a peso fisso: la prova 3 lo mette nero su bianco.
-import { FiltroPosa, fiduciaPosa, consiglioInquadratura } from "./posa-filtro.js";
+import { FiltroPosa, fiduciaPosa, consiglioInquadratura,
+         visibilitaSegmenti, mostraSegmento, VIS_ACCENDI, VIS_SPEGNI } from "./posa-filtro.js";
 
 let ok = 0, ko = 0;
 const check = (n, c, e = "") => {
@@ -279,6 +280,47 @@ console.log("\n\x1b[1m8. Tutti e 33 i punti passano, nell'ordine\x1b[0m");
   const out2 = f.applica(buco, VIS_TUTTA, DT);
   check("una casella vuota non fa cadere le altre",
         out2.pts.length === N && out2.pts[8] !== null);
+}
+
+console.log("\n\x1b[1m9. Quel che la telecamera non vede non si disegna\x1b[0m");
+{
+  const SEG = {
+    tronco:    { lm: ["midAnche", "midSpalle"] },
+    testa:     { lm: ["midSpalle", "naso"] },
+    femore_dx: { lm: [24, 26] },
+    tibia_dx:  { lm: [26, 28] },
+    omero_dx:  { lm: [12, 14] },
+  };
+  const v = new Array(N).fill(0.95);
+  const tutti = visibilitaSegmenti(SEG, v);
+  check("con tutto visibile ogni segmento e' affidabile",
+        Object.values(tutti).every(x => x > 0.9));
+
+  // Una persona seduta alla scrivania: dalle ginocchia in giu' non si vede.
+  const seduto = v.slice();
+  for (const i of [25, 26, 27, 28, 29, 30, 31, 32]) seduto[i] = 0.08;
+  const q = visibilitaSegmenti(SEG, seduto);
+  check("il tronco resta affidabile", q.tronco > 0.9, q.tronco.toFixed(2));
+  check("la tibia no", q.tibia_dx < 0.1, q.tibia_dx.toFixed(2));
+  // Il femore ha l'anca vista bene e il ginocchio no: vale il peggiore, perche'
+  // e' la direzione a essere sbagliata e la direzione la fanno tutti e due.
+  check("e nemmeno il femore, che ha un capo buono e uno no",
+        q.femore_dx < 0.1, q.femore_dx.toFixed(2));
+  check("il braccio non ne risente", q.omero_dx > 0.9);
+
+  check("un segmento non visto si spegne", mostraSegmento(0.1, true) === false);
+  check("uno visto bene si accende", mostraSegmento(0.9, false) === true);
+  // L'isteresi: fra le due soglie si tiene quel che si aveva. Con una soglia
+  // sola un punto che oscilla attorno ad essa farebbe lampeggiare mezzo
+  // scheletro, che da' molto piu' fastidio di un femore fermo un attimo.
+  const mezzo = (VIS_ACCENDI + VIS_SPEGNI) / 2;
+  check("a meta' strada, chi era acceso resta acceso",
+        mostraSegmento(mezzo, true) === true);
+  check("e chi era spento resta spento", mostraSegmento(mezzo, false) === false);
+  check("le due soglie sono davvero due", VIS_SPEGNI < VIS_ACCENDI);
+
+  check("senza dati di visibilita' non si nasconde niente",
+        Object.values(visibilitaSegmenti(SEG, null)).every(x => x === 1));
 }
 
 console.log(`\n\x1b[1m${ok} verifiche superate, ${ko} fallite\x1b[0m\n`);

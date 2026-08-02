@@ -201,6 +201,61 @@ export function fiduciaPosa(vis) {
   return 0.6 * media(NUCLEO) + 0.4 * media(ARTI);
 }
 
+// ── Di quali segmenti ci si puo' fidare ────────────────────────────
+//
+// Quando una parte del corpo esce dall'inquadratura, MediaPipe non smette di
+// dare i punti: continua a darli, inventati, con visibilita' bassa. Tutto
+// quello che ci sta agganciato finisce dove capita — ed e' quel che si vede
+// nelle riprese da seduti, con le gambe fuori campo e le ossa del bacino
+// sparse per la scena.
+//
+// Un modello anatomico che mostra un femore nel posto sbagliato e' peggio di
+// uno che non lo mostra: il primo dice una cosa falsa, il secondo dice che non
+// sa. Quindi si misura quanto la telecamera vede davvero i punti che guidano
+// ogni segmento, e chi non e' visto non si disegna.
+
+/** Le ancore che non sono landmark singoli ma medie di piu' punti. */
+export const LM_COMPOSTI = {
+  midAnche: [23, 24], midSpalle: [11, 12], naso: [0], testa: [0],
+};
+
+/** Quanto ci si puo' fidare di ogni segmento, da 0 a 1.
+ *
+ *  Vale il PIU' BASSO dei due punti che lo guidano, non la media: un segmento
+ *  con un capo visto benissimo e l'altro non visto per niente non e' mezzo
+ *  buono, e' inutilizzabile. E' la sua direzione a essere sbagliata, e la
+ *  direzione la decidono tutti e due i capi.
+ *
+ *  @param segmenti la tabella dei segmenti, con i loro `lm`
+ *  @param vis      visibilita' dei 33 landmark, oppure null se non si sa */
+export function visibilitaSegmenti(segmenti, vis) {
+  const out = {};
+  if (!vis) { for (const n of Object.keys(segmenti)) out[n] = 1; return out; }
+  const perAncora = (a) => {
+    const idx = typeof a === "number" ? [a] : (LM_COMPOSTI[a] || []);
+    if (!idx.length) return 1;
+    let s = 0;
+    for (const i of idx) s += vis[i] ?? 0;
+    return s / idx.length;
+  };
+  for (const [nome, seg] of Object.entries(segmenti))
+    out[nome] = Math.min(...seg.lm.map(perAncora));
+  return out;
+}
+
+/** Decide se un segmento va mostrato, con isteresi.
+ *
+ *  Due soglie invece di una: chi e' gia' visibile resta visibile fino a una
+ *  soglia piu' bassa. Con una soglia sola, un punto che oscilla attorno ad essa
+ *  farebbe lampeggiare mezzo scheletro, che da' molto piu' fastidio di un
+ *  femore fermo un attimo di troppo.
+ */
+export const VIS_ACCENDI = 0.55, VIS_SPEGNI = 0.35;
+
+export function mostraSegmento(affidabilita, eraVisibile) {
+  return eraVisibile ? affidabilita > VIS_SPEGNI : affidabilita >= VIS_ACCENDI;
+}
+
 /** Che cosa dire a chi si sta inquadrando, guardando quali parti mancano.
  *  Un messaggio solo, quello che serve adesso: un elenco di problemi non lo
  *  legge nessuno mentre si sta in piedi davanti alla telecamera. */

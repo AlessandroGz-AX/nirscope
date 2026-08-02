@@ -256,6 +256,44 @@ console.log("\n\x1b[1m7b. Nessun segmento resta senza le sue ancore vive\x1b[0m"
         mancanti.length === 0, mancanti.length ? "mancano: " + mancanti.join(", ") : "");
 }
 
+console.log("\n\x1b[1m7c. Quel che la telecamera non vede non finisce a schermo\x1b[0m");
+{
+  // La situazione della schermata dell'utente: seduto alla scrivania, gambe
+  // fuori campo. MediaPipe non smette di dare i punti delle gambe, continua a
+  // darli inventati con visibilita' bassa, e le ossa ci finiscono sopra sparse
+  // per la scena. Meglio non mostrare un femore che mostrarlo dove non e'.
+  const conVis = (v) => page.evaluate(async ({ posa, vis }) => {
+    window.__visTest = vis;
+    window.__posaTest = posa;
+    await new Promise(r => setTimeout(r, 600));
+    const st = window.__anatomia.statoMesh();
+    return { nascosti: st.segmentiNascosti, visibili: st.visibili };
+  }, { posa: POSA, vis: v });
+
+  const tutto = new Array(33).fill(0.95);
+  const pieno = await conVis(tutto);
+  check("a corpo intero inquadrato non si nasconde niente",
+        pieno.nascosti.length === 0, pieno.nascosti.join(", "));
+
+  const seduto = tutto.slice();
+  for (const i of [25, 26, 27, 28, 29, 30, 31, 32]) seduto[i] = 0.08;
+  const parziale = await conVis(seduto);
+  check("da seduto spariscono le gambe",
+        ["femore_dx","femore_sx","tibia_dx","tibia_sx","piede_dx","piede_sx"]
+          .every(n => parziale.nascosti.includes(n)),
+        parziale.nascosti.join(", "));
+  check("ma il tronco e le braccia restano",
+        !parziale.nascosti.includes("tronco") && !parziale.nascosti.includes("omero_dx"));
+  check("e a schermo resta meno roba di prima",
+        parziale.visibili < pieno.visibili,
+        `${parziale.visibili} contro ${pieno.visibili} gruppi`);
+
+  const tornato = await conVis(tutto);
+  check("rialzandosi tornano tutte", tornato.nascosti.length === 0,
+        tornato.nascosti.join(", "));
+  await page.evaluate(() => { window.__visTest = null; });
+}
+
 console.log("\n\x1b[1m8. La deformazione arriva davvero a schermo\x1b[0m");
 {
   // Prova indispensabile. Da quando la posa la applica il vertex shader, la
