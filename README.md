@@ -146,6 +146,22 @@ a una costola non tocca un po' di omero solo perche' il braccio le passa
 accanto. Sul giunto il peso e' meta' e meta', ed e' quello che fa piegare il
 ventre di un muscolo invece di spezzarlo in due blocchi.
 
+**Collo e cingolo scapolare sono segmenti loro.** Prima le cervicali erano
+incollate alla testa e scapola e clavicola al torace: il collo non si piegava e
+la spalla restava inchiodata mentre il braccio saliva. Ora la catena passa per
+loro — torace, collo, testa da una parte; torace, cingolo scapolare, omero
+dall'altra — e sono due articolazioni vere che prima venivano saltate. Sul
+cingolo finisce anche tutta la cuffia dei rotatori, che ha il ventre sulla
+scapola e l'inserzione sull'omero: e' il tipo di muscolo che la mescolanza dei
+pesi serviva a rendere possibile.
+
+Il capo alto del collo non ha un landmark suo: si usa la meta' fra le orecchie.
+Ma le orecchie sono fra i punti che si perdono piu' facilmente — bastano i
+capelli o la testa girata — e quando si perdono MediaPipe le manda vicino
+all'origine. Presa alla lettera, la testa collassava. Si accettano solo se
+cadono dove un collo puo' arrivare, altrimenti si ripiega su un punto della
+congiungente spalle-naso.
+
 A differenza di un personaggio animato, qui le ossa restano rigide: si
 deformano solo muscoli, cartilagini e legamenti. Un femore mescolato fra bacino
 e tibia si piegherebbe come gomma, e la testa del femore ruota col femore.

@@ -21,8 +21,13 @@ import { SEGMENTI } from "./anatomia-mesh.js";
  *  punto dove si articolano lo dicono gia' le ancore dello scheletro. */
 export const PADRE = {
   tronco: null,
-  testa: "tronco",
-  omero_dx: "tronco",           omero_sx: "tronco",
+  // La testa non si articola sul torace: in mezzo c'e' il collo. E l'omero non
+  // si articola sul torace: in mezzo c'e' il cingolo scapolare. Senza questi
+  // due anelli la catena saltava due articolazioni vere.
+  collo: "tronco",
+  testa: "collo",
+  spalla_dx: "tronco",          spalla_sx: "tronco",
+  omero_dx: "spalla_dx",        omero_sx: "spalla_sx",
   avambraccio_dx: "omero_dx",   avambraccio_sx: "omero_sx",
   mano_dx: "avambraccio_dx",    mano_sx: "avambraccio_sx",
   femore_dx: "tronco",          femore_sx: "tronco",

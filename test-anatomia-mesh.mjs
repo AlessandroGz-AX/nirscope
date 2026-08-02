@@ -386,13 +386,28 @@ check("tutte e 629 agganciate", gC.pronte.length === 629,
 check("oltre il 90% collocate dal nome", gC.conta.nome / cat.length > 0.9,
       `${gC.conta.nome} dal nome, ${gC.conta.vicinanza} per vicinanza`);
 const perSeg = gC.pronte.reduce((a, p) => (a[p.segmento] = (a[p.segmento] || 0) + 1, a), {});
-check("tutti e quattordici i segmenti in uso", Object.keys(perSeg).length === 14,
-      Object.keys(perSeg).length + "");
+check("tutti i segmenti in uso, nessuno vuoto",
+      Object.keys(perSeg).length === Object.keys(SEGMENTI).length,
+      `${Object.keys(perSeg).length} di ${Object.keys(SEGMENTI).length}: ` +
+      Object.keys(SEGMENTI).filter(n => !perSeg[n]).join(", "));
 check("le ossa del cranio finiscono sulla testa",
       gC.pronte.filter(p => /frontal_bone|parietal_bone|occipital_bone/.test(p.nome))
         .every(p => p.segmento === "testa"));
-check("le vertebre sul tronco",
-      gC.pronte.filter(p => /vertebra/.test(p.nome)).every(p => p.segmento === "tronco"));
+// Le cervicali stanno sul collo, non sul tronco: e' il collo a piegarsi
+// quando si gira la testa, e prima erano incollate al torace.
+check("le cervicali sul collo",
+      gC.pronte.filter(p => /cervical_vertebra/.test(p.nome))
+        .every(p => p.segmento === "collo"),
+      gC.pronte.filter(p => /cervical_vertebra/.test(p.nome)).length + " vertebre");
+check("le toraciche e le lombari sul tronco",
+      gC.pronte.filter(p => /(thoracic|lumbar)_vertebra/.test(p.nome))
+        .every(p => p.segmento === "tronco"));
+// Scapola e clavicola non sono del torace: si muovono con la spalla.
+check("scapola e clavicola sul cingolo scapolare del loro lato",
+      gC.pronte.filter(p => /(^|_)(scapula|clavicle)(_|$)/.test(p.nome))
+        .every(p => p.segmento === (/right/.test(p.nome) ? "spalla_dx" : "spalla_sx")),
+      gC.pronte.filter(p => /(^|_)(scapula|clavicle)(_|$)/.test(p.nome))
+        .map(p => p.nome + "→" + p.segmento).slice(0, 3).join(", "));
 check("i metacarpi sulla mano del loro lato",
       gC.pronte.filter(p => /metacarpal/.test(p.nome))
         .every(p => p.segmento === (/right/.test(p.nome) ? "mano_dx" : "mano_sx")));

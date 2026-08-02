@@ -20,6 +20,7 @@ const check = (n, c, e = "") => {
 // corpo, perche' e' da quelle che nascono i giunti e i raggi.
 const A = {
   midAnche: [0, 0.95, 0],      midSpalle: [0, 1.42, 0],   testa: [0, 1.60, 0.06],
+  baseCranio: [0, 1.52, 0],
   spalla_dx: [-0.18, 1.40, 0], gomito_dx: [-0.20, 1.13, 0], polso_dx: [-0.21, 0.87, 0],
   spalla_sx: [ 0.18, 1.40, 0], gomito_sx: [ 0.20, 1.13, 0], polso_sx: [ 0.21, 0.87, 0],
   mano_dx: [-0.21, 0.70, 0],   mano_sx: [ 0.21, 0.70, 0],
@@ -34,19 +35,23 @@ const INDICE = Object.fromEntries(NOMI.map((n, i) => [n, i]));
 
 console.log("\n\x1b[1m1. La catena articolare e' quella giusta\x1b[0m");
 {
-  check("tutti e 14 i segmenti hanno dei vicini", NOMI.every(n => (VIC[n] || []).length > 0),
+  check("ogni segmento ha dei vicini", NOMI.every(n => (VIC[n] || []).length > 0),
         `${NOMI.filter(n => !(VIC[n] || []).length).join(", ") || "nessuno scoperto"}`);
   const nomi = (s) => (VIC[s] || []).map(v => v.nome).sort().join(",");
-  check("l'omero destro confina con tronco e avambraccio",
-        nomi("omero_dx") === "avambraccio_dx,tronco", nomi("omero_dx"));
-  check("il tronco confina con testa, due omeri e due femori",
-        nomi("tronco") === "femore_dx,femore_sx,omero_dx,omero_sx,testa", nomi("tronco"));
+  // L'omero non si articola sul torace: in mezzo c'e' il cingolo scapolare, e
+  // la testa non si articola sul torace: in mezzo c'e' il collo.
+  check("l'omero destro confina con la spalla e l'avambraccio",
+        nomi("omero_dx") === "avambraccio_dx,spalla_dx", nomi("omero_dx"));
+  check("il tronco confina con collo, due spalle e due femori",
+        nomi("tronco") === "collo,femore_dx,femore_sx,spalla_dx,spalla_sx", nomi("tronco"));
+  check("la testa confina solo col collo", nomi("testa") === "collo", nomi("testa"));
+  check("il collo sta fra tronco e testa", nomi("collo") === "testa,tronco", nomi("collo"));
   check("la tibia destra confina con femore e piede",
         nomi("tibia_dx") === "femore_dx,piede_dx", nomi("tibia_dx"));
   check("il giunto omero-avambraccio e' il gomito",
         VIC.omero_dx.find(v => v.nome === "avambraccio_dx").giunto === A.gomito_dx);
-  check("il giunto omero-tronco e' la spalla, non la meta' delle spalle",
-        VIC.omero_dx.find(v => v.nome === "tronco").giunto === A.spalla_dx);
+  check("il giunto omero-spalla e' la spalla, non la meta' delle spalle",
+        VIC.omero_dx.find(v => v.nome === "spalla_dx").giunto === A.spalla_dx);
   check("nessun segmento e' vicino di se stesso",
         NOMI.every(n => !(VIC[n] || []).some(v => v.nome === n)));
   check("la parentela e' completa: ogni segmento c'e'",
@@ -87,19 +92,23 @@ console.log("\n\x1b[1m3. Un muscolo si piega, ma solo all'articolazione\x1b[0m")
     return 0;
   };
   check("sul centro della spalla la carne e' meta' e meta'",
-        Math.abs(peso(0, "tronco") - 0.5) < 1e-6, `tronco ${peso(0, "tronco").toFixed(3)}`);
+        Math.abs(peso(0, "spalla_dx") - 0.5) < 1e-6,
+        `spalla ${peso(0, "spalla_dx").toFixed(3)}`);
   check("sul centro del gomito idem, fra braccio e avambraccio",
         Math.abs(peso(4, "avambraccio_dx") - 0.5) < 1e-6,
         `avambraccio ${peso(4, "avambraccio_dx").toFixed(3)}`);
   check("all'origine, tre centimetri piu' in la', la quota e' gia' scesa",
-        peso(1, "tronco") > 0.2 && peso(1, "tronco") < 0.45,
-        `tronco ${peso(1, "tronco").toFixed(3)}`);
+        peso(1, "spalla_dx") > 0.2 && peso(1, "spalla_dx") < 0.45,
+        `spalla ${peso(1, "spalla_dx").toFixed(3)}`);
   check("la pancia del muscolo e' tutta del suo osso",
         peso(3, "omero_dx") > 0.98, `omero ${peso(3, "omero_dx").toFixed(3)}`);
-  check("fra spalla e pancia la mescolanza cala senza salti",
-        peso(0, "tronco") > peso(1, "tronco") && peso(1, "tronco") > peso(2, "tronco")
-        && peso(2, "tronco") > peso(3, "tronco"),
-        [0,1,2,3].map(i => peso(i, "tronco").toFixed(3)).join(" > "));
+  // Cala sempre, e alla pancia e' finita. Non si pretende che ogni passo sia
+  // strettamente minore del precedente: oltre il raggio di mescolanza vale zero,
+  // e due zeri di fila sono il comportamento giusto, non un difetto.
+  const scia = [0, 1, 2, 3].map(i => peso(i, "spalla_dx"));
+  check("fra spalla e pancia la mescolanza cala senza risalire",
+        scia.every((v, i) => i === 0 || v <= scia[i-1]) && scia[0] > 0.4 && scia[3] === 0,
+        scia.map(v => v.toFixed(3)).join(" ≥ "));
   check("una pancia non prende mai peso dall'avambraccio",
         peso(3, "avambraccio_dx") === 0);
 }

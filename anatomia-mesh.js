@@ -288,6 +288,10 @@ export function derivaScheletro(mappa) {
   // massiccio facciale — l'equivalente del naso.
   const gCranio = [...G("cranio"), ...G("mandibola")];
   A.testa = gCranio.length ? estremoGruppo(gCranio, avanti, 0.03, +1) : testa;
+  // La base del cranio: da li' in giu' comincia il collo. Prima le cervicali
+  // erano incollate alla testa e il collo non si piegava affatto.
+  A.baseCranio = gCranio.length ? estremoGruppo(gCranio, su, 0.05, -1)
+                                : meta(A.midSpalle, testa);
 
   return { su, laterale, avanti, ancore: A, bacino, avvisi, scambiaLati,
            altezzaTronco: len(sub(A.midSpalle, A.midAnche)) };
@@ -344,10 +348,19 @@ export const LEGAMI = {
 // I landmark sono gli indici di MediaPipe Pose.
 export const SEGMENTI = {
   tronco:          { ancore: ["midAnche", "midSpalle"], lm: ["midAnche", "midSpalle"] },
+  // Il collo: le cervicali e i muscoli che ci stanno sopra. Dal vivo va dalla
+  // meta' delle spalle alla meta' delle orecchie, che e' il punto piu' vicino
+  // alla base del cranio che MediaPipe sappia dare.
+  collo:           { ancore: ["midSpalle", "baseCranio"], lm: ["midSpalle", "midOrecchie"] },
+  // Il cingolo scapolare: scapola e clavicola non appartengono al torace, si
+  // muovono con la spalla. Alzando il braccio la scapola ruota verso l'alto —
+  // ogni due gradi di omero, uno di scapola — e prima restava inchiodata.
+  spalla_dx:       { ancore: ["midSpalle", "spalla_dx"], lm: ["midSpalle", 12] },
+  spalla_sx:       { ancore: ["midSpalle", "spalla_sx"], lm: ["midSpalle", 11] },
   // Il cranio e' rigido: la sua dimensione segue la corporatura, non la
   // distanza naso-spalle, che cambia solo perche' si inclina la testa. Senza
   // questo la testa si allunga fino a sembrare un uovo.
-  testa:           { ancore: ["midSpalle", "testa"],    lm: ["midSpalle", "naso"], rigido: true },
+  testa:           { ancore: ["baseCranio", "testa"],   lm: ["midOrecchie", "naso"], rigido: true },
   omero_dx:        { ancore: ["spalla_dx", "gomito_dx"],   lm: [12, 14] },
   omero_sx:        { ancore: ["spalla_sx", "gomito_sx"],   lm: [11, 13] },
   avambraccio_dx:  { ancore: ["gomito_dx", "polso_dx"],    lm: [14, 16] },
@@ -393,6 +406,10 @@ const REGOLE = [
   [/(superior|inferior|medial|lateral)_rectus|obliquus_(superior|inferior)(_|$)|levator_palpebrae|palpebral|ciliary|stapedius|tensor_tympani|auricular|occipitofrontalis|epicranius|pterygoid|tensor_veli|levator_veli|palatoglossus|palatopharyngeus|styloglossus|hyoglossus|genioglossus|lingual|uvulae/, "testa", false],
   [/cricoid|arytenoid|epiglottic|corniculate|cuneiform_cartilage|thyroid_cartilage|tracheal_cartilage|laryngeal|cricothyroid|thyroarytenoid|thyrohyoid|sternohyoid|sternothyroid|omohyoid|constrictor_of_pharynx/, "tronco", false],
   [/cranial|frontal_bone|parietal|occipital|temporal_bone|sphenoid|ethmoid|vomer|maxilla|zygomatic|nasal_bone|lacrimal|palatine|concha|mandible|hyoid|tooth|incisor|canine|premolar|molar|masseter|temporalis|orbicularis|zygomaticus|buccinator|nasalis|mentalis|procerus|corrugator|risorius|digastric|mylohyoid|platysma|geniohyoid|stylohyoid/, "testa", false],
+  // Il collo, prima della regola del tronco che si prenderebbe le vertebre.
+  [/cervical_vertebra|atlas|axis(_|$)|sternocleidomastoid|scalenus|longus_(colli|capitis)|splenius|levator_scapulae|rectus_capitis|obliquus_capitis|semispinalis_(capitis|cervicis)|longissimus_(capitis|cervicis)/, "collo", false],
+  // Il cingolo scapolare, prima che scapola e clavicola finiscano al torace.
+  [/scapula|clavicle|subclavius|supraspinatus|infraspinatus|subscapularis|teres_(major|minor)|coracobrachialis/, "spalla", true],
   [/vertebra|sacrum|coccyx|(^|_)rib(_|$)|sternum|manubrium|xiphoid|costal_cartilage|hip_bone|coxal|scapula|clavicle|pelvi|multifidus|rotatores|semispinalis|spinalis|longissimus|iliocostalis|splenius|scalenus|sternocleidomastoid|intercostal|serratus|rhomboid|latissimus|trapezius|pectoralis|obliquus|transversus_abdominis|rectus_abdominis|quadratus_lumborum|psoas|iliacus|diaphragm|levator_scapulae|subclavius|pyramidalis|erector/, "tronco", false],
   // I carpali hanno un nome proprio ciascuno e nessuno di loro contiene
   // "carpal": senza elencarli finirebbero decisi per vicinanza, e il polso e'

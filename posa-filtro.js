@@ -217,6 +217,7 @@ export function fiduciaPosa(vis) {
 /** Le ancore che non sono landmark singoli ma medie di piu' punti. */
 export const LM_COMPOSTI = {
   midAnche: [23, 24], midSpalle: [11, 12], naso: [0], testa: [0],
+  midOrecchie: [7, 8],
 };
 
 /** Quanto ci si puo' fidare di ogni segmento, da 0 a 1.

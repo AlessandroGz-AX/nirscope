@@ -197,7 +197,7 @@ import { leggiNira, derivaScheletro, preparaLegami, matricePosa, matriceNormali,
          frameSegmento, SEGMENTI } from "./anatomia-mesh.js";
 import { adiacenze, pesiGruppo, quantiMescolati, DEFORMABILI } from "./pesi.js";
 import { FiltroPosa, fiduciaPosa, consiglioInquadratura,
-         visibilitaSegmenti, mostraSegmento } from "./posa-filtro.js";
+         visibilitaSegmenti, mostraSegmento, LM_COMPOSTI } from "./posa-filtro.js";
 
 const $ = (id) => document.getElementById(id);
 const cv = $("scena"), video = $("src");
@@ -676,8 +676,13 @@ function toVec(p) {
 // sempre. Un elenco scritto due volte prima o poi diverge, quindi ora si
 // ricava da SEGMENTI e non puo' piu' restare indietro.
 const LANDMARK_USATI = [...new Set(
-  Object.values(SEGMENTI).flatMap(s => s.lm).filter(x => typeof x === "number")
+  Object.values(SEGMENTI).flatMap(s => s.lm)
+    // Le ancore composite non sono landmark: sono medie di piu' landmark, e
+    // servono quelli sotto. Senza, il collo resterebbe senza il suo capo alto.
+    .flatMap(x => typeof x === "number" ? [x] : (LM_COMPOSTI[x] || []))
     .concat([0]))];
+
+const meta3 = (a, b) => [(a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2];
 
 function ancoreVive(pts, F) {
   const d = (v) => [v[0], -v[1], -v[2]];
@@ -687,6 +692,25 @@ function ancoreVive(pts, F) {
   }
   A.midAnche = d(F.midAnche); A.midSpalle = d(F.midSpalle);
   A.naso = A[0];
+  // La base del cranio non ha un landmark suo: la meta' fra le orecchie e' il
+  // punto piu' vicino che MediaPipe sappia dare, ed e' li' che finisce il collo.
+  //
+  // Ma le orecchie sono fra i punti che si perdono piu' facilmente — bastano i
+  // capelli, un cappuccio, o la testa girata — e quando si perdono MediaPipe le
+  // manda vicino all'origine. Preso alla lettera, il collo diventerebbe lungo
+  // quanto mezzo busto e la testa collasserebbe. Si accettano solo se cadono
+  // dove un collo puo' arrivare; altrimenti si prende un punto sulla congiungente
+  // spalle-naso, che e' sempre disponibile.
+  const orecchie = (A[7] && A[8]) ? meta3(A[7], A[8]) : null;
+  const lungoCollo = Math.hypot(A.naso[0] - A.midSpalle[0], A.naso[1] - A.midSpalle[1],
+                                A.naso[2] - A.midSpalle[2]);
+  const plausibile = orecchie && lungoCollo > 1e-6 &&
+    Math.hypot(orecchie[0] - A.midSpalle[0], orecchie[1] - A.midSpalle[1],
+               orecchie[2] - A.midSpalle[2]) > lungoCollo * 0.25;
+  A.midOrecchie = plausibile ? orecchie
+    : [A.midSpalle[0] + (A.naso[0] - A.midSpalle[0]) * 0.6,
+       A.midSpalle[1] + (A.naso[1] - A.midSpalle[1]) * 0.6,
+       A.midSpalle[2] + (A.naso[2] - A.midSpalle[2]) * 0.6];
   return { A, su1: d(F.su), avanti1: d(F.avanti) };
 }
 

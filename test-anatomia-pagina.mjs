@@ -94,6 +94,7 @@ const POSA = (() => {
   const p = new Array(33).fill(null).map(() => [0, 0, 0]);
   const set = (i, x, y, z) => { p[i] = [x, y, z]; };
   set(0,  0.00, -0.72, -0.06);          // naso
+  set(7,  0.07, -0.68, 0.02); set(8, -0.07, -0.68, 0.02);  // orecchie sx, dx
   set(11, 0.19, -0.48, 0); set(12, -0.19, -0.48, 0);       // spalle sx, dx
   set(13, 0.21, -0.18, 0); set(14, -0.21, -0.18, 0);       // gomiti
   set(15, 0.22,  0.10, 0); set(16, -0.22,  0.10, 0);       // polsi
