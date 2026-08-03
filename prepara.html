@@ -405,9 +405,32 @@
 
   /** Riduzione per raggruppamento su griglia: i vertici che cadono nella
    *  stessa cella diventano un vertice solo, nel loro baricentro. */
+  // Insieme disgiunto: serve a raggruppare i vertici per "stessa cella e stessa
+  // falda" senza costruire liste.
+  function radice(padre, i) {
+    let r = i;
+    while (padre[r] !== r) r = padre[r];
+    while (padre[i] !== r) { const n = padre[i]; padre[i] = r; i = n; }
+    return r;
+  }
+
+  // Riduzione per raggruppamento su griglia, ma solo fra vertici CONNESSI.
+  //
+  // Fondendo tutto quel che cade nella stessa cella, dove due falde di
+  // superficie si sfiorano — le due tavole della volta cranica, le pareti di
+  // una cavita' — se ne saldano due che non si toccano affatto. Ne esce uno
+  // spigolo condiviso da quattro o sei facce invece che da due: da li' il verso
+  // dei triangoli non si puo' piu' rendere coerente, le normali dei vertici si
+  // annullano fra facce girate al contrario, e la superficie si riempie di
+  // macchie nere. Il cranio sembrava bucato pur essendo chiuso e senza un solo
+  // spigolo di bordo, e nel modello a 629 strutture erano 369 quelle rovinate.
+  //
+  // Unendo solo i vertici che uno spigolo collega davvero, due falde che si
+  // sfiorano restano due. Sulla lastra di prova le giunzioni passano da 408 a 2,
+  // e quelle due stanno sul bordo, dove le tavole sono unite per davvero.
   function riduci(V, F, celle) {
     const n = V.length / 3;
-    if (!n) return { V, F };
+    if (!n || !F.length) return { V, F };
     let mnx=Infinity,mny=Infinity,mnz=Infinity,mxx=-Infinity,mxy=-Infinity,mxz=-Infinity;
     for (let i = 0; i < n; i++) {
       const x=V[i*3], y=V[i*3+1], z=V[i*3+2];
@@ -420,23 +443,38 @@
     // Chiave numerica e non stringa: su una mesh da centomila vertici, ripetuta
     // per ogni passo della ricerca binaria, la differenza si sente.
     const passo = celle + 1;
-    const mappa = new Map();
-    const somma = [], conta = [];
-    const rimap = new Uint32Array(n);
+    const cella = new Float64Array(n);
     for (let i = 0; i < n; i++) {
       const cx = Math.floor((V[i*3]-mnx)/lato), cy = Math.floor((V[i*3+1]-mny)/lato),
             cz = Math.floor((V[i*3+2]-mnz)/lato);
-      const k = (cx * passo + cy) * passo + cz;
-      let id = mappa.get(k);
-      if (id === undefined) { id = conta.length; mappa.set(k, id); somma.push(0,0,0); conta.push(0); }
+      cella[i] = (cx * passo + cy) * passo + cz;
+    }
+    const padre = new Uint32Array(n);
+    for (let i = 0; i < n; i++) padre[i] = i;
+    for (let t = 0; t < F.length; t += 3) {
+      for (let k = 0; k < 3; k++) {
+        const a = F[t+k], b = F[t+(k+1)%3];
+        if (cella[a] !== cella[b]) continue;
+        const ra = radice(padre, a), rb = radice(padre, b);
+        if (ra !== rb) padre[ra < rb ? rb : ra] = ra < rb ? ra : rb;
+      }
+    }
+
+    const idDi = new Int32Array(n).fill(-1);
+    const somma = [], conta = [];
+    const rimap = new Uint32Array(n);
+    for (let i = 0; i < n; i++) {
+      const r = radice(padre, i);
+      let id = idDi[r];
+      if (id === -1) { id = conta.length; idDi[r] = id; somma.push(0,0,0); conta.push(0); }
       somma[id*3]+=V[i*3]; somma[id*3+1]+=V[i*3+1]; somma[id*3+2]+=V[i*3+2];
       conta[id]++; rimap[i] = id;
     }
-    const NV = new Float64Array(somma.length);
+    const NV = new Float64Array(conta.length * 3);
     for (let i = 0; i < conta.length; i++) {
       NV[i*3]=somma[i*3]/conta[i]; NV[i*3+1]=somma[i*3+1]/conta[i]; NV[i*3+2]=somma[i*3+2]/conta[i];
     }
-    // Le facce con due vertici finiti nella stessa cella sono degenerate.
+    // Le facce con due vertici finiti nello stesso gruppo sono degenerate.
     const tenute = [];
     for (let i = 0; i < F.length; i += 3) {
       const a=rimap[F[i]], b=rimap[F[i+1]], c=rimap[F[i+2]];
@@ -444,9 +482,6 @@
     }
     return tenute.length ? { V: NV, F: new Uint32Array(tenute) } : { V, F };
   }
-
-  /** La griglia piu' fine che sta nel budget. Il numero di triangoli cresce
-   *  con la finezza, quindi la ricerca binaria e' lecita. */
   function riduciABudget(V, F, budget) {
     if (F.length / 3 <= budget) return { V, F };
     let basso = 6, alto = 400, migliore = null;

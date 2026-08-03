@@ -114,6 +114,21 @@ a quadriche, ma non ha dipendenze e non fallisce sulle mesh con buchi e facce
 degeneri di cui BodyParts3D e' pieno. Su ellissoidi chiusi l'errore di volume
 dopo la riduzione resta sotto l'1%.
 
+**Si fondono solo i vertici connessi, non tutti quelli della cella.** Dove due
+falde di superficie si sfiorano — le due tavole della volta cranica, le pareti
+di una cavita' — il raggruppamento cieco ne salda due che non si toccano
+affatto, e ne esce uno spigolo condiviso da quattro o sei facce invece che da
+due. Da li' il verso dei triangoli non si puo' piu' rendere coerente: le normali
+dei vertici si calcolano sommando quelle delle facce vicine, e fra due facce
+girate al contrario si annullano. Il risultato e' una macchia nera — il cranio
+sembrava bucato pur essendo chiuso e senza un solo spigolo di bordo, e nel
+modello a 629 strutture erano 369 quelle rovinate cosi'.
+
+Unendo solo i vertici che uno spigolo collega davvero, due falde che si sfiorano
+restano due. Sulla lastra di prova — due tavole a 0,02 di distanza, la forma di
+un osso piatto — le giunzioni non-manifold passano da 408 a 2, e quelle due
+stanno sul bordo dove le tavole sono unite per davvero.
+
 ### Come le mesh seguono il movimento
 
 L'archivio non dice in che unita' di misura siano le coordinate, ne' quale asse
@@ -238,6 +253,7 @@ per la flesso-estensione toracica; [ROM lombare L1-S1 in vivo](https://www.ncbi.
     node test-biomeccanica.mjs       # mobilita' segmentale, ritmi, catena
     node test-posa-filtro.mjs        # tremolio, ritardo, punti non visti
     node test-pesi.mjs               # deformazione: catena, pesi, normali
+    node test-decima.mjs             # riduzione senza sfondare la superficie
     node test-anatomia-pagina.mjs    # la pagina vera, con Playwright
     node test-prepara.mjs            # il preparatore, su archivi finti
 
